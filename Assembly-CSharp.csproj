@@ -46,10 +46,28 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\AjustarCameraAspect.cs" />
+     <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Demo\Assets\CFX2_Demo.cs" />
+     <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Demo\Assets\CFX_Demo_RandomDir.cs" />
+     <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Demo\Assets\CFX_Demo_RotateCamera.cs" />
+     <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Scripts\CFX2_AutoRotate.cs" />
+     <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Scripts\CFX_AutoDestructShuriken.cs" />
+     <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Scripts\CFX_AutodestructWhenNoChildren.cs" />
+     <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Scripts\CFX_LightIntensityFade.cs" />
+     <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Scripts\CFX_ShurikenThreadFix.cs" />
+     <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Spawn System\CFX_SpawnSystem.cs" />
+     <Compile Include="Assets\Packages\iTween.cs" />
      <Compile Include="Assets\Scripts\ControladorJogo.cs" />
+     <Compile Include="Assets\Scripts\Nuvem.cs" />
      <Compile Include="Assets\Tiles\ControladorTile.cs" />
+     <None Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Shaders (Mobile)\CFXM_MobileParticleAdd_Alpha8.shader" />
      <None Include="Assets\Treasures\!Lista.txt" />
+     <None Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\CartoonFX2 Releases Notes.txt" />
+     <None Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Shaders\CFX2 Particle Alpha Blend Add.shader" />
+     <None Include="Assets\Packages\Cartoon FX Asset\Cartoon FX Easy Editor\CartoonFX Easy Editor Readme.txt" />
+     <None Include="Assets\Packages\Cartoon FX Asset\!JMO Assets Readme.txt" />
+     <None Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Demo\Assets\CFX_Demo_WaterWiggle.shader" />
+     <None Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Shaders\CFX2 Particle Alpha Blend Tint.shader" />
+     <None Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\CartoonFX2 Readme.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
