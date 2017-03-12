@@ -56,9 +56,10 @@
      <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Scripts\CFX_ShurikenThreadFix.cs" />
      <Compile Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Spawn System\CFX_SpawnSystem.cs" />
      <Compile Include="Assets\Packages\iTween.cs" />
+     <Compile Include="Assets\Scripts\BotaoHud.cs" />
      <Compile Include="Assets\Scripts\ControladorJogo.cs" />
      <Compile Include="Assets\Scripts\Nuvem.cs" />
-     <Compile Include="Assets\Tiles\ControladorTile.cs" />
+     <Compile Include="Assets\Tiles\Tiles.cs" />
      <None Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\Shaders (Mobile)\CFXM_MobileParticleAdd_Alpha8.shader" />
      <None Include="Assets\Treasures\!Lista.txt" />
      <None Include="Assets\Packages\Cartoon FX Asset\Cartoon FX\CartoonFX2 Releases Notes.txt" />

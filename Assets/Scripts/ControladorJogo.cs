@@ -1,66 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-
-public class Tiles
-{
-	public int id;
-	public string nome;
-	public int hp;
-	public float chanceBase;
-	public float chanceMax;
-	public float nivelMinimo;
-	public float nivelMaximo;
-	public float modificadorNivel;
-	public int dinossauro;
-	public int diamante;
-
-	public float chance;
-	public bool instanciarDinossauro = false;
-	public bool instanciarDiamante = false;
-
-	public Tiles(
-		int aId,
-		string aNome,
-		int aHp,
-		float aChanceBase,
-		float aChanceMax,
-		int aNivelMinimo,
-		int aNivelMaximo,
-		float aModificadorNivel,
-		int aDinossauro = 0,
-		int aDiamante = 0
-	)
-	{
-		id = aId;
-		nome = aNome;
-		hp = aHp;
-		chanceBase = aChanceBase;
-		chanceMax = aChanceMax;
-		nivelMinimo = aNivelMinimo;
-		nivelMaximo = aNivelMaximo;
-		modificadorNivel = aModificadorNivel;
-		dinossauro = aDinossauro;
-		diamante = aDiamante;
-	}
-
-	public int PegarChance(int nivelAtual)
-	{
-		return nivelAtual < nivelMinimo ? 0 : (int)(chanceBase + (nivelAtual * modificadorNivel));
-	}
-}
 
 public class ControladorJogo : MonoBehaviour
 {
 	[Header("Cores do Fundo")]
 	public List<Color> coresFundoJogo;
+	private Color corAnteriorFundoJogo;
+	private Image fundoJogo;
+	private RectTransform fundoJogoRect;
 
 	[Header("Tiles")]
 	public List<Sprite> spriteTiles;
 	private List<Tiles> tiles = new List<Tiles>();
 	private int quantidadeTiles;
+	private float tamanhoTile;
 
 	[Header("Chances ao Destruir Tile")]
 	public float chanceTesouro;
@@ -79,10 +34,18 @@ public class ControladorJogo : MonoBehaviour
 	public int moedasDiamanteMin;
 	public int moedasDiamanteMax;
 
+	[Header("Tela")]
+	public float margemExtraTop;
+	public float margemBottom;
+	private RectTransform ceu;
+	private Animator telaAnimator;
+	private bool atualizarTamanho = true;
+
 	[Header("Mapa")]
 	public float duracaoMovimentoMapa;
 	public float delayEncerrarNivel;
 	private float duracaoMovimentoMapaInicial;
+	private RectTransform mapa;
 
 	[Header("Tipo de Animação do Mapa")]
 	public string animacaoMapa;
@@ -91,47 +54,54 @@ public class ControladorJogo : MonoBehaviour
 	public bool oneHitTiles;
 	public bool desativarAnimacaoMapa;
 
-	// Nível e Pontuação
-	private int nivel = 1;
-	private float moedas;
-
-	// Componentes do Canvas
-	private Text nivelText;
-	private Text moedasText;
-	private Image fundoJogo;
-	private Color corAnteriorFundoJogo;
-	private Animator limpoAnimator;
-	private Animator telaAnimator;
+	[Header("Áudios")]
+	public List<AudioClip> audios;
 
 	// Definições da Área de Jogo
 	private int[,] jogo;
 	private int larguraJogo = 5;
 	private int alturaJogo = 5;
-	private RectTransform mapa;
+
+	// Nível
+	private int nivel = 1;
+	private Text nivelText;
+	private AudioSource nivelAudio;
+	private Animator nivelLimpoAnimator;
+
+	// Pontuação
+	private float moedas;
+	private Text moedasText;
+	private AudioSource moedasAudio;
 
 	void Start()
 	{
-		duracaoMovimentoMapaInicial = duracaoMovimentoMapa;
-
+		// Pegar Componentes Instanciados na Cena
 		nivelText = GameObject.Find("Nível").GetComponent<Text>();
+		nivelAudio = nivelText.GetComponent<AudioSource>();
+
 		moedasText = GameObject.Find("Moedas").GetComponent<Text>();
+		moedasAudio = moedasText.GetComponent<AudioSource>();
+
 		fundoJogo = GameObject.Find("FundoJogo").GetComponent<Image>();
-		limpoAnimator = GameObject.Find("Limpo").GetComponent<Animator>();
+		fundoJogoRect = fundoJogo.GetComponent<RectTransform>();
+
+		ceu = GameObject.Find("Céu").GetComponent<RectTransform>();
+
+		nivelLimpoAnimator = GameObject.Find("NívelLimpo").GetComponent<Animator>();
 
 		telaAnimator = GameObject.Find("Tela").GetComponent<Animator>();
 
 		mapa = GameObject.Find("Jogo").GetComponent<RectTransform>();
 
+		// Variáveis com Valores Iniciais
+		duracaoMovimentoMapaInicial = duracaoMovimentoMapa;
 		corAnteriorFundoJogo = fundoJogo.color;
+		
+		// Pegar os tiles associados ao ControladorJogo
+		foreach (Transform child in transform)
+			tiles.Add(child.GetComponent<Tiles>());
 
-		tiles.Add(new Tiles(1, "Grama", 2, 0, 0, 0, 1, 0));
-		tiles.Add(new Tiles(2, "Terra", 2, 80, 0, 0, 50, -1.5f));
-		tiles.Add(new Tiles(3, "Areia", 1, 60, 0, 0, 50, -1.4f));
-		tiles.Add(new Tiles(4, "Pedra", 10, 5, 40, 3, 70, 2f, 1, 1));
-		tiles.Add(new Tiles(5, "Pedra2", 20, 5, 0, 20, 100, 1.2f, 2, 2));
-		tiles.Add(new Tiles(6, "PedraLava", 60, 5, 0, 40, 100, 0.25f, 3, 3));
-		tiles.Add(new Tiles(7, "Pedra3", 100, 5, 0, 40, 100, 0.25f, 4, 4));
-		tiles.Add(new Tiles(8, "Exclamação", 1, 1, 1, 1, 100, 0f));
+		tamanhoTile = Screen.width / 5;
 
 		ConstruirMapa();
 
@@ -149,7 +119,8 @@ public class ControladorJogo : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.Z))
 			EncerrarNivel();
 	}
-
+	
+	// Tela
 	void ConstruirMapa()
 	{
 		Invoke("TremerTela", duracaoMovimentoMapa);
@@ -162,15 +133,58 @@ public class ControladorJogo : MonoBehaviour
 
 		AnimarPosicionamentoMapa();
 
+		if (atualizarTamanho)
+		{
+			fundoJogoRect
+				.sizeDelta =
+					new Vector2(
+						Screen.width,
+						Screen.width
+					);
+
+			fundoJogoRect
+				.anchoredPosition =
+					new Vector2(
+						0,
+						Screen.width / 2 + margemBottom
+					);
+
+			ceu.sizeDelta = new Vector2(
+					Screen.width * 2,
+					Screen.height - Screen.width - margemBottom + margemExtraTop
+				);
+		}
+
 		for (int x = 0; x < larguraJogo; x++)
 		{
+			GameObject linha =
+				GameObject
+					.Find("Linha (" + (x + 1) + ")");
+
+			if (atualizarTamanho)
+			{
+				RectTransform linhaRectTransform =
+					linha
+						.GetComponent<RectTransform>();
+
+				linhaRectTransform
+					.anchoredPosition =
+						new Vector2(
+							0,
+							(larguraJogo - x - 1) * tamanhoTile + (tamanhoTile / 2) + margemBottom
+						);
+
+				linhaRectTransform
+					.sizeDelta =
+						new Vector2(
+							Screen.width,
+							tamanhoTile
+						);
+			}
+
 			for (int y = 0; y < alturaJogo; y++)
 			{
 				Tiles tile = nivel == 1 && x == 0 ? tiles[0] : PegarTileAleatorio();
-
-				GameObject linha =
-					GameObject
-						.Find("Linha (" + (x + 1) + ")");
 
 				GameObject tileGameObject =
 					linha
@@ -178,41 +192,69 @@ public class ControladorJogo : MonoBehaviour
 						.FindChild("Tile (" + (y + 1) + ")")
 						.gameObject;
 
-				ControladorTile controladorTile =
+				Tiles tileInstanciado =
 					tileGameObject
-						.GetComponent<ControladorTile>();
+						.GetComponent<Tiles>();
 
-				controladorTile.id = tile.id;
-				controladorTile.hp = tile.hp;
-				controladorTile.moedas = -1;
+				tileInstanciado.id = tile.id;
+				tileInstanciado.nome = tile.name;
+				tileInstanciado.hp = tile.hp;
+				tileInstanciado.hit = tile.hit;
+				tileInstanciado.destruir = tile.destruir;
+
+				tileInstanciado.moedas = -1;
+
 				Sprite sprite = spriteTiles[tile.id - 1];
 
 				if (tile.instanciarDinossauro)
 				{
-					controladorTile.hp += hpBaseDinossauro;
-					controladorTile.moedas = moedasDinossauro;
+					tileInstanciado.hp += hpBaseDinossauro;
+					tileInstanciado.moedas = moedasDinossauro;
 					sprite = spriteDinossauros[tile.dinossauro - 1];
 
 					tile.instanciarDinossauro = false;
 				}
 				else if (tile.instanciarDiamante)
 				{
-					controladorTile.hp += hpBaseDiamante;
-					controladorTile.moedas = Random.Range(moedasDiamanteMin, moedasDiamanteMax);
+					tileInstanciado.hp += hpBaseDiamante;
+					tileInstanciado.moedas = Random.Range(moedasDiamanteMin, moedasDiamanteMax);
 					sprite = spriteDiamantes[tile.diamante - 1];
 
 					tile.instanciarDiamante = false;
 				}
 
-				tileGameObject
-					.GetComponent<Image>()
-					.sprite = sprite;
+				Image tileImage =
+					tileGameObject
+						.GetComponent<Image>();
 
-				tileGameObject.SetActive(true);
+				tileImage.sprite = sprite;
+				tileImage.enabled = true;
 
 				jogo[x, y] = tile.id;
+
+				if (atualizarTamanho)
+				{
+					tileGameObject
+						.GetComponent<RectTransform>()
+						.anchoredPosition =
+							new Vector2(
+								tamanhoTile * y,
+								0
+							);
+
+					tileGameObject
+						.GetComponent<RectTransform>()
+						.sizeDelta =
+							new Vector2(
+								tamanhoTile - Screen.width,
+								tamanhoTile
+							);
+				}
 			}
 		}
+
+		if (atualizarTamanho)
+			atualizarTamanho = false;
 	}
 	
 	void TremerTela()
@@ -234,6 +276,29 @@ public class ControladorJogo : MonoBehaviour
 		}
 	}
 
+	void AnimarPosicionamentoMapa()
+	{
+		mapa.localPosition = new Vector3(0, -1000);
+
+		iTween.ValueTo(
+			mapa.gameObject,
+			iTween.Hash(
+				"from", mapa.anchoredPosition,
+				"to", new Vector2(0, 0),
+				"time", duracaoMovimentoMapa,
+				"onupdatetarget", this.gameObject,
+				"onupdate", "MoveGuiElement",
+				"easeType", animacaoMapa
+			)
+		);
+	}
+
+	void MoveGuiElement(Vector2 position)
+	{
+		mapa.anchoredPosition = position;
+	}
+
+	// Tiles
 	Tiles PegarTileAleatorio()
 	{
 		List<Tiles> tilesChances = new List<Tiles>();
@@ -288,6 +353,24 @@ public class ControladorJogo : MonoBehaviour
 		return tileSelecionado;
 	}
 
+	public void DestruirTile(int id, int moedas = -1)
+	{
+		Tiles tileDestruido = tiles[id - 1];
+
+		if (moedas == -1)
+			ProcessarAdicaoMoedas();
+		else if (moedas > 0)
+			AdicionarMoedas(moedas);
+
+		quantidadeTiles--;
+
+		if (quantidadeTiles == 0)
+		{
+			EncerrarNivel();
+		}
+	}
+
+	// Nível
 	void AvancarNivel()
 	{
 		nivel++;
@@ -300,42 +383,23 @@ public class ControladorJogo : MonoBehaviour
 		nivelText.text = "Level " + nivel;
 	}
 
-	void AnimarPosicionamentoMapa()
-	{
-		mapa.localPosition = new Vector3(0, -1000);
-
-		iTween.ValueTo(
-			mapa.gameObject,
-			iTween.Hash(
-				"from", mapa.anchoredPosition,
-				"to", new Vector2(0, 0),
-				"time", duracaoMovimentoMapa,
-				"onupdatetarget", this.gameObject,
-				"onupdate", "MoveGuiElement",
-				"easeType", animacaoMapa
-			)
-		);
-	}
-
-	void MoveGuiElement(Vector2 position)
-	{
-		mapa.anchoredPosition = position;
-	}
-
-	void ExibirTextoLimpo()
-	{
-		limpoAnimator.SetTrigger("Animar");
-	}
-
 	void EncerrarNivel()
 	{
-		ExibirTextoLimpo();
+		nivelAudio.Play();
+
+		ExibirTextoNivelLimpo();
 
 		Invoke("AvancarNivel", delayEncerrarNivel);
 
 		Invoke("ConstruirMapa", delayEncerrarNivel);
 	}
+	
+	void ExibirTextoNivelLimpo()
+	{
+		nivelLimpoAnimator.SetTrigger("Animar");
+	}
 
+	// Moedas
 	void ProcessarAdicaoMoedas()
 	{
 		float chance = Random.Range(0, 100);
@@ -354,6 +418,8 @@ public class ControladorJogo : MonoBehaviour
 	{
 		moedas += aMoedas;
 
+		moedasAudio.Play();
+
 		AtualizarMoedas();
 	}
 
@@ -362,25 +428,20 @@ public class ControladorJogo : MonoBehaviour
 		moedasText.text = moedas.ToString();
 	}
 
-	public void DestruirTile(int id, int moedas = -1)
-	{
-		Tiles tileDestruido = tiles[id - 1];
-
-		if (moedas == -1)
-			ProcessarAdicaoMoedas();
-		else if (moedas > 0)
-			AdicionarMoedas(moedas);
-
-		quantidadeTiles--;
-
-		if (quantidadeTiles == 0)
-		{
-			EncerrarNivel();
-		}
-	}
-
+	// Métodos Estáticos
 	static public ControladorJogo Pegar()
 	{
 		return GameObject.Find("ControladorJogo").GetComponent<ControladorJogo>();
+	}
+
+	static public AudioSource AdicionarAudioSource(GameObject objeto, AudioClip clip)
+	{
+		AudioSource audioSource = objeto.AddComponent<AudioSource>();
+
+		audioSource.playOnAwake = false;
+
+		audioSource.clip = clip;
+
+		return audioSource;
 	}
 }
