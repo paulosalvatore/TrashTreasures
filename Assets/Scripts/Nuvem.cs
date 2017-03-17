@@ -21,7 +21,7 @@ public class Nuvem : MonoBehaviour
 	
 	void Update ()
 	{
-		transform.Translate(Vector3.right * velocidade);
+		transform.Translate(Vector3.right * velocidade * Time.deltaTime);
 		
 		if (Mathf.Abs(rectTransform.anchoredPosition.x) > limiteX)
 			Reiniciar();

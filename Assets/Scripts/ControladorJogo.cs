@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
+public class Range
+{
+	public int min, max;
+}
+
 public class ControladorJogo : MonoBehaviour
 {
 	[Header("Cores do Fundo")]
@@ -25,14 +31,13 @@ public class ControladorJogo : MonoBehaviour
 	public List<Sprite> spriteDinossauros;
 	public float chanceBaseDinossauro;
 	public int hpBaseDinossauro;
-	public int moedasDinossauro;
+	public Range moedasDinossauro;
 
 	[Header("Diamante")]
 	public List<Sprite> spriteDiamantes;
 	public float chanceBaseDiamante;
 	public int hpBaseDiamante;
-	public int moedasDiamanteMin;
-	public int moedasDiamanteMax;
+	public Range moedasDiamante;
 
 	[Header("Tela")]
 	public float margemExtraTop;
@@ -201,6 +206,8 @@ public class ControladorJogo : MonoBehaviour
 				tileInstanciado.hp = tile.hp;
 				tileInstanciado.hit = tile.hit;
 				tileInstanciado.destruir = tile.destruir;
+				tileInstanciado.particulaHit = tile.particulaHit;
+				tileInstanciado.instanciarAtributos = true;
 
 				tileInstanciado.moedas = -1;
 
@@ -209,7 +216,7 @@ public class ControladorJogo : MonoBehaviour
 				if (tile.instanciarDinossauro)
 				{
 					tileInstanciado.hp += hpBaseDinossauro;
-					tileInstanciado.moedas = moedasDinossauro;
+					tileInstanciado.moedas = Random.Range(moedasDinossauro.min, moedasDinossauro.max);
 					sprite = spriteDinossauros[tile.dinossauro - 1];
 
 					tile.instanciarDinossauro = false;
@@ -217,7 +224,7 @@ public class ControladorJogo : MonoBehaviour
 				else if (tile.instanciarDiamante)
 				{
 					tileInstanciado.hp += hpBaseDiamante;
-					tileInstanciado.moedas = Random.Range(moedasDiamanteMin, moedasDiamanteMax);
+					tileInstanciado.moedas = Random.Range(moedasDiamante.min, moedasDiamante.max);
 					sprite = spriteDiamantes[tile.diamante - 1];
 
 					tile.instanciarDiamante = false;
@@ -376,6 +383,8 @@ public class ControladorJogo : MonoBehaviour
 		nivel++;
 
 		Invoke("AtualizarNivel", duracaoMovimentoMapa);
+
+		Invoke("TocarAudioNivel", duracaoMovimentoMapa);
 	}
 
 	void AtualizarNivel()
@@ -385,8 +394,6 @@ public class ControladorJogo : MonoBehaviour
 
 	void EncerrarNivel()
 	{
-		nivelAudio.Play();
-
 		ExibirTextoNivelLimpo();
 
 		Invoke("AvancarNivel", delayEncerrarNivel);
@@ -397,6 +404,11 @@ public class ControladorJogo : MonoBehaviour
 	void ExibirTextoNivelLimpo()
 	{
 		nivelLimpoAnimator.SetTrigger("Animar");
+	}
+
+	void TocarAudioNivel()
+	{
+		nivelAudio.Play();
 	}
 
 	// Moedas
