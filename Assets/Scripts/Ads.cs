@@ -59,6 +59,8 @@ public class Ads : MonoBehaviour,
 
 	void ProcessarAdConcluido()
 	{
-		jogo.AdicionarMoedas(transform, 1);
+		jogo.AdicionarTesouro();
+
+		jogo.AdicionarMoedas(transform, 10);
 	}
 }

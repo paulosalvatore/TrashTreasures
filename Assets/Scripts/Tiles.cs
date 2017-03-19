@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Tiles : MonoBehaviour
 {
@@ -60,10 +61,10 @@ public class Tiles : MonoBehaviour
 
 		escalonamentoInicial = transform.localScale;
 	}
-
-	public void OnMouseOver()
+	
+	void OnMouseOver()
 	{
-		if (Input.GetMouseButtonDown(0))
+		if (!jogo.bloqueadorClique && Input.GetMouseButtonDown(0))
 			HitTile();
 	}
 

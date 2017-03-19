@@ -20,6 +20,7 @@ public class Jogo : MonoBehaviour
 	private Color corAnteriorFundoJogo;
 	private SpriteRenderer fundoJogo;
 	private Animator telaAnimator;
+	internal bool bloqueadorClique;
 
 	[Header("Nível")]
 	public int nivelMaximo;
@@ -66,6 +67,17 @@ public class Jogo : MonoBehaviour
 	private List<Pas> pasDisponiveis = new List<Pas>();
 	private Animator paDisponivelAnimator;
 
+	[Header("Tesouros")]
+	public float delayExibicaoTesouros;
+	public float duracaoAnimacaoTesouros;
+	private Animator novoTesouroAnimator;
+	private Image novoTesouroImage;
+	private Text novoTesouroText;
+	private Text tesouroText;
+	private List<Tesouros> tesourosDisponiveis = new List<Tesouros>();
+	private List<Tesouros> tesourosAdquiridos = new List<Tesouros>();
+	internal float tempoTesouroAberto;
+
 	// Definições da Área de Jogo
 	private int[,] jogo;
 	private int larguraJogo = 5;
@@ -97,6 +109,9 @@ public class Jogo : MonoBehaviour
 		// Pás
 		PegarPasDisponiveis();
 		SelecionarPa();
+
+		// Tesouros
+		PegarTesourosDisponiveis();
 	}
 	
 	void Update()
@@ -135,6 +150,12 @@ public class Jogo : MonoBehaviour
 
 		// Pás
 		paDisponivelAnimator = GameObject.Find("PáDisponível").GetComponent<Animator>();
+
+		// Tesouros
+		novoTesouroAnimator = GameObject.Find("NovoTesouro").GetComponent<Animator>();
+		novoTesouroImage = novoTesouroAnimator.transform.FindChild("Imagem").GetComponent<Image>();
+		novoTesouroText = novoTesouroAnimator.transform.FindChild("Rodapé").GetChild(0).GetChild(0).GetComponent<Text>();
+		tesouroText = GameObject.Find("TextoTesouro").GetComponent<Text>();
 	}
 
 	void DefinirVariaveisIniciais()
@@ -228,10 +249,20 @@ public class Jogo : MonoBehaviour
 		corAnteriorFundoJogo = fundoJogo.color;
 	}
 
+	void AlterarBloqueadorClique(bool bloqueio)
+	{
+		bloqueadorClique = bloqueio;
+	}
+
+	void DesbloquearClique()
+	{
+		AlterarBloqueadorClique(false);
+	}
+
 	/*
 	 * Nível
 	 */
-	
+
 	void AvancarNivel()
 	{
 		nivel++;
@@ -442,18 +473,9 @@ public class Jogo : MonoBehaviour
 	}
 
 	/*
-	 * Tesouros
-	 */
-
-	void AdicionarTesouro()
-	{
-		Debug.Log("Adicionar Tesouro.");
-	}
-
-	/*
 	 * Pás
 	 */
-	
+
 	void PegarPasDisponiveis()
 	{
 		Transform pas = GameObject.Find("PásDisponíveis").transform;
@@ -496,6 +518,74 @@ public class Jogo : MonoBehaviour
 	void AtualizarPaAnimator(bool estado)
 	{
 		paDisponivelAnimator.SetBool("Piscar", estado);
+	}
+
+	/*
+	 * Tesouros
+	 */
+
+	void PegarTesourosDisponiveis()
+	{
+		Transform tesouros = GameObject.Find("TesourosDisponíveis").transform;
+
+		foreach (Transform child in tesouros)
+			tesourosDisponiveis.Add(child.GetComponent<Tesouros>());
+	}
+	
+	Tesouros PegarTesouro()
+	{
+		Tesouros tesouroSelecionado = null;
+
+		foreach (Tesouros tesouro in tesourosDisponiveis)
+		{
+			if (!tesourosAdquiridos.Contains(tesouro))
+			{
+				tesouroSelecionado = tesouro;
+				break;
+			}
+		}
+
+		return tesouroSelecionado;
+	}
+
+	public void AdicionarTesouro()
+	{
+		tempoTesouroAberto = Time.time + delayExibicaoTesouros + duracaoAnimacaoTesouros;
+
+		Tesouros tesouro = PegarTesouro();
+
+		if (tesouro != null)
+		{
+			tesourosAdquiridos.Add(tesouro);
+
+			AtualizarPorcentagemTesouros();
+
+			novoTesouroImage.sprite = tesouro.sprite;
+			novoTesouroText.text = tesouro.nome;
+
+			AlterarNovoTesouroAnimator(true);
+
+			AlterarBloqueadorClique(true);
+		}
+	}
+
+	public void OcultarTesouro()
+	{
+		Invoke("DesbloquearClique", duracaoAnimacaoTesouros);
+
+		AlterarNovoTesouroAnimator(false);
+	}
+
+	void AlterarNovoTesouroAnimator(bool exibicao)
+	{
+		novoTesouroAnimator.SetBool("Exibir", exibicao);
+	}
+
+	void AtualizarPorcentagemTesouros()
+	{
+		float porcentagem = tesourosAdquiridos.Count * 100 / tesourosDisponiveis.Count;
+
+		tesouroText.text = string.Format("{0}%", porcentagem);
 	}
 
 	/*
