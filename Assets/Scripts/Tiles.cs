@@ -1,12 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class Tiles : MonoBehaviour
 {
 	[Header("Informações Básicas")]
 	public int hp;
+	internal int hpAdicional;
 
 	[Header("Chances")]
 	public float chanceBase;
@@ -34,7 +33,9 @@ public class Tiles : MonoBehaviour
 	private AudioSource audioSourceDestruir;
 
 	[Header("Partículas")]
-	public GameObject particulaHit;
+	public GameObject particula;
+	public bool particulaHit;
+	public bool particulaDestroy;
 
 	[Header("Escalonamento no Hit")]
 	public float delayEscalonamento;
@@ -51,7 +52,7 @@ public class Tiles : MonoBehaviour
 	private Jogo jogo;
 	internal SpriteRenderer spriteRenderer;
 
-	void Awake ()
+	void Awake()
 	{
 		jogo = Jogo.Pegar();
 
@@ -66,25 +67,29 @@ public class Tiles : MonoBehaviour
 			HitTile();
 	}
 
-	public void HitTile(bool oneHit = false)
+	public void HitTile()
 	{
 		if (!spriteRenderer.enabled)
 			return;
 
-		hp = oneHit || jogo.oneHitTiles ? 0 : hp - 1;
+		if (hp > 0)
+			hp = Mathf.Max(0, hp - jogo.paSelecionada.ataque);
+		else
+			hpAdicional = hpAdicional - 1;
 
-		if (particulaHit)
-			Instantiate(particulaHit, transform.position, transform.rotation);
+		int hpTotal = hp + hpAdicional;
+
+		if (particula && ((particulaHit && hpTotal > 0) || (particulaDestroy && hpTotal == 0)))
+			Instantiate(particula, transform.position, transform.rotation);
 
 		if (jogo.exibirTileQuebrado && transform.childCount == 0)
 			ExibirTileQuebrado();
 
-		if (hp == 0)
+		if (jogo.oneHitTiles || hpTotal == 0)
 			DestruirTile();
 		else
 		{
-			if (audioSourceHit)
-				audioSourceHit.Play();
+			Jogo.ReproduzirAudio(hit);
 
 			StartCoroutine(EscalonarTile());
 		}
@@ -124,20 +129,9 @@ public class Tiles : MonoBehaviour
 	
 	void DestruirTile()
 	{
-		spriteRenderer.enabled = false;
+		Jogo.ReproduzirAudio(destruir);
 
-		if (transform.childCount == 1)
-			Destroy(transform.GetChild(0).gameObject);
-
-		float delayDestruirTile = 0;
-
-		if (audioSourceDestruir)
-		{
-			audioSourceDestruir.Play();
-			delayDestruirTile = destruir.length;
-		}
-
-		Destroy(gameObject, delayDestruirTile);
+		Destroy(gameObject);
 
 		jogo.ProcessarTileDestruido(transform, moedas);
 	}
@@ -176,17 +170,11 @@ public class Tiles : MonoBehaviour
 
 	public void Instanciar()
 	{
-		if (hit != null)
-			audioSourceHit = Jogo.AdicionarAudioSource(gameObject, hit);
-
-		if (destruir != null)
-			audioSourceDestruir = Jogo.AdicionarAudioSource(gameObject, destruir);
-
 		if (instanciarDinossauro || instanciarDiamante)
 		{
 			spriteRenderer.sprite = instanciarDinossauro ? dinossauro : diamante;
 
-			hp += instanciarDinossauro ? jogo.hpBaseDinossauro : jogo.hpBaseDiamante;
+			hpAdicional = instanciarDinossauro ? jogo.hpBaseDinossauro : jogo.hpBaseDiamante;
 
 			moedas =
 				PegarQuantidadeMoedas(

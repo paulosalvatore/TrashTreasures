@@ -20,7 +20,7 @@ public class Moedas : MonoBehaviour
 	private Jogo jogo;
 	private Vector3 destino;
 
-	void Start ()
+	void Start()
 	{
 		jogo = Jogo.Pegar();
 
@@ -32,7 +32,7 @@ public class Moedas : MonoBehaviour
 		Invoke("Movimentar", delay);
 	}
 	
-	void Movimentar ()
+	void Movimentar()
 	{
 		iTween.MoveTo(
 			gameObject,

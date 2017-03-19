@@ -10,10 +10,12 @@ public class Jogo : MonoBehaviour
 	public float duracaoMovimentoMapa;
 	public float delayEncerrarNivel;
 	public iTween.EaseType animacaoMapa;
-	private float duracaoMovimentoMapaInicial;
+	public bool desativarAnimacaoMapa;
 	private Transform mapa;
+	private Vector3 posicaoFinalMapa;
 
 	[Header("Tela")]
+	public Vector2 resolucaoTela;
 	public List<Color> coresFundoJogo;
 	private Color corAnteriorFundoJogo;
 	private SpriteRenderer fundoJogo;
@@ -24,12 +26,15 @@ public class Jogo : MonoBehaviour
 	internal int nivel = 1;
 	private Text nivelText;
 	private AudioSource nivelAudio;
-	private Animator nivelLimpoAnimator;
+	private Animator limpoAnimator;
+	private Text nivelLimpoText;
 
 	[Header("Tiles")]
 	public GameObject tileQuebrado;
 	private List<Tiles> tilesDisponiveis = new List<Tiles>();
 	private int quantidadeTiles;
+	public bool oneHitTiles;
+	public bool exibirTileQuebrado;
 
 	[Header("Chances ao Destruir Tile (0 - 100)")]
 	public float chanceTesouro;
@@ -48,23 +53,29 @@ public class Jogo : MonoBehaviour
 	[Header("Moedas")]
 	public Moedas moeda;
 	public float delayEntreMoedas;
+	public AudioClip moedasAudio;
 	private float moedas;
 	private Text moedasText;
 	internal Image moedasImage;
-	private AudioSource moedasAudio;
 
-	[Header("Variáveis para Testes")]
-	public bool oneHitTiles;
-	public bool desativarAnimacaoMapa;
-	public bool exibirTileQuebrado;
+	[Header("Pá")]
+	public int paInicialId;
+	private int paId;
+	internal Pas paSelecionada;
+	private Pas proximaPa;
+	private List<Pas> pasDisponiveis = new List<Pas>();
+	private Animator paDisponivelAnimator;
 
 	// Definições da Área de Jogo
 	private int[,] jogo;
 	private int larguraJogo = 5;
 	private int alturaJogo = 5;
 
-	void Start ()
+	void Start()
 	{
+		// Definir Resolução Base da Tela
+		DefinirResolucao();
+
 		// Inicialização de Componentes Externos
 		PegarComponentesExternos();
 
@@ -82,15 +93,14 @@ public class Jogo : MonoBehaviour
 
 		// Moedas
 		AtualizarMoedas();
+
+		// Pás
+		PegarPasDisponiveis();
+		SelecionarPa();
 	}
 	
 	void Update()
 	{
-		if (desativarAnimacaoMapa)
-			duracaoMovimentoMapa = 0;
-		else if (duracaoMovimentoMapa != duracaoMovimentoMapaInicial)
-			duracaoMovimentoMapa = duracaoMovimentoMapaInicial;
-
 		if (Input.GetKeyDown(KeyCode.Z))
 			EncerrarNivel();
 	}
@@ -98,6 +108,11 @@ public class Jogo : MonoBehaviour
 	/*
 	 * Métodos de Inicialização de Componentes e Variáveis
 	 */
+
+	void DefinirResolucao()
+	{
+		Screen.SetResolution((int)resolucaoTela.x, (int)resolucaoTela.y, true);
+	}
 
 	void PegarComponentesExternos()
 	{
@@ -111,21 +126,30 @@ public class Jogo : MonoBehaviour
 		// Nível
 		nivelText = GameObject.Find("Nível").GetComponent<Text>();
 		nivelAudio = nivelText.GetComponent<AudioSource>();
-		nivelLimpoAnimator = GameObject.Find("NívelLimpo").GetComponent<Animator>();
+		limpoAnimator = GameObject.Find("Limpo").GetComponent<Animator>();
+		nivelLimpoText = limpoAnimator.transform.FindChild("NívelLimpo").GetComponent<Text>();
 
 		// Moedas
 		moedasText = GameObject.Find("Moedas").GetComponent<Text>();
 		moedasImage = moedasText.transform.FindChild("Imagem").GetComponent<Image>();
-		moedasAudio = moedasText.GetComponent<AudioSource>();
+
+		// Pás
+		paDisponivelAnimator = GameObject.Find("PáDisponível").GetComponent<Animator>();
 	}
 
 	void DefinirVariaveisIniciais()
 	{
 		// Mapa
-		duracaoMovimentoMapaInicial = duracaoMovimentoMapa;
+		posicaoFinalMapa = mapa.position;
+
+		if (desativarAnimacaoMapa)
+			duracaoMovimentoMapa = 0;
 
 		// Tela
 		corAnteriorFundoJogo = fundoJogo.color;
+
+		// Pá
+		paId = paInicialId;
 	}
 
 	/*
@@ -173,6 +197,79 @@ public class Jogo : MonoBehaviour
 			for (int x = 0; x < larguraJogo; x++)
 				InstanciarTile(x, y);
 	}
+
+	void MovimentarMapa()
+	{
+		// Reiniciamos a posição do mapa
+		ReiniciarPosicaoMapa();
+
+		// Movimentamos o mapa utilizando a biblioteca iTween que anima o movimento
+		iTween.MoveTo(
+			mapa.gameObject,
+			iTween.Hash(
+				"position", posicaoFinalMapa,
+				"easeType", animacaoMapa,
+				"time", duracaoMovimentoMapa
+			)
+		);
+	}
+
+	void TremerTela()
+	{
+		// Aplica o Trigger "Animar" do Animator atrelado ao Background
+		telaAnimator.SetTrigger("Animar");
+	}
+	
+	void AlterarCorFundoJogo()
+	{
+		while (corAnteriorFundoJogo == fundoJogo.color)
+			fundoJogo.color = coresFundoJogo[Random.Range(0, coresFundoJogo.Count)];
+
+		corAnteriorFundoJogo = fundoJogo.color;
+	}
+
+	/*
+	 * Nível
+	 */
+	
+	void AvancarNivel()
+	{
+		nivel++;
+
+		Invoke("AtualizarNivel", duracaoMovimentoMapa);
+	}
+
+	void AtualizarNivel()
+	{
+		nivelText.text = string.Format("Level {0}", nivel);
+
+		ExibirPaDisponivel();
+	}
+
+	void EncerrarNivel()
+	{
+		ExibirTextoNivelLimpo();
+
+		Invoke("AvancarNivel", delayEncerrarNivel);
+
+		Invoke("IniciarMapa", delayEncerrarNivel);
+	}
+
+	void ExibirTextoNivelLimpo()
+	{
+		nivelLimpoText.text = nivelText.text;
+
+		limpoAnimator.SetTrigger("Animar");
+	}
+
+	void TocarAudioNivel()
+	{
+		nivelAudio.Play();
+	}
+
+	/*
+	 * Tiles
+	 */
 
 	void InstanciarTile(int x, int y)
 	{
@@ -232,78 +329,6 @@ public class Jogo : MonoBehaviour
 
 		tileInstanciado.Instanciar();
 	}
-
-	void MovimentarMapa()
-	{
-		// Pegamos a posicao final do mapa, antes de reiniciá-la
-		Vector3 posicaoFinalMapa = mapa.position;
-
-		// Reiniciamos a posição do mapa
-		ReiniciarPosicaoMapa();
-
-		// Movimentamos o mapa utilizando a biblioteca iTween que anima o movimento
-		iTween.MoveTo(
-			mapa.gameObject,
-			iTween.Hash(
-				"position", posicaoFinalMapa,
-				"easeType", animacaoMapa,
-				"time", duracaoMovimentoMapa
-			)
-		);
-	}
-
-	void TremerTela()
-	{
-		// Aplica o Trigger "Animar" do Animator atrelado ao Background
-		telaAnimator.SetTrigger("Animar");
-	}
-	
-	void AlterarCorFundoJogo()
-	{
-		while (corAnteriorFundoJogo == fundoJogo.color)
-			fundoJogo.color = coresFundoJogo[Random.Range(0, coresFundoJogo.Count)];
-
-		corAnteriorFundoJogo = fundoJogo.color;
-	}
-
-	/*
-	 * Nível
-	 */
-	
-	void AvancarNivel()
-	{
-		nivel++;
-
-		Invoke("AtualizarNivel", duracaoMovimentoMapa);
-	}
-
-	void AtualizarNivel()
-	{
-		nivelText.text = "Level " + nivel;
-	}
-
-	void EncerrarNivel()
-	{
-		ExibirTextoNivelLimpo();
-
-		Invoke("AvancarNivel", delayEncerrarNivel);
-
-		Invoke("IniciarMapa", delayEncerrarNivel);
-	}
-
-	void ExibirTextoNivelLimpo()
-	{
-		nivelLimpoAnimator.SetTrigger("Animar");
-	}
-
-	void TocarAudioNivel()
-	{
-		nivelAudio.Play();
-	}
-
-	/*
-	 * Tiles
-	 */
 
 	void PegarTilesDisponiveis()
 	{
@@ -392,7 +417,7 @@ public class Jogo : MonoBehaviour
 
 		for (int i = 0; i < adicionarMoedas; i++)
 		{
-			moedasAudio.Play();
+			Jogo.ReproduzirAudio(moedasAudio);
 
 			StartCoroutine(AtualizarMoedas(1));
 
@@ -424,7 +449,55 @@ public class Jogo : MonoBehaviour
 	{
 		Debug.Log("Adicionar Tesouro.");
 	}
+
+	/*
+	 * Pás
+	 */
 	
+	void PegarPasDisponiveis()
+	{
+		Transform pas = GameObject.Find("PásDisponíveis").transform;
+
+		foreach (Transform child in pas)
+			pasDisponiveis.Add(child.GetComponent<Pas>());
+	}
+
+	void SelecionarPa()
+	{
+		paSelecionada = pasDisponiveis[paId - 1];
+
+		if (paId < pasDisponiveis.Count)
+			proximaPa = pasDisponiveis[paId];
+
+		AtualizarPaAnimator(false);
+	}
+
+	public void EvoluirPa()
+	{
+		if (paId >= pasDisponiveis.Count || moedas < proximaPa.moedas || nivel < proximaPa.nivel)
+			return;
+
+		moedas -= proximaPa.moedas;
+
+		paId++;
+
+		SelecionarPa();
+	}
+
+	void ExibirPaDisponivel()
+	{
+		if (paId >= pasDisponiveis.Count)
+			return;
+		
+		if (nivel == proximaPa.nivel)
+			AtualizarPaAnimator(true);
+	}
+
+	void AtualizarPaAnimator(bool estado)
+	{
+		paDisponivelAnimator.SetBool("Piscar", estado);
+	}
+
 	/*
 	 * Métodos Estáticos
 	 */
@@ -434,14 +507,17 @@ public class Jogo : MonoBehaviour
 		return GameObject.Find("Jogo").GetComponent<Jogo>();
 	}
 	
-	static public AudioSource AdicionarAudioSource(GameObject objeto, AudioClip clip)
+	static public void ReproduzirAudio(AudioClip clip = null)
 	{
+		if (clip == null)
+			return;
+
+		GameObject objeto = new GameObject();
+
 		AudioSource audioSource = objeto.AddComponent<AudioSource>();
-
-		audioSource.playOnAwake = false;
-
 		audioSource.clip = clip;
+		audioSource.Play();
 
-		return audioSource;
+		Destroy(objeto, clip.length);
 	}
 }
