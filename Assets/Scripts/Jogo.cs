@@ -405,15 +405,15 @@ public class Jogo : MonoBehaviour
 		return adicionarMoedas;
 	}
 
-	public void AdicionarMoedas(Transform tileDestruido, int adicionarMoedas = 0)
+	public void AdicionarMoedas(Transform origem, int adicionarMoedas = 0)
 	{
-		StartCoroutine(AdicionarMoedas(tileDestruido, adicionarMoedas, true));
+		StartCoroutine(AdicionarMoedas(origem, adicionarMoedas, true));
 	}
 
-	IEnumerator AdicionarMoedas(Transform tileDestruido, int adicionarMoedas, bool coroutine)
+	IEnumerator AdicionarMoedas(Transform origem, int adicionarMoedas, bool coroutine)
 	{
-		Vector3 posicao = tileDestruido.position;
-		Quaternion rotacao = tileDestruido.rotation;
+		Vector3 posicao = origem.position;
+		Quaternion rotacao = origem.rotation;
 
 		for (int i = 0; i < adicionarMoedas; i++)
 		{
