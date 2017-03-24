@@ -32,13 +32,12 @@ public class Jogo : MonoBehaviour
 
 	[Header("Tiles")]
 	public GameObject tileQuebrado;
-	private List<Tiles> tilesDisponiveis = new List<Tiles>();
+	private List<Tiles> tilesDisponiveis;
 	private int quantidadeTiles;
 	public bool oneHitTiles;
 	public bool exibirTileQuebrado;
 
 	[Header("Chances ao Destruir Tile (0 - 100)")]
-	public float chanceTesouro;
 	public float chanceMoeda;
 
 	[Header("Dinossauro")]
@@ -74,6 +73,7 @@ public class Jogo : MonoBehaviour
 	private Image novoTesouroImage;
 	private Text novoTesouroText;
 	private Text tesouroText;
+	private Animator novoTesouroGrabAnimator;
 	private List<Tesouros> tesourosDisponiveis = new List<Tesouros>();
 	private List<Tesouros> tesourosAdquiridos = new List<Tesouros>();
 	internal float tempoTesouroAberto;
@@ -93,9 +93,6 @@ public class Jogo : MonoBehaviour
 
 		// Definição de Variáveis Iniciais
 		DefinirVariaveisIniciais();
-
-		// Lista de Tiles Disponíveis
-		PegarTilesDisponiveis();
 
 		// Mapa
 		IniciarMapa();
@@ -154,7 +151,8 @@ public class Jogo : MonoBehaviour
 		// Tesouros
 		novoTesouroAnimator = GameObject.Find("NovoTesouro").GetComponent<Animator>();
 		novoTesouroImage = novoTesouroAnimator.transform.FindChild("Imagem").GetComponent<Image>();
-		novoTesouroText = novoTesouroAnimator.transform.FindChild("Rodapé").GetChild(0).GetChild(0).GetComponent<Text>();
+		novoTesouroText = novoTesouroAnimator.transform.FindChild("Nome").GetComponent<Text>();
+		novoTesouroGrabAnimator = novoTesouroAnimator.transform.FindChild("Pegar").GetComponent<Animator>();
 		tesouroText = GameObject.Find("TextoTesouro").GetComponent<Text>();
 	}
 
@@ -214,6 +212,8 @@ public class Jogo : MonoBehaviour
 
 	void ConstruirMapa()
 	{
+		PegarTilesDisponiveis();
+
 		for (int y = 0; y < alturaJogo; y++)
 			for (int x = 0; x < larguraJogo; x++)
 				InstanciarTile(x, y);
@@ -363,6 +363,8 @@ public class Jogo : MonoBehaviour
 
 	void PegarTilesDisponiveis()
 	{
+		tilesDisponiveis = new List<Tiles>();
+		
 		Transform tiles = GameObject.Find("TilesDisponíveis").transform;
 
 		foreach (Transform tile in tiles)
@@ -397,10 +399,14 @@ public class Jogo : MonoBehaviour
 			if (numeroAleatorio < tile.chance)
 			{
 				tileSelecionado = tile;
+
+				if (tile.limiteUmPorNivel)
+					tilesDisponiveis.Remove(tile);
+
 				break;
 			}
 		}
-
+		
 		return tileSelecionado;
 	}
 
@@ -427,10 +433,7 @@ public class Jogo : MonoBehaviour
 		int adicionarMoedas = 0;
 
 		float chance = Random.Range(0, 100);
-
-		if (chance < chanceTesouro)
-			AdicionarTesouro();
-		else if (chance < chanceTesouro + chanceMoeda)
+		if (chance < chanceMoeda)
 			adicionarMoedas = 1;
 
 		return adicionarMoedas;
@@ -579,6 +582,7 @@ public class Jogo : MonoBehaviour
 	void AlterarNovoTesouroAnimator(bool exibicao)
 	{
 		novoTesouroAnimator.SetBool("Exibir", exibicao);
+		novoTesouroGrabAnimator.SetBool("Animar", exibicao);
 	}
 
 	void AtualizarPorcentagemTesouros()

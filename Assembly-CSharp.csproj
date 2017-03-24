@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Bau.cs" />
      <Compile Include="Assets\Packages\iTween.cs" />
      <Compile Include="Assets\Scripts\Ads.cs" />
      <Compile Include="Assets\Scripts\BotaoHud.cs" />

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Pas : MonoBehaviour
 {
+	public Sprite sprite;
 	public int ataque;
 	public int moedas;
 	public int nivel;

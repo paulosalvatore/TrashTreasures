@@ -12,6 +12,8 @@ public class Tiles : MonoBehaviour
 	public float chanceBase;
 	public float chanceMin;
 	public float chanceMax;
+	public bool limiteUmPorNivel;
+	public int aparecerObrigatoriamenteNivel;
 	internal float chance;
 
 	[Header("chanceBase + (level * modificadorNivel)")]
@@ -44,6 +46,10 @@ public class Tiles : MonoBehaviour
 	public iTween.EaseType animacaoEscalonamento;
 	private Vector3 escalonamentoInicial;
 
+	[Header("Tiles Especiais")]
+	public bool bauTesouro;
+	public bool ads;
+
 	//private Image crack;
 
 	// Moedas
@@ -64,8 +70,13 @@ public class Tiles : MonoBehaviour
 	
 	void OnMouseOver()
 	{
-		if (!jogo.bloqueadorClique && Input.GetMouseButtonDown(0))
+		if (Input.GetMouseButtonDown(0) && !jogo.bloqueadorClique)
+		{
 			HitTile();
+
+			if (bauTesouro)
+				jogo.AdicionarTesouro();
+		}
 	}
 
 	public void HitTile()
@@ -153,9 +164,9 @@ public class Tiles : MonoBehaviour
 					chanceMax
 				);
 		else if (chanceMin > 0 && chanceMax == 0)
-			return (int)Mathf.Min(chanceCalculada, chanceMin);
-		else if (chanceMax > 0)
 			return (int)Mathf.Max(chanceCalculada, chanceMin);
+		else if (chanceMax > 0)
+			return (int)Mathf.Min(chanceCalculada, chanceMin);
 		else
 			return chanceCalculada;
 	}
