@@ -223,7 +223,7 @@ public class Jogo : MonoBehaviour
 	{
 		// Reiniciamos a posição do mapa
 		ReiniciarPosicaoMapa();
-
+		
 		// Movimentamos o mapa utilizando a biblioteca iTween que anima o movimento
 		iTween.MoveTo(
 			mapa.gameObject,
@@ -377,8 +377,19 @@ public class Jogo : MonoBehaviour
 
 		int chanceIndex = 0;
 
+		Tiles tileSelecionado = null;
+
 		foreach (Tiles tile in tilesDisponiveis)
 		{
+			if (nivel == tile.aparecerObrigatoriamenteNivel)
+			{
+				tileSelecionado = tile;
+
+				tilesDisponiveis.Remove(tile);
+
+				break;
+			}
+
 			int chance = tile.PegarChance();
 			
 			if (chance > 0)
@@ -392,18 +403,21 @@ public class Jogo : MonoBehaviour
 
 		float numeroAleatorio = Random.Range(0, chanceIndex + 1);
 
-		Tiles tileSelecionado = tilesChances[0];
-
-		foreach (Tiles tile in tilesChances)
+		if (tileSelecionado == null)
 		{
-			if (numeroAleatorio < tile.chance)
+			tileSelecionado = tilesChances[0];
+
+			foreach (Tiles tile in tilesChances)
 			{
-				tileSelecionado = tile;
+				if (numeroAleatorio < tile.chance)
+				{
+					tileSelecionado = tile;
 
-				if (tile.limiteUmPorNivel)
-					tilesDisponiveis.Remove(tile);
+					if (tile.limiteUmPorNivel)
+						tilesDisponiveis.Remove(tile);
 
-				break;
+					break;
+				}
 			}
 		}
 		
@@ -520,7 +534,7 @@ public class Jogo : MonoBehaviour
 
 	void AtualizarPaAnimator(bool estado)
 	{
-		paDisponivelAnimator.SetBool("Piscar", estado);
+		paDisponivelAnimator.SetBool("Exibir", estado);
 	}
 
 	/*

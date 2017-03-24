@@ -46,8 +46,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Bau.cs" />
-     <Compile Include="Assets\Packages\iTween.cs" />
      <Compile Include="Assets\Scripts\Ads.cs" />
      <Compile Include="Assets\Scripts\BotaoHud.cs" />
      <Compile Include="Assets\Scripts\FpsDisplay.cs" />
@@ -61,6 +59,8 @@
      <Compile Include="Assets\Scripts\Range.cs" />
      <Compile Include="Assets\Scripts\Tesouros.cs" />
      <Compile Include="Assets\Scripts\Tiles.cs" />
+     <None Include="Assets\Plugins\AnBSoft Common\Standard Shaders\Sprite Vertex Colored, Fast.shader" />
+     <None Include="Assets\Plugins\AnBSoft Common\Standard Shaders\Sprite Vertex Colored.shader" />
  <Reference Include="UnityEngine.Advertisements">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
  </Reference>
@@ -91,6 +91,10 @@
  <Reference Include="UnityEditor.iOS.Extensions.Common">
  <HintPath>C:/Program Files/Unity/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Common.dll</HintPath>
  </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{7E1BCA47-DB20-8F68-6FE1-7D0F8302EF16}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

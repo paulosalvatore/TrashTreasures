@@ -1,0 +1,135 @@
+fileFormatVersion: 2
+guid: eccf0b853a82c4e488d0afe2e3e3cf4a
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: spriteVerde_0
+    21300002: spriteVerde_1
+    21300004: spriteVerde_2
+    21300006: spriteVerde_3
+    21300008: spriteVerde_4
+    21300010: spriteVerde_5
+    21300012: spriteVerde_6
+    21300014: spriteVerde_7
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  seamlessCubemap: 0
+  textureFormat: -3
+  maxTextureSize: 1024
+  textureSettings:
+    filterMode: -1
+    aniso: 1
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 1
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 0
+  textureType: 0
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: spriteVerde_0
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 30
+        width: 34
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spriteVerde_1
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 30
+        width: 33
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spriteVerde_2
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 30
+        width: 33
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spriteVerde_3
+      rect:
+        serializedVersion: 2
+        x: 206
+        y: 30
+        width: 33
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spriteVerde_4
+      rect:
+        serializedVersion: 2
+        x: 270
+        y: 30
+        width: 33
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spriteVerde_5
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 30
+        width: 34
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spriteVerde_6
+      rect:
+        serializedVersion: 2
+        x: 398
+        y: 30
+        width: 34
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spriteVerde_7
+      rect:
+        serializedVersion: 2
+        x: 462
+        y: 30
+        width: 34
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 
