@@ -15,7 +15,7 @@ public class FpsDisplay : MonoBehaviour
 
 		GUIStyle style = new GUIStyle();
 
-		Rect rect = new Rect(0, 0, w, h);
+		Rect rect = new Rect(0, -15, w, h);
 		style.alignment = TextAnchor.LowerCenter;
 		style.fontSize = h * 3 / 100;
 		style.normal.textColor = Color.green;

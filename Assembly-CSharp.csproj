@@ -52,10 +52,13 @@
      <Compile Include="Assets\Scripts\Jogo.cs" />
      <Compile Include="Assets\Scripts\LifetimeParticulas.cs" />
      <Compile Include="Assets\Scripts\Moedas.cs" />
+     <Compile Include="Assets\Scripts\NovaPaAssistir.cs" />
+     <Compile Include="Assets\Scripts\NovaPaComprar.cs" />
      <Compile Include="Assets\Scripts\NovoTesouro.cs" />
      <Compile Include="Assets\Scripts\Nuvens.cs" />
      <Compile Include="Assets\Scripts\PaDisponivel.cs" />
      <Compile Include="Assets\Scripts\Pas.cs" />
+     <Compile Include="Assets\Scripts\ProjecaoNiveis.cs" />
      <Compile Include="Assets\Scripts\Range.cs" />
      <Compile Include="Assets\Scripts\Tesouros.cs" />
      <Compile Include="Assets\Scripts\Tiles.cs" />

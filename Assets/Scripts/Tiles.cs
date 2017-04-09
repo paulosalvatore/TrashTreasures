@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic; // remover dps
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -25,7 +26,9 @@ public class Tiles : MonoBehaviour
 
 	[Header("Dinossauro/Diamante")]
 	public Sprite dinossauro;
+	public GameObject particulaDinossauro;
 	public Sprite diamante;
+	public GameObject particulaDiamante;
 	internal bool instanciarDinossauro;
 	internal bool instanciarDiamante;
 
@@ -50,9 +53,8 @@ public class Tiles : MonoBehaviour
 	public bool bauTesouro;
 	public bool ads;
 
-	//private Image crack;
-
-	// Moedas
+	[Header("Moedas")]
+	public bool fornecerMoedas;
 	internal int moedas = -1;
 	internal Range moedasRange = new Range(0, 0);
 
@@ -66,17 +68,6 @@ public class Tiles : MonoBehaviour
 		spriteRenderer = GetComponent<SpriteRenderer>();
 
 		escalonamentoInicial = transform.localScale;
-	}
-	
-	void OnMouseOver()
-	{
-		if (Input.GetMouseButtonDown(0) && !jogo.bloqueadorClique)
-		{
-			HitTile();
-
-			if (bauTesouro)
-				jogo.AdicionarTesouro();
-		}
 	}
 
 	public void HitTile()
@@ -92,7 +83,16 @@ public class Tiles : MonoBehaviour
 		int hpTotal = hp + hpAdicional;
 
 		if (particula && ((particulaHit && hpTotal > 0) || (particulaDestroy && hpTotal == 0)))
-			Instantiate(particula, transform.position, transform.rotation);
+		{
+			GameObject instanciarParticula = particula;
+
+			if (spriteRenderer.sprite == dinossauro)
+				instanciarParticula = particulaDinossauro;
+			else if (spriteRenderer.sprite == diamante)
+				instanciarParticula = particulaDiamante;
+
+			Instantiate(instanciarParticula, transform.position, transform.rotation);
+		}
 
 		if (jogo.exibirTileQuebrado && transform.childCount == 0)
 			ExibirTileQuebrado();
@@ -105,6 +105,11 @@ public class Tiles : MonoBehaviour
 
 			StartCoroutine(EscalonarTile());
 		}
+		
+		if (bauTesouro)
+			jogo.AdicionarTesouro();
+		else if (ads)
+			jogo.ExibirAd("tesouro");
 	}
 
 	IEnumerator EscalonarTile()
@@ -143,18 +148,18 @@ public class Tiles : MonoBehaviour
 	{
 		Jogo.ReproduzirAudio(destruir);
 
-		Destroy(gameObject);
+		jogo.ProcessarTileDestruido(transform, fornecerMoedas ? moedas : 0);
 
-		jogo.ProcessarTileDestruido(transform, moedas);
+		Destroy(gameObject);
 	}
 
-	public int PegarChance()
+	public int PegarChance(int nivelMapa)
 	{
-		int chanceCalculada = (int)(chanceBase + (jogo.nivel * modificadorNivel));
+		int chanceCalculada = (int)(chanceBase + (nivelMapa * modificadorNivel));
 
-		if (nivelMinimo > 0 && jogo.nivel < nivelMinimo)
+		if (nivelMinimo > 0 && nivelMapa < nivelMinimo)
 			return 0;
-		else if (nivelMaximo > 0 && jogo.nivel > nivelMaximo)
+		else if (nivelMaximo > 0 && nivelMapa > nivelMaximo)
 			return 0;
 		else if (chanceMin < chanceMax && chanceMax > 0)
 			return

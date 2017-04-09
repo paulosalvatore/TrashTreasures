@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Advertisements;
-using UnityEngine.EventSystems;
 
-public class Ads : MonoBehaviour,
-	IPointerClickHandler
+public class Ads : MonoBehaviour
 {
 	private Jogo jogo;
 
@@ -14,30 +12,15 @@ public class Ads : MonoBehaviour,
 		jogo = Jogo.Pegar();
 	}
 
-	public void OnPointerClick(PointerEventData eventData)
-	{
-		ShowRewardedAd();
-	}
-
-	/*
-	public void ShowAd()
-	{
-		if (Advertisement.IsReady())
-		{
-			Advertisement.Show();
-		}
-	}
-	*/
-
-	void ShowRewardedAd()
+	public void ExibirAd()
 	{
 		if (Advertisement.IsReady("rewardedVideo"))
 		{
-			var options = new ShowOptions {
+			var opcoes = new ShowOptions {
 				resultCallback = HandleShowResult
 			};
 
-			Advertisement.Show("rewardedVideo", options);
+			Advertisement.Show("rewardedVideo", opcoes);
 		}
 	}
 
@@ -46,21 +29,29 @@ public class Ads : MonoBehaviour,
 		switch (result)
 		{
 			case ShowResult.Finished:
-				Invoke("ProcessarAdConcluido", 1f);
+				Invoke("ProcessarAdConcluido", 0.1f);
 				break;
 			case ShowResult.Skipped:
-				Debug.Log("The ad was skipped before reaching the end.");
+				Debug.Log("A propaganda encerrou antes de chegar ao final.");
 				break;
 			case ShowResult.Failed:
-				Debug.LogError("The ad failed to be shown.");
+				Debug.LogError("A propaganda falhou ao tentar ser exibida.");
 				break;
 		}
 	}
 
 	void ProcessarAdConcluido()
 	{
-		jogo.AdicionarTesouro();
+		switch (jogo.recompensa)
+		{
+			case "tesouro":
+				jogo.AdicionarTesouro();
+				break;
+			case "pa":
+				jogo.EvoluirPa(true);
+				break;
+		}
 
-		jogo.AdicionarMoedas(transform, 10);
+		jogo.recompensa = "";
 	}
 }

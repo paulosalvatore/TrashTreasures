@@ -15,6 +15,6 @@ public class PaDisponivel : MonoBehaviour,
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		jogo.EvoluirPa();
+		jogo.ExibirNovaPaDisponivel();
 	}
 }

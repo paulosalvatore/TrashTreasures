@@ -60,11 +60,18 @@ public class Jogo : MonoBehaviour
 
 	[Header("Pá")]
 	public int paInicialId;
+	public float duracaoAnimacaoPas;
 	private int paId;
 	internal Pas paSelecionada;
 	private Pas proximaPa;
 	private List<Pas> pasDisponiveis = new List<Pas>();
 	private Animator paDisponivelAnimator;
+	private Animator novaPaAnimator;
+	private Image novaPaImage;
+	private Text novaPaText;
+	private Animator novaPaAssistirAnimator;
+	private Animator novaPaComprarAnimator;
+	private Text novaPaComprarText;
 
 	[Header("Tesouros")]
 	public float delayExibicaoTesouros;
@@ -83,13 +90,20 @@ public class Jogo : MonoBehaviour
 	private int larguraJogo = 5;
 	private int alturaJogo = 5;
 
+	// Ads
+	internal string recompensa;
+	private Ads ads;
+
+	// Audio Source
+	private AudioSource audioSource;
+
 	void Start()
 	{
 		// Definir Resolução Base da Tela
 		DefinirResolucao();
 
 		// Inicialização de Componentes Externos
-		PegarComponentesExternos();
+		PegarComponentes();
 
 		// Definição de Variáveis Iniciais
 		DefinirVariaveisIniciais();
@@ -115,6 +129,8 @@ public class Jogo : MonoBehaviour
 	{
 		if (Input.GetKeyDown(KeyCode.Z))
 			EncerrarNivel();
+
+		PegarTilesHit();
 	}
 
 	/*
@@ -126,7 +142,7 @@ public class Jogo : MonoBehaviour
 		Screen.SetResolution((int)resolucaoTela.x, (int)resolucaoTela.y, true);
 	}
 
-	void PegarComponentesExternos()
+	void PegarComponentes()
 	{
 		// Mapa
 		mapa = GameObject.Find("Mapa").transform;
@@ -147,6 +163,12 @@ public class Jogo : MonoBehaviour
 
 		// Pás
 		paDisponivelAnimator = GameObject.Find("PáDisponível").GetComponent<Animator>();
+		novaPaAnimator = GameObject.Find("NovaPá").GetComponent<Animator>();
+		novaPaImage = novaPaAnimator.transform.FindChild("Imagem").GetComponent<Image>();
+		novaPaText = novaPaAnimator.transform.FindChild("Nome").GetComponent<Text>();
+		novaPaAssistirAnimator = novaPaAnimator.transform.FindChild("Assistir").GetComponent<Animator>();
+		novaPaComprarAnimator = novaPaAnimator.transform.FindChild("Comprar").GetComponent<Animator>();
+		novaPaComprarText = novaPaComprarAnimator.transform.FindChild("Texto").GetComponent<Text>();
 
 		// Tesouros
 		novoTesouroAnimator = GameObject.Find("NovoTesouro").GetComponent<Animator>();
@@ -154,6 +176,12 @@ public class Jogo : MonoBehaviour
 		novoTesouroText = novoTesouroAnimator.transform.FindChild("Nome").GetComponent<Text>();
 		novoTesouroGrabAnimator = novoTesouroAnimator.transform.FindChild("Pegar").GetComponent<Animator>();
 		tesouroText = GameObject.Find("TextoTesouro").GetComponent<Text>();
+
+		// Ads
+		ads = GetComponent<Ads>();
+
+		// AudioSource
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	void DefinirVariaveisIniciais()
@@ -210,13 +238,13 @@ public class Jogo : MonoBehaviour
 		mapa.position = posicaoMapa;
 	}
 
-	void ConstruirMapa()
+	public void ConstruirMapa(Transform mapaDestino = null, int nivelMapa = 0)
 	{
 		PegarTilesDisponiveis();
 
 		for (int y = 0; y < alturaJogo; y++)
 			for (int x = 0; x < larguraJogo; x++)
-				InstanciarTile(x, y);
+				InstanciarTile(x, y, mapaDestino, nivelMapa);
 	}
 
 	void MovimentarMapa()
@@ -254,6 +282,11 @@ public class Jogo : MonoBehaviour
 		bloqueadorClique = bloqueio;
 	}
 
+	void BloquearClique()
+	{
+		AlterarBloqueadorClique(true);
+	}
+
 	void DesbloquearClique()
 	{
 		AlterarBloqueadorClique(false);
@@ -275,6 +308,13 @@ public class Jogo : MonoBehaviour
 		nivelText.text = string.Format("Level {0}", nivel);
 
 		ExibirPaDisponivel();
+		
+		Invoke("VibrarNivel", (nivel == 1 ? duracaoMovimentoMapa : 0) + 0.2f);
+	}
+
+	void VibrarNivel()
+	{
+		Handheld.Vibrate();
 	}
 
 	void EncerrarNivel()
@@ -302,19 +342,20 @@ public class Jogo : MonoBehaviour
 	 * Tiles
 	 */
 
-	void InstanciarTile(int x, int y)
+	void InstanciarTile(int x, int y, Transform mapaDestino, int nivelMapa)
 	{
+		nivelMapa = nivelMapa == 0 ? nivel : nivelMapa;
 		/*
 		 * Pegar o Tile que será instanciado
 		 * Se estivermos no nível 1 e o y for 0, instanciamos a Grama
 		 * Caso contrário, pegamos um tile aleatório.
 		 */
 		Tiles tile =
-			nivel == 1 && y == 0
+			nivelMapa == 1 && y == 0
 				?
 			tilesDisponiveis[0]
 				:
-			PegarTileAleatorio();
+			PegarTileAleatorio(x, y, nivelMapa);
 
 		// Instanciamos o tile na cena baseado na posição calculada e na rotação base do prefab
 		Tiles tileInstanciado = Instantiate(tile);
@@ -323,7 +364,7 @@ public class Jogo : MonoBehaviour
 		tileInstanciado.name = string.Format("{0},{1}", x, y);
 
 		// Colocamos o tile instanciado dentro do GameObject destinado ao mapa, para melhor organização
-		tileInstanciado.transform.parent = mapa;
+		tileInstanciado.transform.parent = mapaDestino ? mapaDestino : mapa;
 
 		// Definimos a posição do tile baseado no X e no Y do for
 		Vector2 posicaoTile = new Vector2(
@@ -371,7 +412,7 @@ public class Jogo : MonoBehaviour
 			tilesDisponiveis.Add(tile.GetComponent<Tiles>());
 	}
 
-	Tiles PegarTileAleatorio()
+	Tiles PegarTileAleatorio(int x, int y, int nivelMapa)
 	{
 		List<Tiles> tilesChances = new List<Tiles>();
 
@@ -379,9 +420,17 @@ public class Jogo : MonoBehaviour
 
 		Tiles tileSelecionado = null;
 
+		Vector2 tileObrigatorioPosicao =
+			new Vector2(
+				Random.Range(0, larguraJogo),
+				Random.Range(0, alturaJogo)
+			);
+
 		foreach (Tiles tile in tilesDisponiveis)
 		{
-			if (nivel == tile.aparecerObrigatoriamenteNivel)
+			if (nivelMapa == tile.aparecerObrigatoriamenteNivel &&
+				tileObrigatorioPosicao.x == x &&
+				tileObrigatorioPosicao.y == y)
 			{
 				tileSelecionado = tile;
 
@@ -390,7 +439,7 @@ public class Jogo : MonoBehaviour
 				break;
 			}
 
-			int chance = tile.PegarChance();
+			int chance = tile.PegarChance(nivelMapa);
 			
 			if (chance > 0)
 			{
@@ -436,6 +485,29 @@ public class Jogo : MonoBehaviour
 
 		if (quantidadeTiles == 0)
 			EncerrarNivel();
+	}
+
+	void PegarTilesHit()
+	{
+		if (bloqueadorClique)
+			return;
+
+		for (int i = 0; i < Input.touchCount; ++i)
+		{
+			Touch touch = Input.GetTouch(i);
+			if (touch.phase == TouchPhase.Began)
+			{
+				Vector3 posicao = Camera.main.ScreenToWorldPoint(touch.position);
+				RaycastHit2D hit = Physics2D.Raycast(posicao, Vector2.zero);
+				if (hit != null && hit.collider != null)
+				{
+					Tiles tileHit = hit.collider.GetComponent<Tiles>();
+
+					if (tileHit)
+						tileHit.HitTile();
+				}
+			}
+		}
 	}
 	
 	/*
@@ -511,12 +583,27 @@ public class Jogo : MonoBehaviour
 		AtualizarPaAnimator(false);
 	}
 
-	public void EvoluirPa()
+	public void EvoluirPa(bool gratuito = false)
 	{
-		if (paId >= pasDisponiveis.Count || moedas < proximaPa.moedas || nivel < proximaPa.nivel)
-			return;
+		int custo = gratuito ? 0 : proximaPa.moedas;
 
-		moedas -= proximaPa.moedas;
+		if (paId >= pasDisponiveis.Count || nivel < proximaPa.nivel || moedas < custo)
+		{
+			audioSource.Play();
+
+			return;
+		}
+		
+		if (custo > 0)
+		{
+			moedas -= custo;
+
+			AtualizarMoedas();
+		}
+
+		Invoke("DesbloquearClique", duracaoAnimacaoPas);
+
+		AtualizarNovaPaAnimator(false);
 
 		paId++;
 
@@ -528,13 +615,43 @@ public class Jogo : MonoBehaviour
 		if (paId >= pasDisponiveis.Count)
 			return;
 		
-		if (nivel == proximaPa.nivel)
+		if (nivel >= proximaPa.nivel)
 			AtualizarPaAnimator(true);
 	}
 
 	void AtualizarPaAnimator(bool estado)
 	{
 		paDisponivelAnimator.SetBool("Exibir", estado);
+	}
+
+	public void ExibirNovaPaDisponivel()
+	{
+		novaPaImage.sprite = proximaPa.sprite;
+		novaPaText.text = string.Format("{0} Shovel", proximaPa.nome);
+		novaPaComprarText.text = proximaPa.moedas.ToString();
+
+		AtualizarNovaPaAnimator(true);
+
+		BloquearClique();
+	}
+
+	void AtualizarNovaPaAnimator(bool estado)
+	{
+		novaPaAnimator.SetBool("Exibir", estado);
+		novaPaAssistirAnimator.SetBool("Animar", estado);
+		novaPaComprarAnimator.SetBool("Animar", estado);
+	}
+
+	public void PaAssistir()
+	{
+		recompensa = "pa";
+
+		ads.ExibirAd();
+	}
+
+	public void PaComprar()
+	{
+		EvoluirPa();
 	}
 
 	/*
@@ -582,7 +699,7 @@ public class Jogo : MonoBehaviour
 
 			AlterarNovoTesouroAnimator(true);
 
-			AlterarBloqueadorClique(true);
+			BloquearClique();
 		}
 	}
 
@@ -593,10 +710,10 @@ public class Jogo : MonoBehaviour
 		AlterarNovoTesouroAnimator(false);
 	}
 
-	void AlterarNovoTesouroAnimator(bool exibicao)
+	void AlterarNovoTesouroAnimator(bool estado)
 	{
-		novoTesouroAnimator.SetBool("Exibir", exibicao);
-		novoTesouroGrabAnimator.SetBool("Animar", exibicao);
+		novoTesouroAnimator.SetBool("Exibir", estado);
+		novoTesouroGrabAnimator.SetBool("Animar", estado);
 	}
 
 	void AtualizarPorcentagemTesouros()
@@ -606,6 +723,17 @@ public class Jogo : MonoBehaviour
 		tesouroText.text = string.Format("{0}%", porcentagem);
 	}
 
+	/*
+	 * Ads
+	 */
+	
+	public void ExibirAd(string novaRecompensa = "")
+	{
+		recompensa = novaRecompensa;
+
+		ads.ExibirAd();
+	}
+	
 	/*
 	 * Métodos Estáticos
 	 */
