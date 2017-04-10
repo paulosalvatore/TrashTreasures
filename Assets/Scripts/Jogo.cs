@@ -36,6 +36,7 @@ public class Jogo : MonoBehaviour
 	private int quantidadeTiles;
 	public bool oneHitTiles;
 	public bool exibirTileQuebrado;
+	private Vector2 tileObrigatorioPosicao;
 
 	[Header("Chances ao Destruir Tile (0 - 100)")]
 	public float chanceMoeda;
@@ -241,6 +242,12 @@ public class Jogo : MonoBehaviour
 	public void ConstruirMapa(Transform mapaDestino = null, int nivelMapa = 0)
 	{
 		PegarTilesDisponiveis();
+		
+		tileObrigatorioPosicao =
+			new Vector2(
+				Random.Range(0, larguraJogo),
+				Random.Range(0, alturaJogo)
+			);
 
 		for (int y = 0; y < alturaJogo; y++)
 			for (int x = 0; x < larguraJogo; x++)
@@ -419,12 +426,6 @@ public class Jogo : MonoBehaviour
 		int chanceIndex = 0;
 
 		Tiles tileSelecionado = null;
-
-		Vector2 tileObrigatorioPosicao =
-			new Vector2(
-				Random.Range(0, larguraJogo),
-				Random.Range(0, alturaJogo)
-			);
 
 		foreach (Tiles tile in tilesDisponiveis)
 		{
