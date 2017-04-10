@@ -70,19 +70,35 @@ public class Tiles : MonoBehaviour
 		escalonamentoInicial = transform.localScale;
 	}
 
+	void OnMouseOver()
+	{
+		if (Application.platform == RuntimePlatform.WindowsEditor &&
+			Input.GetMouseButtonDown(0) &&
+			!jogo.bloqueadorClique)
+		{
+			HitTile();
+		}
+	}
+
 	public void HitTile()
 	{
 		if (!spriteRenderer.enabled)
 			return;
 
+		if (bauTesouro && hp > 0)
+		{
+			hpAdicional = hp;
+			hp = 0;
+		}
+
 		if (hp > 0)
-			hp = Mathf.Max(0, hp - jogo.paSelecionada.ataque);
+			hp -= jogo.paSelecionada.ataque;
 		else
-			hpAdicional = hpAdicional - 1;
+			hpAdicional--;
 
 		int hpTotal = hp + hpAdicional;
 
-		if (particula && ((particulaHit && hpTotal > 0) || (particulaDestroy && hpTotal == 0)))
+		if (particula && ((particulaHit && hpTotal > 0) || (particulaDestroy && hpTotal <= 0)))
 		{
 			GameObject instanciarParticula = particula;
 
@@ -97,7 +113,7 @@ public class Tiles : MonoBehaviour
 		if (jogo.exibirTileQuebrado && transform.childCount == 0)
 			ExibirTileQuebrado();
 
-		if (jogo.oneHitTiles || hpTotal == 0)
+		if (jogo.oneHitTiles || hpTotal <= 0)
 			DestruirTile();
 		else
 		{
@@ -105,11 +121,6 @@ public class Tiles : MonoBehaviour
 
 			StartCoroutine(EscalonarTile());
 		}
-		
-		if (bauTesouro)
-			jogo.AdicionarTesouro();
-		else if (ads)
-			jogo.ExibirAd("tesouro");
 	}
 
 	IEnumerator EscalonarTile()
@@ -151,6 +162,11 @@ public class Tiles : MonoBehaviour
 		jogo.ProcessarTileDestruido(transform, fornecerMoedas ? moedas : 0);
 
 		Destroy(gameObject);
+
+		if (bauTesouro)
+			jogo.AdicionarTesouro();
+		else if (ads)
+			jogo.ExibirAd("tesouro");
 	}
 
 	public int PegarChance(int nivelMapa)

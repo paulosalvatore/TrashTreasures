@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Jogo : MonoBehaviour
@@ -55,7 +56,7 @@ public class Jogo : MonoBehaviour
 	public Moedas moeda;
 	public float delayEntreMoedas;
 	public AudioClip moedasAudio;
-	private float moedas;
+	private int moedas;
 	private Text moedasText;
 	internal Image moedasImage;
 
@@ -98,6 +99,12 @@ public class Jogo : MonoBehaviour
 	// Audio Source
 	private AudioSource audioSource;
 
+	// Player Prefs
+	private int nivelPref;
+	private int moedasPref;
+	private int paPref;
+	private List<int> tesourosPref = new List<int>();
+
 	void Start()
 	{
 		// Definir Resolução Base da Tela
@@ -109,34 +116,33 @@ public class Jogo : MonoBehaviour
 		// Definição de Variáveis Iniciais
 		DefinirVariaveisIniciais();
 
+		// Player Prefs
+		PegarPlayerPrefs();
+
 		// Mapa
 		IniciarMapa();
+
+		// Pás
+		SelecionarPa();
 
 		// Nível
 		AtualizarNivel();
 
 		// Moedas
 		AtualizarMoedas();
-
-		// Pás
-		PegarPasDisponiveis();
-		SelecionarPa();
-
-		// Tesouros
-		PegarTesourosDisponiveis();
 	}
-	
+
 	void Update()
 	{
 		if (Input.GetKeyDown(KeyCode.Z))
 			EncerrarNivel();
+		else if (Input.GetKeyDown(KeyCode.W))
+			ResetarPlayerPrefs();
 
 		PegarTilesHit();
 	}
 
-	/*
-	 * Métodos de Inicialização de Componentes e Variáveis
-	 */
+	// Métodos de Inicialização de Componentes e Variáveis
 
 	void DefinirResolucao()
 	{
@@ -198,12 +204,16 @@ public class Jogo : MonoBehaviour
 
 		// Pá
 		paId = paInicialId;
+
+		// Pás
+		PegarPasDisponiveis();
+
+		// Tesouros
+		PegarTesourosDisponiveis();
 	}
 
-	/*
-	 * Mapa/Tela
-	 */
-	
+	// Mapa/Tela
+
 	void IniciarMapa()
 	{
 		// Definimos a quantidade de tiles
@@ -275,7 +285,7 @@ public class Jogo : MonoBehaviour
 		// Aplica o Trigger "Animar" do Animator atrelado ao Background
 		telaAnimator.SetTrigger("Animar");
 	}
-	
+
 	void AlterarCorFundoJogo()
 	{
 		while (corAnteriorFundoJogo == fundoJogo.color)
@@ -299,13 +309,13 @@ public class Jogo : MonoBehaviour
 		AlterarBloqueadorClique(false);
 	}
 
-	/*
-	 * Nível
-	 */
+	// Nível
 
 	void AvancarNivel()
 	{
 		nivel++;
+
+		DefinirPlayerPrefs();
 
 		Invoke("AtualizarNivel", duracaoMovimentoMapa);
 	}
@@ -316,7 +326,7 @@ public class Jogo : MonoBehaviour
 
 		ExibirPaDisponivel();
 		
-		Invoke("VibrarNivel", (nivel == 1 ? duracaoMovimentoMapa : 0) + 0.2f);
+		Invoke("VibrarNivel", (nivel == 1 || nivel == nivelPref ? duracaoMovimentoMapa : 0) + 0.2f);
 	}
 
 	void VibrarNivel()
@@ -345,9 +355,7 @@ public class Jogo : MonoBehaviour
 		nivelAudio.Play();
 	}
 
-	/*
-	 * Tiles
-	 */
+	// Tiles
 
 	void InstanciarTile(int x, int y, Transform mapaDestino, int nivelMapa)
 	{
@@ -510,10 +518,8 @@ public class Jogo : MonoBehaviour
 			}
 		}
 	}
-	
-	/*
-	 * Moedas
-	 */
+
+	// Moedas
 
 	int ProcessarAdicaoMoedas()
 	{
@@ -562,9 +568,7 @@ public class Jogo : MonoBehaviour
 		AtualizarMoedas();
 	}
 
-	/*
-	 * Pás
-	 */
+	// Pás
 
 	void PegarPasDisponiveis()
 	{
@@ -615,7 +619,7 @@ public class Jogo : MonoBehaviour
 	{
 		if (paId >= pasDisponiveis.Count)
 			return;
-		
+
 		if (nivel >= proximaPa.nivel)
 			AtualizarPaAnimator(true);
 	}
@@ -655,9 +659,7 @@ public class Jogo : MonoBehaviour
 		EvoluirPa();
 	}
 
-	/*
-	 * Tesouros
-	 */
+	// Tesouros
 
 	void PegarTesourosDisponiveis()
 	{
@@ -666,7 +668,7 @@ public class Jogo : MonoBehaviour
 		foreach (Transform child in tesouros)
 			tesourosDisponiveis.Add(child.GetComponent<Tesouros>());
 	}
-	
+
 	Tesouros PegarTesouro()
 	{
 		Tesouros tesouroSelecionado = null;
@@ -683,11 +685,16 @@ public class Jogo : MonoBehaviour
 		return tesouroSelecionado;
 	}
 
-	public void AdicionarTesouro()
+	public void AdicionarTesouro(Tesouros tesouro = null)
 	{
 		tempoTesouroAberto = Time.time + delayExibicaoTesouros + duracaoAnimacaoTesouros;
 
-		Tesouros tesouro = PegarTesouro();
+		bool exibirAnimator = true;
+
+		if (tesouro != null)
+			exibirAnimator = false;
+		else
+			tesouro = PegarTesouro();
 
 		if (tesouro != null)
 		{
@@ -698,9 +705,12 @@ public class Jogo : MonoBehaviour
 			novoTesouroImage.sprite = tesouro.sprite;
 			novoTesouroText.text = tesouro.nome;
 
-			AlterarNovoTesouroAnimator(true);
+			if (exibirAnimator)
+			{
+				AlterarNovoTesouroAnimator(true);
 
-			BloquearClique();
+				BloquearClique();
+			}
 		}
 	}
 
@@ -724,20 +734,81 @@ public class Jogo : MonoBehaviour
 		tesouroText.text = string.Format("{0}%", porcentagem);
 	}
 
-	/*
-	 * Ads
-	 */
-	
+	// Ads
+
 	public void ExibirAd(string novaRecompensa = "")
 	{
 		recompensa = novaRecompensa;
 
 		ads.ExibirAd();
 	}
-	
-	/*
-	 * Métodos Estáticos
-	 */
+
+	// Player Prefs
+
+	void PegarPlayerPrefs()
+	{
+		nivelPref = PlayerPrefs.GetInt("Nível");
+
+		if (nivelPref > 0)
+			nivel = nivelPref;
+
+		moedasPref = PlayerPrefs.GetInt("Moedas");
+
+		if (moedasPref > 0)
+			moedas = moedasPref;
+
+		paPref = PlayerPrefs.GetInt("Pá");
+
+		if (paPref > 0)
+		{
+			paId = paPref;
+			paInicialId = paId;
+		}
+
+		foreach (Tesouros tesouroDisponivel in tesourosDisponiveis)
+		{
+			bool tesouroAdquirido = PlayerPrefs.GetInt(tesouroDisponivel.nome) == 1;
+
+			if (tesouroAdquirido)
+				AdicionarTesouro(tesouroDisponivel);
+		}
+	}
+
+	void DefinirPlayerPrefs()
+	{
+		PlayerPrefs.SetInt("Nível", nivel);
+		PlayerPrefs.SetInt("Moedas", moedas);
+		PlayerPrefs.SetInt("Pá", paId);
+
+		foreach (Tesouros tesouroDisponivel in tesourosDisponiveis)
+		{
+			int tesouroAdquirido = tesourosAdquiridos.Contains(tesouroDisponivel) ? 1 : 0;
+			
+			PlayerPrefs.SetInt(tesouroDisponivel.nome, tesouroAdquirido);
+		}
+	}
+
+	void ResetarPlayerPrefs()
+	{
+		PlayerPrefs.SetInt("Nível", 1);
+		PlayerPrefs.SetInt("Moedas", 0);
+		PlayerPrefs.SetInt("Pá", 1);
+
+		foreach (Tesouros tesouroDisponivel in tesourosDisponiveis)
+			PlayerPrefs.SetInt(tesouroDisponivel.nome, 0);
+
+		ReiniciarCena();
+	}
+
+	// Cena
+
+	void ReiniciarCena()
+	{
+		int cena = SceneManager.GetActiveScene().buildIndex;
+		SceneManager.LoadScene(cena, LoadSceneMode.Single);
+	}
+
+	// Métodos Estáticos
 
 	static public Jogo Pegar()
 	{
