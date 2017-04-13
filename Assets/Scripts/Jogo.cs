@@ -74,6 +74,8 @@ public class Jogo : MonoBehaviour
 	private Animator novaPaAssistirAnimator;
 	private Animator novaPaComprarAnimator;
 	private Text novaPaComprarText;
+	private Transform pasAdquiridas;
+	private Image paAdquiridaBase;
 
 	[Header("Tesouros")]
 	public float delayExibicaoTesouros;
@@ -123,7 +125,7 @@ public class Jogo : MonoBehaviour
 		IniciarMapa();
 
 		// Pás
-		SelecionarPa();
+		AtualizarPas();
 
 		// Nível
 		AtualizarNivel();
@@ -138,6 +140,13 @@ public class Jogo : MonoBehaviour
 			EncerrarNivel();
 		else if (Input.GetKeyDown(KeyCode.W))
 			ResetarPlayerPrefs();
+		else if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			if (ChecarNovaPaAnimator())
+				PaVoltar();
+			else
+				ResetarPlayerPrefs();
+		}
 
 		PegarTilesHit();
 	}
@@ -176,6 +185,8 @@ public class Jogo : MonoBehaviour
 		novaPaAssistirAnimator = novaPaAnimator.transform.FindChild("Assistir").GetComponent<Animator>();
 		novaPaComprarAnimator = novaPaAnimator.transform.FindChild("Comprar").GetComponent<Animator>();
 		novaPaComprarText = novaPaComprarAnimator.transform.FindChild("Texto").GetComponent<Text>();
+		pasAdquiridas = GameObject.Find("PásAdquiridas").transform;
+		paAdquiridaBase = pasAdquiridas.FindChild("Pá (Base)").GetComponent<Image>();
 
 		// Tesouros
 		novoTesouroAnimator = GameObject.Find("NovoTesouro").GetComponent<Animator>();
@@ -236,6 +247,12 @@ public class Jogo : MonoBehaviour
 
 		// Chamamos o método que irá tocar o áudio do nível assim que o movimento do mapa terminar
 		Invoke("TocarAudioNivel", duracaoMovimentoMapa);
+
+		// Bloquear o Clique enquanto o mapa se movimenta
+		BloquearClique();
+
+		// Desbloquear o Clique após a movimentação do Mapa
+		Invoke("DesbloquearClique", duracaoMovimentoMapa);
 	}
 
 	void ZerarMapa()
@@ -500,10 +517,10 @@ public class Jogo : MonoBehaviour
 	{
 		if (bloqueadorClique)
 			return;
-
-		for (int i = 0; i < Input.touchCount; ++i)
+		
+		if (Input.touchCount > 0)
 		{
-			Touch touch = Input.GetTouch(i);
+			Touch touch = Input.GetTouch(0);
 			if (touch.phase == TouchPhase.Began)
 			{
 				Vector3 posicao = Camera.main.ScreenToWorldPoint(touch.position);
@@ -586,9 +603,11 @@ public class Jogo : MonoBehaviour
 			proximaPa = pasDisponiveis[paId];
 
 		AtualizarPaAnimator(false);
+		
+		AtualizarPaAdquirida();
 	}
 
-	public void EvoluirPa(bool gratuito = false)
+	public void EvoluirPa(bool gratuito = false, bool fechar = true)
 	{
 		int custo = gratuito ? 0 : proximaPa.moedas;
 
@@ -606,9 +625,8 @@ public class Jogo : MonoBehaviour
 			AtualizarMoedas();
 		}
 
-		Invoke("DesbloquearClique", duracaoAnimacaoPas);
-
-		AtualizarNovaPaAnimator(false);
+		if (fechar)
+			PaVoltar();
 
 		paId++;
 
@@ -635,16 +653,21 @@ public class Jogo : MonoBehaviour
 		novaPaText.text = string.Format("{0} Shovel", proximaPa.nome);
 		novaPaComprarText.text = proximaPa.moedas.ToString();
 
-		AtualizarNovaPaAnimator(true);
+		AlterarNovaPaAnimator(true);
 
 		BloquearClique();
 	}
 
-	void AtualizarNovaPaAnimator(bool estado)
+	void AlterarNovaPaAnimator(bool estado)
 	{
 		novaPaAnimator.SetBool("Exibir", estado);
 		novaPaAssistirAnimator.SetBool("Animar", estado);
 		novaPaComprarAnimator.SetBool("Animar", estado);
+	}
+
+	bool ChecarNovaPaAnimator()
+	{
+		return novaPaAnimator.GetBool("Exibir");
 	}
 
 	public void PaAssistir()
@@ -657,6 +680,42 @@ public class Jogo : MonoBehaviour
 	public void PaComprar()
 	{
 		EvoluirPa();
+	}
+
+	public void PaVoltar()
+	{
+		Invoke("DesbloquearClique", duracaoAnimacaoPas);
+
+		AlterarNovaPaAnimator(false);
+	}
+
+	void AtualizarPas()
+	{
+		SelecionarPa();
+		
+		for (int i = paInicialId; i < paPref; i++)
+			EvoluirPa(true, false);
+	}
+
+	void AtualizarPaAdquirida()
+	{
+		Image paAdquirida = Instantiate(paAdquiridaBase);
+
+		paAdquirida.enabled = true;
+		paAdquirida.sprite = pasDisponiveis[paId - 1].sprite;
+		paAdquirida.name = string.Format("Pá ({0})", paId);
+		paAdquirida.transform.parent = pasAdquiridas;
+		paAdquirida.transform.localPosition = paAdquiridaBase.transform.localPosition;
+		paAdquirida.transform.localScale = paAdquiridaBase.transform.localScale;
+
+		paAdquirida.rectTransform.anchoredPosition =
+			new Vector2(
+				Mathf.Max(
+					paAdquiridaBase.rectTransform.anchoredPosition.x,
+					paAdquirida.rectTransform.anchoredPosition.x * 2.5f * (paId - 1)
+				),
+				paAdquirida.rectTransform.anchoredPosition.y
+			);
 	}
 
 	// Tesouros
@@ -758,12 +817,6 @@ public class Jogo : MonoBehaviour
 			moedas = moedasPref;
 
 		paPref = PlayerPrefs.GetInt("Pá");
-
-		if (paPref > 0)
-		{
-			paId = paPref;
-			paInicialId = paId;
-		}
 
 		foreach (Tesouros tesouroDisponivel in tesourosDisponiveis)
 		{

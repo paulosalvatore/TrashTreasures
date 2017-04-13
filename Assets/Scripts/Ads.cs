@@ -14,6 +14,8 @@ public class Ads : MonoBehaviour
 
 	public void ExibirAd()
 	{
+		Pausar.PausarJogo();
+
 		if (Advertisement.IsReady("rewardedVideo"))
 		{
 			var opcoes = new ShowOptions {
@@ -26,6 +28,8 @@ public class Ads : MonoBehaviour
 
 	void HandleShowResult(ShowResult result)
 	{
+		Pausar.DespausarJogo();
+
 		switch (result)
 		{
 			case ShowResult.Finished:
