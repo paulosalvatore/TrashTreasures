@@ -80,6 +80,7 @@ public class Jogo : MonoBehaviour
 	[Header("Tesouros")]
 	public float delayExibicaoTesouros;
 	public float duracaoAnimacaoTesouros;
+	internal float tempoTesouroAberto;
 	private Animator novoTesouroAnimator;
 	private Image novoTesouroImage;
 	private Text novoTesouroText;
@@ -87,7 +88,6 @@ public class Jogo : MonoBehaviour
 	private Animator novoTesouroGrabAnimator;
 	private List<Tesouros> tesourosDisponiveis = new List<Tesouros>();
 	private List<Tesouros> tesourosAdquiridos = new List<Tesouros>();
-	internal float tempoTesouroAberto;
 
 	// Definições da Área de Jogo
 	private int[,] jogo;
@@ -105,12 +105,26 @@ public class Jogo : MonoBehaviour
 	private int nivelPref;
 	private int moedasPref;
 	private int paPref;
-	private List<int> tesourosPref = new List<int>();
+
+	[Header("John")]
+	public float delayProximaPalavra;
+	public float delayProximaFrase;
+	public float duracaoMovimentoJohn;
+	internal bool bloqueadorCliqueJohn;
+	private float timeUltimoCliqueJohn;
+	private GameObject john;
+	private Animator johnAnimator;
+	private Transform johnBalao;
+	private Text johnBalaoText;
+	private Frases[] frases;
+	private List<string> processarFrases;
+	private int processarFrasesIndex = 0;
+	private bool processandoFalasJohn;
 
 	void Start()
 	{
 		// Definir Resolução Base da Tela
-		DefinirResolucao();
+		DefinicoesScreen();
 
 		// Inicialização de Componentes Externos
 		PegarComponentes();
@@ -149,13 +163,20 @@ public class Jogo : MonoBehaviour
 		}
 
 		PegarTilesHit();
+
+		PegarCliqueJohn();
 	}
 
 	// Métodos de Inicialização de Componentes e Variáveis
 
-	void DefinirResolucao()
+	void DefinicoesScreen()
 	{
-		Screen.SetResolution((int)resolucaoTela.x, (int)resolucaoTela.y, true);
+		Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+		Screen.SetResolution(
+			(int)resolucaoTela.x,
+			(int)resolucaoTela.y, true
+		);
 	}
 
 	void PegarComponentes()
@@ -200,6 +221,13 @@ public class Jogo : MonoBehaviour
 
 		// AudioSource
 		audioSource = GetComponent<AudioSource>();
+
+		// John
+		john = GameObject.Find("John");
+		johnAnimator = john.GetComponent<Animator>();
+		johnBalao = john.transform.FindChild("Balão");
+		johnBalaoText = johnBalao.FindChild("Texto").GetComponent<Text>();
+		frases = john.GetComponents<Frases>();
 	}
 
 	void DefinirVariaveisIniciais()
@@ -253,6 +281,9 @@ public class Jogo : MonoBehaviour
 
 		// Desbloquear o Clique após a movimentação do Mapa
 		Invoke("DesbloquearClique", duracaoMovimentoMapa);
+
+		// Checar se o John irá aparecer no nível atual
+		ChecarJohn();
 	}
 
 	void ZerarMapa()
@@ -310,20 +341,16 @@ public class Jogo : MonoBehaviour
 
 		corAnteriorFundoJogo = fundoJogo.color;
 	}
-
-	void AlterarBloqueadorClique(bool bloqueio)
-	{
-		bloqueadorClique = bloqueio;
-	}
-
+	
 	void BloquearClique()
 	{
-		AlterarBloqueadorClique(true);
+		bloqueadorClique = true;
 	}
 
 	void DesbloquearClique()
 	{
-		AlterarBloqueadorClique(false);
+		if (!bloqueadorCliqueJohn)
+			bloqueadorClique = false;
 	}
 
 	// Nível
@@ -466,6 +493,9 @@ public class Jogo : MonoBehaviour
 			}
 
 			int chance = tile.PegarChance(nivelMapa);
+
+			if (tile.bauTesouro && tesourosAdquiridos.Count == tesourosDisponiveis.Count)
+				chance = 0;
 			
 			if (chance > 0)
 			{
@@ -499,7 +529,7 @@ public class Jogo : MonoBehaviour
 		return tileSelecionado;
 	}
 
-	public void ProcessarTileDestruido(Transform tileDestruido, int moedas)
+	public void ProcessarTileDestruido(Transform tileDestruido, int moedas, bool tileEspecial)
 	{
 		if (moedas == -1)
 			moedas = ProcessarAdicaoMoedas();
@@ -509,7 +539,7 @@ public class Jogo : MonoBehaviour
 
 		quantidadeTiles--;
 
-		if (quantidadeTiles == 0)
+		if (quantidadeTiles == 0 && !tileEspecial)
 			EncerrarNivel();
 	}
 
@@ -517,7 +547,7 @@ public class Jogo : MonoBehaviour
 	{
 		if (bloqueadorClique)
 			return;
-		
+
 		if (Input.touchCount > 0)
 		{
 			Touch touch = Input.GetTouch(0);
@@ -603,7 +633,7 @@ public class Jogo : MonoBehaviour
 			proximaPa = pasDisponiveis[paId];
 
 		AtualizarPaAnimator(false);
-		
+
 		AtualizarPaAdquirida();
 	}
 
@@ -704,15 +734,15 @@ public class Jogo : MonoBehaviour
 		paAdquirida.enabled = true;
 		paAdquirida.sprite = pasDisponiveis[paId - 1].sprite;
 		paAdquirida.name = string.Format("Pá ({0})", paId);
-		paAdquirida.transform.parent = pasAdquiridas;
+		paAdquirida.transform.SetParent(pasAdquiridas);
 		paAdquirida.transform.localPosition = paAdquiridaBase.transform.localPosition;
 		paAdquirida.transform.localScale = paAdquiridaBase.transform.localScale;
 
 		paAdquirida.rectTransform.anchoredPosition =
 			new Vector2(
-				Mathf.Max(
-					paAdquiridaBase.rectTransform.anchoredPosition.x,
-					paAdquirida.rectTransform.anchoredPosition.x * 2.5f * (paId - 1)
+				(
+					paAdquiridaBase.rectTransform.anchoredPosition.x +
+					(paAdquiridaBase.rectTransform.sizeDelta.x / 2 * (paId - 1))
 				),
 				paAdquirida.rectTransform.anchoredPosition.y
 			);
@@ -778,6 +808,11 @@ public class Jogo : MonoBehaviour
 		Invoke("DesbloquearClique", duracaoAnimacaoTesouros);
 
 		AlterarNovoTesouroAnimator(false);
+
+		if (tesourosAdquiridos.Count == tesourosDisponiveis.Count)
+			ChecarJohn(true);
+		else if (quantidadeTiles == 0)
+			Invoke("EncerrarNivel", duracaoAnimacaoTesouros);
 	}
 
 	void AlterarNovoTesouroAnimator(bool estado)
@@ -861,13 +896,162 @@ public class Jogo : MonoBehaviour
 		SceneManager.LoadScene(cena, LoadSceneMode.Single);
 	}
 
+	// John
+	
+	void ChecarJohn(bool tesouro = false)
+	{
+		foreach (Frases frase in frases)
+		{
+			bool exibirFraseTesouro = false;
+
+			if (tesouro)
+			{
+				if (frase.tesouros)
+					exibirFraseTesouro = true;
+				else
+					continue;
+			}
+
+			if (frase.nivel > 0 && nivel == frase.nivel ||
+				frase.nivelRange.min != 0 && frase.nivelRange.min >= frase.nivel ||
+				frase.nivelRange.max != 0 && frase.nivelRange.max <= frase.nivel ||
+				exibirFraseTesouro)
+			{
+				if (frase.chance > 0)
+				{
+					float chance = Random.Range(1, 101);
+
+					if (chance > frase.chance)
+						continue;
+				}
+
+				if (frase.aleatoria)
+					processarFrases = new List<string>(
+						new string[] {
+							frase.frases[
+								Random.Range(0, frase.frases.Count)
+							]
+						}
+					);
+				else
+					processarFrases = frase.frases;
+
+				processarFrasesIndex = 0;
+				processandoFalasJohn = true;
+				LimparFalaJohn();
+
+				Invoke("ExibirJohn", duracaoMovimentoMapa);
+				BloquearCliqueJohn();
+
+				float delay = duracaoMovimentoMapa + duracaoMovimentoJohn;
+				Invoke("ProcessarFrasesJohn", delay);
+				timeUltimoCliqueJohn = Time.time + delay;
+
+				break;
+			}
+		}
+	}
+
+	void BloquearCliqueJohn()
+	{
+		bloqueadorCliqueJohn = true;
+
+		BloquearClique();
+	}
+
+	void DesbloquearCliqueJohn()
+	{
+		bloqueadorCliqueJohn = false;
+
+		DesbloquearClique();
+	}
+
+	void ProcessarFrasesJohn()
+	{
+		if (processarFrasesIndex >= processarFrases.Count)
+		{
+			processandoFalasJohn = false;
+
+			OcultarJohn();
+		}
+		else
+		{
+			LimparFalaJohn();
+			
+			StartCoroutine("ConstruirFrase");
+
+			timeUltimoCliqueJohn = Time.time;
+		}
+	}
+
+	IEnumerator ConstruirFrase()
+	{
+		string frase = processarFrases[processarFrasesIndex];
+
+		string[] palavras = frase.Split(' ');
+
+		foreach (string palavra in palavras)
+		{
+			johnBalaoText.text = string.Format("{0} {1}", johnBalaoText.text, palavra);
+
+			yield return new WaitForSeconds(delayProximaPalavra);
+		}
+	}
+
+	void LimparFalaJohn()
+	{
+		johnBalaoText.text = "";
+	}
+
+	void ProximaFraseJohn()
+	{
+		processarFrasesIndex++;
+
+		ProcessarFrasesJohn();
+	}
+
+	void ExibirJohn()
+	{
+		AlterarAnimator("Entrar");
+	}
+
+	void OcultarJohn()
+	{
+		AlterarAnimator("Sair");
+
+		Invoke("DesbloquearCliqueJohn", duracaoMovimentoJohn);
+
+		if (quantidadeTiles == 0 &&
+			tesourosAdquiridos.Count == tesourosDisponiveis.Count)
+		{
+			Invoke("EncerrarNivel", duracaoMovimentoJohn);
+		}
+	}
+
+	void AlterarAnimator(string trigger)
+	{
+		johnAnimator.SetTrigger(trigger);
+	}
+
+	void PegarCliqueJohn()
+	{
+		if (!processandoFalasJohn)
+			return;
+
+		if (Input.GetMouseButtonDown(0) &&
+			timeUltimoCliqueJohn + delayProximaFrase <= Time.time)
+		{
+			ProximaFraseJohn();
+		}
+	}
+
 	// Métodos Estáticos
 
 	static public Jogo Pegar()
 	{
 		return GameObject.Find("Jogo").GetComponent<Jogo>();
 	}
-	
+
 	static public void ReproduzirAudio(AudioClip clip = null)
 	{
 		if (clip == null)

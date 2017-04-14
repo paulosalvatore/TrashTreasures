@@ -157,16 +157,28 @@ public class Tiles : MonoBehaviour
 	
 	void DestruirTile()
 	{
-		Jogo.ReproduzirAudio(destruir);
-
-		jogo.ProcessarTileDestruido(transform, fornecerMoedas ? moedas : 0);
-
-		Destroy(gameObject);
-
 		if (bauTesouro)
 			jogo.AdicionarTesouro();
 		else if (ads)
 			jogo.ExibirAd("tesouro");
+
+		Jogo.ReproduzirAudio(destruir);
+
+		jogo.ProcessarTileDestruido(
+			transform,
+			fornecerMoedas
+				?
+					moedas
+				:
+					0,
+			bauTesouro || ads
+				?
+					true
+				:
+					false
+		);
+
+		Destroy(gameObject);
 	}
 
 	public int PegarChance(int nivelMapa)
@@ -191,7 +203,7 @@ public class Tiles : MonoBehaviour
 		else
 			return chanceCalculada;
 	}
-	
+
 	int PegarQuantidadeMoedas(Range range)
 	{
 		return

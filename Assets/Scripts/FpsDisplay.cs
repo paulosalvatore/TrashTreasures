@@ -11,6 +11,9 @@ public class FpsDisplay : MonoBehaviour
 
 	void OnGUI()
 	{
+		if (Time.timeScale == 0)
+			return;
+
 		int w = Screen.width, h = Screen.height;
 
 		GUIStyle style = new GUIStyle();

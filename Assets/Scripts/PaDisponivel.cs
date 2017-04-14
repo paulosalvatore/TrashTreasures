@@ -15,6 +15,7 @@ public class PaDisponivel : MonoBehaviour,
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		jogo.ExibirNovaPaDisponivel();
+		if (!jogo.bloqueadorCliqueJohn)
+			jogo.ExibirNovaPaDisponivel();
 	}
 }

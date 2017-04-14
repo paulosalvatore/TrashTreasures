@@ -8,16 +8,20 @@ public class BotaoHud : MonoBehaviour,
 {
 	public AudioClip audioClique;
 
+	private Jogo jogo;
 	private AudioSource audioSource;
 
 	void Start()
 	{
+		jogo = Jogo.Pegar();
+
 		audioSource = gameObject.AddComponent<AudioSource>();
 		audioSource.clip = audioClique;
 	}
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		audioSource.Play();
+		if (!jogo.bloqueadorCliqueJohn)
+			audioSource.Play();
 	}
 }
