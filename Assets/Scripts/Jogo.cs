@@ -801,6 +801,8 @@ public class Jogo : MonoBehaviour
 				BloquearClique();
 			}
 		}
+		else if (quantidadeTiles == 0)
+			EncerrarNivel();
 	}
 
 	public void OcultarTesouro()

@@ -96,7 +96,7 @@ public class Tiles : MonoBehaviour
 		else
 			hpAdicional--;
 
-		int hpTotal = hp + hpAdicional;
+		int hpTotal = Mathf.Max(0, hp) + hpAdicional;
 
 		if (particula && ((particulaHit && hpTotal > 0) || (particulaDestroy && hpTotal <= 0)))
 		{
