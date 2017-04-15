@@ -29,7 +29,7 @@ namespace CodeStage.AntiCheat.Detectors
 		/// Detector will survive new level (scene) load if checked. Otherwise it will be destroyed.
 		/// </summary>
 		/// On dispose Detector follows 2 rules:
-		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically 
+		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically
 		/// destroyed if no other Detectors left attached regardless of any other components or children;<br/>
 		/// - if Game Object's name is NOT "Anti-Cheat Toolkit Detectors": it will be automatically destroyed only
 		/// if it has neither other components nor children attached;
@@ -41,7 +41,7 @@ namespace CodeStage.AntiCheat.Detectors
 		/// Otherwise, it will just stop internal processes.
 		/// </summary>
 		/// On dispose Detector follows 2 rules:
-		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically 
+		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically
 		/// destroyed if no other Detectors left attached regardless of any other components or children;<br/>
 		/// - if Game Object's name is NOT "Anti-Cheat Toolkit Detectors": it will be automatically destroyed only
 		/// if it has neither other components nor children attached;
@@ -50,6 +50,7 @@ namespace CodeStage.AntiCheat.Detectors
 
 		[SerializeField]
 		protected UnityEvent detectionEvent = null;
+
 		protected UnityAction detectionAction = null;
 
 		[SerializeField]
@@ -59,7 +60,9 @@ namespace CodeStage.AntiCheat.Detectors
 		protected bool started;
 
 		#region detectors placement
+
 #if UNITY_EDITOR
+
 		[UnityEditor.MenuItem(GAME_OBJECT_MENU_PATH + "All detectors", false, 0)]
 		private static void AddAllDetectorsToScene()
 		{
@@ -119,6 +122,7 @@ namespace CodeStage.AntiCheat.Detectors
 							UnityEditor.EditorUtility.CopySerialized(component, newComponent);
 							DestroyDetectorImmediate(component);
 							break;
+
 						case 1:
 							DestroyDetectorImmediate(component);
 							break;
@@ -151,10 +155,13 @@ namespace CodeStage.AntiCheat.Detectors
 				DestroyImmediate(component);
 			}
 		}
+
 #endif
-		#endregion
+
+		#endregion detectors placement
 
 		#region unity messages
+
 		private void Start()
 		{
 			if (detectorsContainer == null && gameObject.name == CONTAINER_NAME)
@@ -199,13 +206,14 @@ namespace CodeStage.AntiCheat.Detectors
 				Destroy(gameObject);
 			}
 		}
-		#endregion
+
+		#endregion unity messages
 
 		protected virtual bool Init(ActDetectorBase instance, string detectorName)
 		{
 			if (instance != null && instance != this && instance.keepAlive)
 			{
-				Debug.LogWarning(Constants.LOG_PREFIX + name + 
+				Debug.LogWarning(Constants.LOG_PREFIX + name +
 					": self-destroying, other instance already exists & only one instance allowed!", gameObject);
 				Destroy(this);
 				return false;
@@ -241,8 +249,11 @@ namespace CodeStage.AntiCheat.Detectors
 		}
 
 		protected abstract void StartDetectionAutomatically();
+
 		protected abstract void StopDetectionInternal();
+
 		protected abstract void PauseDetector();
+
 		protected abstract void ResumeDetector();
 	}
 }

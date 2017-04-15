@@ -14,8 +14,10 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		private static string cryptoKey = "4441";
 
 #if UNITY_EDITOR
+
 		// For internal Editor usage only (may be useful for drawers).
 		public static string cryptoKeyEditor = cryptoKey;
+
 #endif
 
 		[SerializeField]
@@ -31,7 +33,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		private bool inited;
 
 		// for serialization purposes
-		private ObscuredString(){}
+		private ObscuredString() { }
 
 		private ObscuredString(byte[] value)
 		{
@@ -177,6 +179,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		#region operators and overrides
+
 		//! @cond
 		public static implicit operator ObscuredString(string value)
 		{
@@ -213,7 +216,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Determines whether two specified ObscuredStrings have the same value.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if the value of <paramref name="a"/> is the same as the value of <paramref name="b"/>; otherwise, false.
 		/// </returns>
@@ -241,7 +244,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Determines whether two specified ObscuredStrings have different values.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if the value of <paramref name="a"/> is different from the value of <paramref name="b"/>; otherwise, false.
 		/// </returns>
@@ -254,7 +257,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Determines whether this instance of ObscuredString and a specified object, which must also be a ObscuredString object, have the same value.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if <paramref name="obj"/> is a ObscuredString and its value is the same as this instance; otherwise, false.
 		/// </returns>
@@ -270,7 +273,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Determines whether this instance and another specified ObscuredString object have the same value.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if the value of the <paramref name="value"/> parameter is the same as this instance; otherwise, false.
 		/// </returns>
@@ -290,7 +293,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Determines whether this string and a specified ObscuredString object have the same value. A parameter specifies the culture, case, and sort rules used in the comparison.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if the value of the <paramref name="value"/> parameter is the same as this string; otherwise, false.
 		/// </returns>
@@ -305,7 +308,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns the hash code for this ObscuredString.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// A 32-bit signed integer hash code.
 		/// </returns>
@@ -313,8 +316,10 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		{
 			return InternalDecrypt().GetHashCode();
 		}
+
 		//! @endcond
-		#endregion
+
+		#endregion operators and overrides
 
 		private static byte[] GetBytes(string str)
 		{

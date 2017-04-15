@@ -13,8 +13,10 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		private static ulong cryptoKey = 444443L;
 
 #if UNITY_EDITOR
+
 		// For internal Editor usage only (may be useful for drawers).
 		public static ulong cryptoKeyEditor = cryptoKey;
+
 #endif
 
 		private ulong currentCryptoKey;
@@ -157,6 +159,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		#region operators, overrides, interface implementations
+
 		//! @cond
 		public static implicit operator ObscuredULong(ulong value)
 		{
@@ -200,7 +203,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns a value indicating whether this instance is equal to a specified object.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if <paramref name="obj"/> is an instance of ObscuredULong and equals the value of this instance; otherwise, false.
 		/// </returns>
@@ -215,7 +218,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns a value indicating whether this instance is equal to a specified ObscuredULong value.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if <paramref name="obj"/> has the same value as this instance; otherwise, false.
 		/// </returns>
@@ -233,7 +236,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns the hash code for this instance.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// A 32-bit signed integer hash code.
 		/// </returns>
@@ -246,7 +249,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance, consisting of a negative sign if the value is negative, and a sequence of digits ranging from 0 to 9 with no leading zeros.
 		/// </returns>
@@ -259,7 +262,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation, using the specified format.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance as specified by <paramref name="format"/>.
 		/// </returns>
@@ -273,7 +276,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation using the specified culture-specific format information.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance as specified by <paramref name="provider"/>.
 		/// </returns>
@@ -286,7 +289,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation using the specified format and culture-specific format information.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance as specified by <paramref name="format"/> and <paramref name="provider"/>.
 		/// </returns>
@@ -295,7 +298,9 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		{
 			return InternalDecrypt().ToString(format, provider);
 		}
+
 		//! @endcond
-#endregion
+
+		#endregion operators, overrides, interface implementations
 	}
 }

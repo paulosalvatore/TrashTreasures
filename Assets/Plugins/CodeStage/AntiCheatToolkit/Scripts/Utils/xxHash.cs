@@ -28,6 +28,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 namespace CodeStage.AntiCheat.Utils
 {
 	internal class xxHash
@@ -72,7 +73,6 @@ namespace CodeStage.AntiCheat.Utils
 					v4 += read_value * PRIME32_2;
 					v4 = (v4 << 13) | (v4 >> 19);
 					v4 *= PRIME32_1;
-
 				} while (index <= limit);
 
 				h32 = ((v1 << 1) | (v1 >> 31)) + ((v2 << 7) | (v2 >> 25)) + ((v3 << 12) | (v3 >> 20)) + ((v4 << 18) | (v4 >> 14));

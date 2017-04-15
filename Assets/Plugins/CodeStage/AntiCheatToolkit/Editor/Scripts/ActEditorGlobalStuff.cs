@@ -20,7 +20,7 @@ namespace CodeStage.AntiCheat.EditorCode
 
 		internal const string PREFS_INJECTION_ENABLED = "ACTDIDEnabledGlobal";
 		internal const string REPORT_EMAIL = "support@codestage.ru";
-		
+
 		internal const string INJECTION_SERVICE_FOLDER = "InjectionDetectorData";
 		internal const string INJECTION_DEFAULT_WHITELIST_FILE = "DefaultWhitelist.bytes";
 		internal const string INJECTION_USER_WHITELIST_FILE = "UserWhitelist.bytes";
@@ -50,6 +50,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}*/
 
 		#region files and directories
+
 		internal static void CleanInjectionDetectorData()
 		{
 			if (!File.Exists(injectionDataPath))
@@ -76,7 +77,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		{
 			return ResolveInjectionServiceFolder() + "/" + INJECTION_USER_WHITELIST_FILE;
 		}
-		
+
 		internal static string ResolveInjectionServiceFolder()
 		{
 			string result = "";
@@ -140,9 +141,11 @@ namespace CodeStage.AntiCheat.EditorCode
 			string[] files = Directory.GetFiles(path);
 			return dirs.Length == 0 && files.Length == 0;
 		}
-		#endregion
+
+		#endregion files and directories
 
 		#region assemblies
+
 		internal static int GetAssemblyHash(AssemblyName ass)
 		{
 			string hashInfo = ass.Name;
@@ -182,7 +185,8 @@ namespace CodeStage.AntiCheat.EditorCode
 
 			return result;
 		}
-		#endregion
+
+		#endregion assemblies
 
 		internal static bool CheckUnityEventHasActivePersistentListener(SerializedProperty unityEvent)
 		{
@@ -212,7 +216,7 @@ namespace CodeStage.AntiCheat.EditorCode
 				SerializedProperty callStateProperty = call.FindPropertyRelative("m_CallState");
 
 				if (targetProperty != null && methodNameProperty != null && callStateProperty != null &&
-                    targetProperty.propertyType == SerializedPropertyType.ObjectReference &&
+					targetProperty.propertyType == SerializedPropertyType.ObjectReference &&
 					methodNameProperty.propertyType == SerializedPropertyType.String &&
 					callStateProperty.propertyType == SerializedPropertyType.Enum)
 				{

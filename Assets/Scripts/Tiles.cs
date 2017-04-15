@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic; // remover dps
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class Tiles : MonoBehaviour
 {

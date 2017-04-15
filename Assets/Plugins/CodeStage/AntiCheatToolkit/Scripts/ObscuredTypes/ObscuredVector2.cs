@@ -16,8 +16,10 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		private static readonly Vector2 initialFakeValue = Vector2.zero;
 
 #if UNITY_EDITOR
+
 		// For internal Editor usage only (may be useful for drawers).
 		public static int cryptoKeyEditor = cryptoKey;
+
 #endif
 
 		[SerializeField]
@@ -92,8 +94,10 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 				{
 					case 0:
 						return x;
+
 					case 1:
 						return y;
+
 					default:
 						throw new IndexOutOfRangeException("Invalid ObscuredVector2 index!");
 				}
@@ -105,9 +109,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 					case 0:
 						x = value;
 						break;
+
 					case 1:
 						y = value;
 						break;
+
 					default:
 						throw new IndexOutOfRangeException("Invalid ObscuredVector2 index!");
 				}
@@ -172,7 +178,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 
 			return result;
 		}
-		
+
 		/// <summary>
 		/// Use it after SetNewCryptoKey() to re-encrypt current instance using new crypto key.
 		/// </summary>
@@ -276,7 +282,8 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			return result;
 		}
 
-#region operators, overrides, interface implementations
+		#region operators, overrides, interface implementations
+
 		//! @cond
 		public static implicit operator ObscuredVector2(Vector2 value)
 		{
@@ -302,7 +309,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns the hash code for this instance.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// A 32-bit signed integer hash code.
 		/// </returns>
@@ -329,7 +336,8 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		//! @endcond
-		#endregion
+
+		#endregion operators, overrides, interface implementations
 
 		/// <summary>
 		/// Used to store encrypted Vector2.
@@ -347,6 +355,5 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			/// </summary>
 			public int y;
 		}
-	
 	}
 }

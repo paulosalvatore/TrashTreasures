@@ -9,7 +9,9 @@ using UnityEditor.Callbacks;
 using UnityEngine;
 
 #if UNITY_EDITOR_WIN
+
 using Microsoft.Win32;
+
 #elif UNITY_EDITOR_OSX
 using System.IO;
 #else // LINUX
@@ -98,17 +100,17 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 
 		[DidReloadScripts]
 		private static void OnRecompile()
-		{ 
+		{
 			if (instance) instance.Repaint();
 		}
-		 
+
 		private void OnEnable()
 		{
 			instance = this;
 			//RefreshData();
 		}
 
-#region GUI
+		#region GUI
 
 		// ----------------------------------------------------------------------------
 		// GUI
@@ -153,7 +155,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 				EditorGUI.BeginChangeCheck();
 				EditorGUIUtility.labelWidth = 80;
 				GUILayout.Label(new GUIContent("Crypto key", "ObscuredPrefs crypto key to use."), ActEditorGUI.ToolbarLabel, GUILayout.ExpandWidth(false));
-				
+
 				string newKey = EditorGUILayout.TextField(ObscuredPrefs.CryptoKey, EditorStyles.toolbarTextField, GUILayout.ExpandWidth(true));
 				EditorGUIUtility.labelWidth = 0;
 				if (EditorGUI.EndChangeCheck())
@@ -166,7 +168,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 			{
 				using (ActEditorGUI.Horizontal(ActEditorGUI.PanelWithBackground))
 				{
-					string[] types = {"String", "Int", "Float"};
+					string[] types = { "String", "Int", "Float" };
 					newRecordType = EditorGUILayout.Popup(newRecordType, types, GUILayout.Width(50));
 
 					newRecordEncrypted = GUILayout.Toggle(newRecordEncrypted, new GUIContent("E", "Create new pref as encrypted ObscuredPref?"), ActEditorGUI.CompactButton, GUILayout.Width(25));
@@ -199,9 +201,9 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 					if (GUILayout.Button("OK", ActEditorGUI.CompactButton, GUILayout.Width(30)))
 					{
 						if (string.IsNullOrEmpty(newRecordKey) ||
-						    (newRecordType == 0 && string.IsNullOrEmpty(newRecordStringValue)) ||
-						    (newRecordType == 1 && newRecordIntValue == 0) ||
-						    (newRecordType == 2 && Math.Abs(newRecordFloatValue) < 0.00000001f))
+							(newRecordType == 0 && string.IsNullOrEmpty(newRecordStringValue)) ||
+							(newRecordType == 1 && newRecordIntValue == 0) ||
+							(newRecordType == 2 && Math.Abs(newRecordFloatValue) < 0.00000001f))
 						{
 							ShowNotification(new GUIContent("Please fill in the pref first!"));
 						}
@@ -296,7 +298,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 							{
 								record.Delete();
 							}
-							
+
 							RefreshData();
 							GUIUtility.keyboardControl = 0;
 						}
@@ -318,7 +320,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 
 		private void DrawRecordsPages()
 		{
-			recordsTotalPages = Math.Max(1,(int)Math.Ceiling((double)filteredRecords.Count / RECORDS_PER_PAGE));
+			recordsTotalPages = Math.Max(1, (int)Math.Ceiling((double)filteredRecords.Count / RECORDS_PER_PAGE));
 
 			if (recordsCurrentPage < 0) recordsCurrentPage = 0;
 			if (recordsCurrentPage + 1 > recordsTotalPages) recordsCurrentPage = recordsTotalPages - 1;
@@ -447,8 +449,8 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 				GUI.enabled = record.prefType != PrefsRecord.PrefsType.Unknown;
 
 				if (record.Obscured && !(record.obscuredType == ObscuredPrefs.DataType.String ||
-				                         record.obscuredType == ObscuredPrefs.DataType.Int ||
-				                         record.obscuredType == ObscuredPrefs.DataType.Float))
+										 record.obscuredType == ObscuredPrefs.DataType.Int ||
+										 record.obscuredType == ObscuredPrefs.DataType.Float))
 				{
 					GUI.enabled = false;
 					EditorGUILayout.TextField(record.Key, GUILayout.MaxWidth(200), GUILayout.MinWidth(50));
@@ -458,7 +460,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 				{
 					record.Key = EditorGUILayout.TextField(record.Key, GUILayout.MaxWidth(200), GUILayout.MinWidth(50));
 				}
-				
+
 				if ((record.prefType == PrefsRecord.PrefsType.String && !record.Obscured) || (record.Obscured && record.obscuredType == ObscuredPrefs.DataType.String))
 				{
 					// to avoid TextMeshGenerator error because of too much characters
@@ -519,7 +521,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 			menu.ShowAsContext();
 		}
 
-#endregion
+		#endregion GUI
 
 		private void RefreshData()
 		{
@@ -553,7 +555,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 				string keyName = keys[i];
 				if (showProgress)
 				{
-					if (EditorUtility.DisplayCancelableProgressBar("Reading PlayerPrefs [" + (i + 1) + " of " + keysCount + "]", "Reading " + keyName, (float)i/keysCount))
+					if (EditorUtility.DisplayCancelableProgressBar("Reading PlayerPrefs [" + (i + 1) + " of " + keysCount + "]", "Reading " + keyName, (float)i / keysCount))
 					{
 						break;
 					}
@@ -592,15 +594,19 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 				case SortingType.KeyAscending:
 					allRecords.Sort(PrefsRecord.SortByNameAscending);
 					break;
+
 				case SortingType.KeyDescending:
 					allRecords.Sort(PrefsRecord.SortByNameDescending);
 					break;
+
 				case SortingType.Type:
 					allRecords.Sort(PrefsRecord.SortByType);
 					break;
+
 				case SortingType.Obscurance:
 					allRecords.Sort(PrefsRecord.SortByObscurance);
 					break;
+
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
@@ -641,10 +647,10 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 
 		private string[] ReadKeysOSX()
 		{
-			string plistPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/Library/Preferences/unity." + 
+			string plistPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/Library/Preferences/unity." +
 				PlayerSettings.companyName + "." + PlayerSettings.productName + ".plist";
 
-			if (!File.Exists (plistPath)) 
+			if (!File.Exists (plistPath))
 			{
 				return new string[0];
 			}
@@ -661,10 +667,10 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 
 		private string[] ReadKeysLinux()
 		{
-			string prefsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/.config/unity3d/" + 
+			string prefsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/.config/unity3d/" +
 				PlayerSettings.companyName + "/" + PlayerSettings.productName + "/prefs";
 
-			if (!File.Exists(prefsPath)) 
+			if (!File.Exists(prefsPath))
 			{
 				return new string[0];
 			}
@@ -693,7 +699,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 			Obscurance = 10
 		}
 
-#region PrefsRecord
+		#region PrefsRecord
 
 		// ----------------------------------------------------------------------------
 		// PrefsRecord class
@@ -779,12 +785,16 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 					{
 						case PrefsType.Unknown:
 							return UNKNOWN_VALUE_DESCRIPTION;
+
 						case PrefsType.String:
 							return IsEditableObscuredValue() ? stringValue : UNSUPPORTED_VALUE_DESCRIPTION;
+
 						case PrefsType.Int:
 							return intValue.ToString();
+
 						case PrefsType.Float:
 							return floatValue.ToString(CultureInfo.InvariantCulture);
+
 						default:
 							throw new ArgumentOutOfRangeException();
 					}
@@ -958,15 +968,19 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 					case PrefsType.Unknown:
 						Debug.LogError(ActEditorGlobalStuff.LOG_PREFIX + "Can't save Pref of unknown type!");
 						break;
+
 					case PrefsType.String:
 						PlayerPrefs.SetString(newSavedKey, savedString);
 						break;
+
 					case PrefsType.Int:
 						PlayerPrefs.SetInt(newSavedKey, intValue);
 						break;
+
 					case PrefsType.Float:
 						PlayerPrefs.SetFloat(newSavedKey, floatValue);
 						break;
+
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
@@ -999,15 +1013,19 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 						success = false;
 						Debug.LogError(ActEditorGlobalStuff.LOG_PREFIX + "Can't encrypt pref of unknown type!");
 						break;
+
 					case PrefsType.String:
 						obscuredType = ObscuredPrefs.DataType.String;
 						break;
+
 					case PrefsType.Int:
 						obscuredType = ObscuredPrefs.DataType.Int;
 						break;
+
 					case PrefsType.Float:
 						obscuredType = ObscuredPrefs.DataType.Float;
 						break;
+
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
@@ -1032,12 +1050,15 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 					case ObscuredPrefs.DataType.Int:
 						prefType = PrefsType.Int;
 						break;
+
 					case ObscuredPrefs.DataType.String:
 						prefType = PrefsType.String;
 						break;
+
 					case ObscuredPrefs.DataType.Float:
 						prefType = PrefsType.Float;
 						break;
+
 					case ObscuredPrefs.DataType.UInt:
 					case ObscuredPrefs.DataType.Double:
 					case ObscuredPrefs.DataType.Long:
@@ -1051,10 +1072,12 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 						instance.ShowNotification(new GUIContent("Type " + obscuredType + " isn't supported"));
 						success = false;
 						break;
+
 					case ObscuredPrefs.DataType.Unknown:
 						instance.ShowNotification(new GUIContent("Can't decrypt " + key));
 						success = false;
 						break;
+
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
@@ -1081,12 +1104,15 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 					case ObscuredPrefs.DataType.Int:
 						savedString = ObscuredPrefs.EncryptIntValue(key, intValue);
 						break;
+
 					case ObscuredPrefs.DataType.String:
 						savedString = ObscuredPrefs.EncryptStringValue(key, stringValue);
 						break;
+
 					case ObscuredPrefs.DataType.Float:
 						savedString = ObscuredPrefs.EncryptFloatValue(key, floatValue);
 						break;
+
 					case ObscuredPrefs.DataType.Unknown:
 					case ObscuredPrefs.DataType.UInt:
 					case ObscuredPrefs.DataType.Double:
@@ -1100,6 +1126,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 					case ObscuredPrefs.DataType.Rect:
 						savedString = stringValue;
 						break;
+
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
@@ -1175,7 +1202,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 
 			private bool IsValueObscured(string value)
 			{
-				bool validBase64String = (value.Length%4 == 0) && Regex.IsMatch(value, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
+				bool validBase64String = (value.Length % 4 == 0) && Regex.IsMatch(value, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
 				if (!validBase64String) return false;
 
 				ObscuredPrefs.DataType dataType = ObscuredPrefs.GetRawValueType(value);
@@ -1197,6 +1224,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 				Float
 			}
 		}
-#endregion
+
+		#endregion PrefsRecord
 	}
 }

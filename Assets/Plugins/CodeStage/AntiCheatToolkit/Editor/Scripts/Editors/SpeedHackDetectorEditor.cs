@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace CodeStage.AntiCheat.EditorCode.Editors
 {
-	[CustomEditor(typeof (SpeedHackDetector))]
+	[CustomEditor(typeof(SpeedHackDetector))]
 	internal class SpeedHackDetectorEditor : ActDetectorEditor
 	{
 		private SerializedProperty interval;

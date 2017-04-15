@@ -1,7 +1,7 @@
-﻿using System;
-using System.Text;
-using CodeStage.AntiCheat.Common;
+﻿using CodeStage.AntiCheat.Common;
 using CodeStage.AntiCheat.Utils;
+using System;
+using System.Text;
 using UnityEngine;
 
 namespace CodeStage.AntiCheat.ObscuredTypes
@@ -20,7 +20,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		private static bool foreignSavesReported;
 
 		private static string cryptoKey = "e806f6";
-		
+
 		/// <summary>
 		/// Use it to change default crypto key and / or obtain currently used crypto key.
 		/// </summary>
@@ -32,6 +32,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		private static string deviceId;
+
 		/// <summary>
 		/// Allows to get current device ID or set custom device ID to lock saves to the device.
 		/// </summary>
@@ -69,6 +70,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		private static uint deviceIdHash;
+
 		private static uint DeviceIdHash
 		{
 			get
@@ -90,26 +92,28 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Allows saving original PlayerPrefs values while migrating to ObscuredPrefs.
 		/// </summary>
-		/// In such case, original value still will be readable after switching from PlayerPrefs to 
+		/// In such case, original value still will be readable after switching from PlayerPrefs to
 		/// ObscuredPrefs and it should be removed manually as it became unneeded.<br/>
 		/// Original PlayerPrefs value will be automatically removed after read by default.
 		public static bool preservePlayerPrefs = false;
 
 #if UNITY_EDITOR
+
 		/// <summary>
 		/// Allows disabling written data obscuration. Works in Editor only.
 		/// </summary>
 		/// Please note, it breaks PlayerPrefs to ObscuredPrefs migration (in Editor).
 		public static bool unobscuredMode = false;
+
 #endif
 
 		/// <summary>
-		/// Allows reacting on detection of possible saves from some other device. 
+		/// Allows reacting on detection of possible saves from some other device.
 		/// </summary>
 		/// May be helpful to ban potential cheaters, trying to use someone's purchased in-app goods for example.<br/>
 		/// May fire on same device in case cheater manipulates saved data in some special way.<br/>
 		/// Fires only once.
-		/// 
+		///
 		/// <strong>\htmlonly<font color="7030A0">NOTE:</font>\endhtmlonly May be called if same device ID was changed (pretty rare case though).</strong>
 		public static System.Action onPossibleForeignSavesDetected = null;
 
@@ -121,10 +125,10 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// Set to \link ObscuredPrefs::Strict DeviceLockLevel.Strict \endlink to disallow reading of not locked data (any not locked data will be lost).<br/>
 		/// Set to \link ObscuredPrefs::None DeviceLockLevel.None \endlink to disable data lock feature and to read both previously locked and not locked data.<br/>
 		/// Read more in #DeviceLockLevel description.
-		/// 
+		///
 		/// Relies on <a href="http://docs.unity3d.com/Documentation/ScriptReference/SystemInfo-deviceUniqueIdentifier.html">SystemInfo.deviceUniqueIdentifier</a>.
 		/// Please note, it may change in some rare cases, so one day all locked data may became inaccessible on same device, and here comes #emergencyMode and #readForeignSaves to rescue.<br/>
-		/// 
+		///
 		/// <strong>\htmlonly<font color="FF4040">WARNING:</font>\endhtmlonly On iOS use at your peril! There is no reliable way to get persistent device ID on iOS. So avoid using it or use in conjunction with ForceLockToDeviceInit() to set own device ID (e.g. user email).<br/></strong>
 		/// <strong>\htmlonly<font color="7030A0">NOTE #1:</font>\endhtmlonly On iOS it tries to receive vendorIdentifier in first place, to avoid device id change while updating from iOS6 to iOS7. It leads to device ID change while updating from iOS5, but such case is lot rarer.<br/></strong>
 		/// <strong>\htmlonly<font color="7030A0">NOTE #2:</font>\endhtmlonly You may use own device id via #DeviceId property. It may be useful to lock saves to the specified email for example.<br/></strong>
@@ -171,6 +175,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		#region int
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -200,7 +205,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// </summary>
 		public static int GetInt(string key)
 		{
-			return GetInt(key,0);
+			return GetInt(key, 0);
 		}
 
 		/// <summary>
@@ -263,9 +268,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			int cleanValue = BitConverter.ToInt32(cleanBytes, 0);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion int
 
 		#region uint
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -338,9 +345,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			uint cleanValue = BitConverter.ToUInt32(cleanBytes, 0);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion uint
 
 		#region string
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -431,9 +440,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			string cleanValue = Encoding.UTF8.GetString(cleanBytes, 0, cleanBytes.Length);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion string
 
 		#region float
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -526,9 +537,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			float cleanValue = BitConverter.ToSingle(cleanBytes, 0);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion float
 
 		#region double
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -601,9 +614,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			double cleanValue = BitConverter.ToDouble(cleanBytes, 0);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion double
 
 		#region long
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -676,9 +691,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			long cleanValue = BitConverter.ToInt64(cleanBytes, 0);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion long
 
 		#region bool
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -717,7 +734,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// </summary>
 		public static bool GetBool(string key, bool defaultValue)
 		{
-			#if UNITY_EDITOR
+#if UNITY_EDITOR
 			if (unobscuredMode) return bool.Parse(ReadUnobscured(key, defaultValue));
 #endif
 			string encrypted = GetEncryptedPrefsString(key, EncryptKey(key));
@@ -751,9 +768,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			bool cleanValue = BitConverter.ToBoolean(cleanBytes, 0);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion bool
 
 		#region byte[]
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -842,9 +861,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			}
 			return bytes;
 		}
-		#endregion
+
+		#endregion byte[]
 
 		#region Vector2
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -933,9 +954,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			cleanValue.y = BitConverter.ToSingle(cleanBytes, 4);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion Vector2
 
 		#region Vector3
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -1030,9 +1053,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			cleanValue.z = BitConverter.ToSingle(cleanBytes, 8);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion Vector3
 
 		#region Quaternion
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -1133,9 +1158,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			cleanValue.w = BitConverter.ToSingle(cleanBytes, 12);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion Quaternion
 
 		#region Color
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -1167,7 +1194,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// </summary>
 		public static Color32 GetColor(string key)
 		{
-			return GetColor(key, new Color32(0,0,0,1));
+			return GetColor(key, new Color32(0, 0, 0, 1));
 		}
 
 		/// <summary>
@@ -1180,7 +1207,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 #if UNITY_EDITOR
 			if (unobscuredMode)
 			{
-                uint encodedColorUnobscured;
+				uint encodedColorUnobscured;
 				uint.TryParse(ReadUnobscured(key, 16777216u), out encodedColorUnobscured);
 
 				byte aUnobscured = (byte)(encodedColorUnobscured >> 24);
@@ -1209,9 +1236,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			byte[] cleanBytes = BitConverter.GetBytes(value);
 			return EncryptData(key, cleanBytes, DataType.Color);
 		}
-		#endregion
+
+		#endregion Color
 
 		#region Rect
+
 		/// <summary>
 		/// Sets the <c>value</c> of the preference identified by <c>key</c>.
 		/// </summary>
@@ -1241,7 +1270,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// </summary>
 		public static Rect GetRect(string key)
 		{
-			return GetRect(key, new Rect(0,0,0,0));
+			return GetRect(key, new Rect(0, 0, 0, 0));
 		}
 
 		/// <summary>
@@ -1312,7 +1341,8 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			cleanValue.height = BitConverter.ToSingle(cleanBytes, 12);
 			return cleanValue;
 		}
-		#endregion
+
+		#endregion Rect
 
 		/// <summary>
 		/// Allows to set the raw encrypted value for the specified key.
@@ -1536,7 +1566,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 				return null;
 			}
 
-			if (lockToDevice == DeviceLockLevel.Strict && inputDeviceHash == 0 && !emergencyMode &&!readForeignSaves)
+			if (lockToDevice == DeviceLockLevel.Strict && inputDeviceHash == 0 && !emergencyMode && !readForeignSaves)
 			{
 				return null;
 			}
@@ -1583,11 +1613,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		{
 			string id = "";
 #if UNITY_IPHONE
-	#if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
+#if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
 			id = iPhone.vendorIdentifier;
-	#else
+#else
 			id = UnityEngine.iOS.Device.vendorIdentifier;
-	#endif
+#endif
 #endif
 
 #if !ACTK_PREVENT_READ_PHONE_STATE
@@ -1613,6 +1643,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 #if UNITY_EDITOR
+
 		private static void WriteUnobscured<T>(string key, T value)
 		{
 			PlayerPrefs.SetString(key, value.ToString());
@@ -1622,9 +1653,10 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		{
 			return PlayerPrefs.GetString(key, defaultValueRaw.ToString());
 		}
+
 #endif
 
-		internal enum DataType: byte
+		internal enum DataType : byte
 		{
 			Unknown = 0,
 			Int = 5,
@@ -1664,10 +1696,12 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		#region deprecated
+
 		///
 		/// DEPRECATED CODE (for auto-migration from previous ObscuredPrefs version
-		/// 
+		///
 		private const char DEPRECATED_RAW_SEPARATOR = ':';
+
 		private static string DeprecatedDecryptValue(string value)
 		{
 			string[] rawParts = value.Split(DEPRECATED_RAW_SEPARATOR);
@@ -1762,6 +1796,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		private static string deprecatedDeviceId;
+
 		private static string DeprecatedDeviceId
 		{
 			get
@@ -1773,6 +1808,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 				return deprecatedDeviceId;
 			}
 		}
-		#endregion
+
+		#endregion deprecated
 	}
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CodeStage.AntiCheat.EditorCode.Editors
 {
-	[CustomEditor(typeof (ObscuredCheatingDetector))]
+	[CustomEditor(typeof(ObscuredCheatingDetector))]
 	internal class ObscuredCheatingDetectorEditor : ActDetectorEditor
 	{
 		private SerializedProperty floatEpsilon;

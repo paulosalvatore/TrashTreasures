@@ -32,7 +32,7 @@ namespace CodeStage.AntiCheat.EditorCode.PropertyDrawers
 				hiddenValueX.intValue = ev.x;
 				hiddenValueY.intValue = ev.y;
 				hiddenValueZ.intValue = ev.z;
-                inited.boolValue = true;
+				inited.boolValue = true;
 			}
 			else
 			{
@@ -54,7 +54,7 @@ namespace CodeStage.AntiCheat.EditorCode.PropertyDrawers
 			}
 			fakeValue.vector3Value = val;
 			ResetBoldFont();
-        }
+		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{

@@ -11,7 +11,7 @@ namespace CodeStage.AntiCheat.Examples
 
 		private void Update()
 		{
-			transform.Rotate(0, speed*Time.deltaTime, 0);
+			transform.Rotate(0, speed * Time.deltaTime, 0);
 		}
 	}
 }

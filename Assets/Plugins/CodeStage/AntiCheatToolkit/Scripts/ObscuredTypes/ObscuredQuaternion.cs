@@ -16,9 +16,12 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		private static readonly Quaternion initialFakeValue = Quaternion.identity;
 
 #if UNITY_EDITOR
+
 		// For internal Editor usage only (may be useful for drawers).
 		public static int cryptoKeyEditor = cryptoKey;
+
 #endif
+
 		[SerializeField]
 		private int currentCryptoKey;
 
@@ -191,6 +194,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		#region operators, overrides, interface implementations
+
 		//! @cond
 		public static implicit operator ObscuredQuaternion(Quaternion value)
 		{
@@ -210,7 +214,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns the hash code for this instance.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// A 32-bit signed integer hash code.
 		/// </returns>
@@ -237,7 +241,8 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		//! @endcond
-#endregion
+
+		#endregion operators, overrides, interface implementations
 
 		/// <summary>
 		/// Used to store encrypted Quaternion.

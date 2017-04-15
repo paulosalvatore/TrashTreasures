@@ -13,8 +13,10 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		private static char cryptoKey = '\x2014';
 
 #if UNITY_EDITOR
+
 		// For internal Editor usage only (may be useful for drawers).
 		public static char cryptoKeyEditor = cryptoKey;
+
 #endif
 
 		private char currentCryptoKey;
@@ -134,6 +136,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		#region operators, overrides, interface implementations
+
 		//! @cond
 		public static implicit operator ObscuredChar(char value)
 		{
@@ -177,7 +180,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns a value indicating whether this instance is equal to a specified object.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if <paramref name="obj"/> is an instance of ObscuredChar and equals the value of this instance; otherwise, false.
 		/// </returns>
@@ -192,7 +195,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns a value indicating whether this instance and a specified ObscuredChar object represent the same value.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if <paramref name="obj"/> is equal to this instance; otherwise, false.
 		/// </returns>
@@ -210,7 +213,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance, consisting of a sequence of digits ranging from 0 to 9, without a sign or leading zeros.
 		/// </returns>
@@ -221,10 +224,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 #if !UNITY_WINRT
+
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation using the specified culture-specific format information.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance , which consists of a sequence of digits ranging from 0 to 9, without a sign or leading zeros.
 		/// </returns>
@@ -233,11 +237,13 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		{
 			return InternalDecrypt().ToString(provider);
 		}
+
 #endif
+
 		/// <summary>
 		/// Returns the hash code for this instance.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// A hash code for the current ObscuredChar.
 		/// </returns>
@@ -248,6 +254,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		//! @endcond
-		#endregion
+
+		#endregion operators, overrides, interface implementations
 	}
 }

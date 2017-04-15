@@ -30,7 +30,7 @@ namespace CodeStage.AntiCheat.EditorCode.PropertyDrawers
 				ObscuredVector2.RawEncryptedVector2 ev = ObscuredVector2.Encrypt(Vector2.zero, currentCryptoKey);
 				hiddenValueX.intValue = ev.x;
 				hiddenValueY.intValue = ev.y;
-                inited.boolValue = true;
+				inited.boolValue = true;
 			}
 			else
 			{

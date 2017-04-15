@@ -1,6 +1,6 @@
-﻿using System;
+﻿using CodeStage.AntiCheat.Common;
+using System;
 using System.Runtime.InteropServices;
-using CodeStage.AntiCheat.Common;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
@@ -16,15 +16,18 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		private static long cryptoKey = 209208L;
 
 #if UNITY_EDITOR
+
 		// For internal Editor usage only (may be useful for drawers).
 		public static long cryptoKeyEditor = cryptoKey;
+
 #endif
 
 		private long currentCryptoKey;
-	
+
 		[FormerlySerializedAs("hiddenValue")]
 #pragma warning disable 414
 		private byte[] hiddenValueOld;
+
 #pragma warning restore 414
 
 		private ACTkByte16 hiddenValue;
@@ -218,6 +221,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		#region operators, overrides, interface implementations
+
 		//! @cond
 		public static implicit operator ObscuredDecimal(decimal value)
 		{
@@ -267,7 +271,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance.
 		/// </returns>
@@ -279,7 +283,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation, using the specified format.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance as specified by <paramref name="format"/>.
 		/// </returns>
@@ -292,7 +296,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation using the specified culture-specific format information.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance as specified by <paramref name="provider"/>.
 		/// </returns>
@@ -305,7 +309,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation using the specified format and culture-specific format information.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance as specified by <paramref name="format"/> and <paramref name="provider"/>.
 		/// </returns>
@@ -318,7 +322,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns a value indicating whether this instance is equal to a specified object.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if <paramref name="obj"/> is an instance of ObscuredDecimal and equals the value of this instance; otherwise, false.
 		/// </returns>
@@ -333,7 +337,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns a value indicating whether this instance and a specified <see cref="T:System.Decimal"/> object represent the same value.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if <paramref name="obj"/> is equal to this instance; otherwise, false.
 		/// </returns>
@@ -346,7 +350,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns the hash code for this instance.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// A 32-bit signed integer hash code.
 		/// </returns>
@@ -355,7 +359,9 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		{
 			return InternalDecrypt().GetHashCode();
 		}
+
 		//! @endcond
-		#endregion
+
+		#endregion operators, overrides, interface implementations
 	}
 }

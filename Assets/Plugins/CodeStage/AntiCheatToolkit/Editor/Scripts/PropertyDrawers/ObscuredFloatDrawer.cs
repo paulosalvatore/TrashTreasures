@@ -1,6 +1,6 @@
-﻿using System.Runtime.InteropServices;
-using CodeStage.AntiCheat.Common;
+﻿using CodeStage.AntiCheat.Common;
 using CodeStage.AntiCheat.ObscuredTypes;
+using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
 
@@ -73,7 +73,6 @@ namespace CodeStage.AntiCheat.EditorCode.PropertyDrawers
 					union.b4.b3 = (byte)hiddenValue3.intValue;
 					union.b4.b4 = (byte)hiddenValue4.intValue;
 				}
-				
 
 				val = ObscuredFloat.Decrypt(union.i, currentCryptoKey);
 			}

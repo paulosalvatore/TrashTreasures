@@ -1,7 +1,7 @@
-﻿using System;
-using UnityEngine;
+﻿using CodeStage.AntiCheat.Common;
+using System;
 using System.Runtime.InteropServices;
-using CodeStage.AntiCheat.Common;
+using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
@@ -17,8 +17,10 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		private static int cryptoKey = 230887;
 
 #if UNITY_EDITOR
+
 		// For internal Editor usage only (may be useful for drawers).
 		public static int cryptoKeyEditor = cryptoKey;
+
 #endif
 
 		[SerializeField]
@@ -31,6 +33,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		[FormerlySerializedAs("hiddenValue")]
 #pragma warning disable 414
 		private byte[] hiddenValueOld;
+
 #pragma warning restore 414
 
 		[SerializeField]
@@ -93,7 +96,6 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			var u = new FloatIntBytesUnion();
 			u.f = value;
 			u.i = u.i ^ currentKey;
-
 
 			return u.b4;
 		}
@@ -216,9 +218,11 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 			[FieldOffset(0)]
 			public ACTkByte4 b4;
 		}
+
 		//! @cond
 
 		#region operators, overrides, interface implementations
+
 		public static implicit operator ObscuredFloat(float value)
 		{
 			ObscuredFloat obscured = new ObscuredFloat(InternalEncrypt(value));
@@ -263,7 +267,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns a value indicating whether this instance is equal to a specified object.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if <paramref name="obj"/> is an instance of ObscuredFloat and equals the value of this instance; otherwise, false.
 		/// </returns>
@@ -278,7 +282,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns a value indicating whether this instance and a specified ObscuredFloat object represent the same value.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// true if <paramref name="obj"/> is equal to this instance; otherwise, false.
 		/// </returns>
@@ -294,7 +298,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Returns the hash code for this instance.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// A 32-bit signed integer hash code.
 		/// </returns>
@@ -307,7 +311,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance.
 		/// </returns>
@@ -320,7 +324,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation, using the specified format.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance as specified by <paramref name="format"/>.
 		/// </returns>
@@ -333,7 +337,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation using the specified culture-specific format information.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance as specified by <paramref name="provider"/>.
 		/// </returns>
@@ -346,7 +350,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		/// <summary>
 		/// Converts the numeric value of this instance to its equivalent string representation using the specified format and culture-specific format information.
 		/// </summary>
-		/// 
+		///
 		/// <returns>
 		/// The string representation of the value of this instance as specified by <paramref name="format"/> and <paramref name="provider"/>.
 		/// </returns>
@@ -357,7 +361,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes
 		}
 
 		//! @endcond
-		#endregion
 
+		#endregion operators, overrides, interface implementations
 	}
 }

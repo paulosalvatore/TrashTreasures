@@ -7,6 +7,7 @@ namespace CodeStage.AntiCheat.EditorCode
 	internal struct ActEditorGUI : IDisposable
 	{
 		private static GUIStyle richLabel;
+
 		internal static GUIStyle RichLabel
 		{
 			get
@@ -23,6 +24,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle boldLabel;
+
 		internal static GUIStyle BoldLabel
 		{
 			get
@@ -38,6 +40,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle largeBoldLabel;
+
 		internal static GUIStyle LargeBoldLabel
 		{
 			get
@@ -55,6 +58,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle centeredLabel;
+
 		internal static GUIStyle CenteredLabel
 		{
 			get
@@ -70,6 +74,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle panelWithBackground;
+
 		internal static GUIStyle PanelWithBackground
 		{
 			get
@@ -85,6 +90,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle compactButton;
+
 		internal static GUIStyle CompactButton
 		{
 			get
@@ -105,6 +111,7 @@ namespace CodeStage.AntiCheat.EditorCode
 
 		// LOL'ed under the typo =D
 		private static GUIStyle toolbarSeachTextField;
+
 		internal static GUIStyle ToolbarSeachTextField
 		{
 			get
@@ -119,6 +126,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle toolbarSeachTextFieldPopup;
+
 		internal static GUIStyle ToolbarSeachTextFieldPopup
 		{
 			get
@@ -133,6 +141,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle toolbarSeachCancelButton;
+
 		internal static GUIStyle ToolbarSeachCancelButton
 		{
 			get
@@ -147,6 +156,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle toolbarSeachCancelButtonEmpty;
+
 		internal static GUIStyle ToolbarSeachCancelButtonEmpty
 		{
 			get
@@ -161,6 +171,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle toolbar;
+
 		internal static GUIStyle Toolbar
 		{
 			get
@@ -176,6 +187,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle toolbarLabel;
+
 		internal static GUIStyle ToolbarLabel
 		{
 			get
@@ -192,6 +204,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		}
 
 		private static GUIStyle line;
+
 		internal static void Separator()
 		{
 			if (line == null)
@@ -266,7 +279,7 @@ namespace CodeStage.AntiCheat.EditorCode
 			return style;
 		}
 
-		#region  tooling for "using" keyword
+		#region tooling for "using" keyword
 
 		// ----------------------------------------------------------------------------
 		// tooling for "using" keyword
@@ -326,6 +339,6 @@ namespace CodeStage.AntiCheat.EditorCode
 			Vertical
 		}
 
-		#endregion
+		#endregion tooling for "using" keyword
 	}
 }

@@ -22,7 +22,9 @@
 #endif
 
 #if UNITY_5_4_PLUS
+
 using UnityEngine.SceneManagement;
+
 #endif
 
 using System;
@@ -46,19 +48,19 @@ namespace CodeStage.AntiCheat.Detectors
 	/// Just add it to any GameObject as usual or through the "GameObject > Create Other > Code Stage > Anti-Cheat Toolkit"
 	/// menu to get started.<br/>
 	/// You can use detector completely from inspector without writing any code except the actual reaction on cheating.
-	/// 
+	///
 	/// Avoid using detectors from code at the Awake phase.
-	/// 
-	/// <strong>\htmlonly<font color="7030A0">NOTE #1:</font>\endhtmlonly Make sure you've checked the 
+	///
+	/// <strong>\htmlonly<font color="7030A0">NOTE #1:</font>\endhtmlonly Make sure you've checked the
 	/// "Enable Injection Detector" option at the "Window > Code Stage > Anti-Cheat Toolkit > Settings" window
 	/// before using detector at runtime.<br/>
 	/// \htmlonly<font color="7030A0">NOTE #2:</font>\endhtmlonly Always test detector on the
 	/// target platform before releasing your application to the public.<br/>
 	/// It may detect some external assemblies as foreign,
-	/// thus make sure you've added all external assemblies your application uses to the Whitelist (see section 
+	/// thus make sure you've added all external assemblies your application uses to the Whitelist (see section
 	/// "How to fill user-defined Whitelist" of the read me for details).<br/>
 	/// \htmlonly<font color="7030A0">NOTE #3:</font>\endhtmlonly Disabled in Editor because of specific assemblies causing false positives. Use ACTK_INJECTION_DEBUG symbol to force it in Editor.
-	/// 
+	///
 	/// \htmlonly<font color="FF4040">WARNING:</font>\endhtmlonly Only Standalone, WebPlayer and Android platforms are supported.</strong>
 	[AddComponentMenu(MENU_PATH + COMPONENT_NAME)]
 	public class InjectionDetector : ActDetectorBase
@@ -72,12 +74,15 @@ namespace CodeStage.AntiCheat.Detectors
 		private static int instancesInScene;
 
 		#region private variables
+
 		private bool signaturesAreNotGenuine;
 		private AllowedAssembly[] allowedAssemblies;
 		private string[] hexTable;
-		#endregion
+
+		#endregion private variables
 
 		#region public static methods
+
 		/// <summary>
 		/// Starts foreign assemblies injection detection.
 		/// </summary>
@@ -131,7 +136,7 @@ namespace CodeStage.AntiCheat.Detectors
 		/// Stops and completely disposes detector component.
 		/// </summary>
 		/// On dispose Detector follows 2 rules:
-		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically 
+		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically
 		/// destroyed if no other Detectors left attached regardless of any other components or children;<br/>
 		/// - if Game Object's name is NOT "Anti-Cheat Toolkit Detectors": it will be automatically destroyed only
 		/// if it has neither other components nor children attached;
@@ -140,9 +145,11 @@ namespace CodeStage.AntiCheat.Detectors
 			if (Instance != null)
 				Instance.DisposeInternal();
 		}
-		#endregion
+
+		#endregion public static methods
 
 		#region static instance
+
 		/// <summary>
 		/// Allows reaching public properties from code. Can be null.
 		/// </summary>
@@ -152,21 +159,25 @@ namespace CodeStage.AntiCheat.Detectors
 		{
 			get
 			{
-			    if (Instance != null) return Instance;
+				if (Instance != null) return Instance;
 
-			    if (detectorsContainer == null)
-			    {
-			        detectorsContainer = new GameObject(CONTAINER_NAME);
-			    }
-			    Instance = detectorsContainer.AddComponent<InjectionDetector>();
-			    return Instance;
+				if (detectorsContainer == null)
+				{
+					detectorsContainer = new GameObject(CONTAINER_NAME);
+				}
+				Instance = detectorsContainer.AddComponent<InjectionDetector>();
+				return Instance;
 			}
 		}
-		#endregion
 
-		private InjectionDetector() { } // prevents direct instantiation
+		#endregion static instance
+
+		private InjectionDetector()
+		{
+		} // prevents direct instantiation
 
 		#region unity messages
+
 		private void Awake()
 		{
 			instancesInScene++;
@@ -187,10 +198,12 @@ namespace CodeStage.AntiCheat.Detectors
 		}
 
 #if UNITY_5_4_PLUS
+
 		private void OnLevelWasLoadedNew(Scene scene, LoadSceneMode mode)
 		{
 			OnLevelLoadedCallback();
 		}
+
 #else
 		private void OnLevelWasLoaded()
 		{
@@ -215,7 +228,8 @@ namespace CodeStage.AntiCheat.Detectors
 				}
 			}
 		}
-		#endregion
+
+		#endregion unity messages
 
 		private void StartDetectionInternal(UnityAction callback, UnityAction<string> callbackWithArgument)
 		{
@@ -232,7 +246,7 @@ namespace CodeStage.AntiCheat.Detectors
 			}
 
 #if UNITY_EDITOR
-            if (!UnityEditor.EditorPrefs.GetBool("ACTDIDEnabledGlobal", false))
+			if (!UnityEditor.EditorPrefs.GetBool("ACTDIDEnabledGlobal", false))
 			{
 				Debug.LogWarning(FINAL_LOG_PREFIX + "is not enabled in Anti-Cheat Toolkit Settings!\nPlease, check readme.pdf for details.", this);
 				DisposeInternal();
@@ -405,7 +419,7 @@ namespace CodeStage.AntiCheat.Detectors
 #endif
 
 			int hash = GetAssemblyHash(ass);
-			
+
 			bool result = false;
 			for (int i = 0; i < allowedAssemblies.Length; i++)
 			{
@@ -443,11 +457,11 @@ namespace CodeStage.AntiCheat.Detectors
 			sw.Start();
 #endif
 
-			string[] separator = {":"};
+			string[] separator = { ":" };
 
 			MemoryStream ms = new MemoryStream(assembliesSignatures.bytes);
 			BinaryReader br = new BinaryReader(ms);
-			
+
 			int count = br.ReadInt32();
 
 #if ACTK_DEBUG_NORMAL
@@ -561,6 +575,7 @@ namespace CodeStage.AntiCheat.Detectors
 		}
 
 #if !UNITY_WEBPLAYER
+
 		private string PublicKeyTokenToString(byte[] bytes)
 		{
 			string result = "";
@@ -573,6 +588,7 @@ namespace CodeStage.AntiCheat.Detectors
 
 			return result;
 		}
+
 #endif
 
 		private class AllowedAssembly
@@ -586,6 +602,7 @@ namespace CodeStage.AntiCheat.Detectors
 				this.hashes = hashes;
 			}
 		}
+
 #else
 		//! @cond
 		public static InjectionDetector Instance
@@ -614,22 +631,18 @@ namespace CodeStage.AntiCheat.Detectors
 
 		protected override void PauseDetector()
 		{
-			
 		}
 
 		protected override void ResumeDetector()
 		{
-			
 		}
 
 		protected override void StopDetectionInternal()
 		{
-			
 		}
 
 		protected override void StartDetectionAutomatically()
 		{
-
 		}
 		//! @endcond
 #endif

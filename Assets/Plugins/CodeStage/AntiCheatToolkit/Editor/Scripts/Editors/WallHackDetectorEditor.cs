@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace CodeStage.AntiCheat.EditorCode.Editors
 {
-	[CustomEditor(typeof (WallHackDetector))]
+	[CustomEditor(typeof(WallHackDetector))]
 	internal class WallHackDetectorEditor : ActDetectorEditor
 	{
 		private SerializedProperty wireframeDelay;
@@ -88,7 +88,7 @@ namespace CodeStage.AntiCheat.EditorCode.Editors
 					if (GUILayout.Button("Edit in Physics settings"))
 					{
 						EditorApplication.ExecuteMenuItem("Edit/Project Settings/Physics");
-                    }
+					}
 				}
 			}
 		}

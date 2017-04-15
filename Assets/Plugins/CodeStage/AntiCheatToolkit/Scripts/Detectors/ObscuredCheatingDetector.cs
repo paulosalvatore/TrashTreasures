@@ -4,7 +4,9 @@
 #endif
 
 #if UNITY_5_4_PLUS
+
 using UnityEngine.SceneManagement;
+
 #endif
 
 using CodeStage.AntiCheat.Common;
@@ -19,11 +21,11 @@ namespace CodeStage.AntiCheat.Detectors
 	/// </summary>
 	/// It allows cheaters to find desired (fake) values in memory and change them, keeping original values secure.<br/>
 	/// It's like a cheese in the mouse trap - cheater tries to change some obscured value and get caught on it.
-	/// 
-	/// Just add it to any GameObject as usual or through the "GameObject > Create Other > Code Stage > Anti-Cheat Toolkit" 
+	///
+	/// Just add it to any GameObject as usual or through the "GameObject > Create Other > Code Stage > Anti-Cheat Toolkit"
 	/// menu to get started.<br/>
 	/// You can use detector completely from inspector without writing any code except the actual reaction on cheating.
-	/// 
+	///
 	/// Avoid using detectors from code at the Awake phase.
 	[AddComponentMenu(MENU_PATH + COMPONENT_NAME)]
 	public class ObscuredCheatingDetector : ActDetectorBase
@@ -34,6 +36,7 @@ namespace CodeStage.AntiCheat.Detectors
 		private static int instancesInScene;
 
 		#region public fields
+
 		/// <summary>
 		/// Max allowed difference between encrypted and fake values in \link ObscuredTypes.ObscuredFloat ObscuredFloat\endlink. Increase in case of false positives.
 		/// </summary>
@@ -57,9 +60,11 @@ namespace CodeStage.AntiCheat.Detectors
 		/// </summary>
 		[Tooltip("Max allowed difference between encrypted and fake values in ObscuredQuaternion. Increase in case of false positives.")]
 		public float quaternionEpsilon = 0.1f;
-		#endregion
+
+		#endregion public fields
 
 		#region public static methods
+
 		/// <summary>
 		/// Starts all Obscured types cheating detection.
 		/// </summary>
@@ -99,7 +104,7 @@ namespace CodeStage.AntiCheat.Detectors
 		/// Stops and completely disposes detector component.
 		/// </summary>
 		/// On dispose Detector follows 2 rules:
-		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically 
+		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically
 		/// destroyed if no other Detectors left attached regardless of any other components or children;<br/>
 		/// - if Game Object's name is NOT "Anti-Cheat Toolkit Detectors": it will be automatically destroyed only
 		/// if it has neither other components nor children attached;
@@ -107,9 +112,11 @@ namespace CodeStage.AntiCheat.Detectors
 		{
 			if (Instance != null) Instance.DisposeInternal();
 		}
-		#endregion
+
+		#endregion public static methods
 
 		#region static instance
+
 		/// <summary>
 		/// Allows reaching public properties from code. Can be null.
 		/// </summary>
@@ -119,30 +126,34 @@ namespace CodeStage.AntiCheat.Detectors
 		{
 			get
 			{
-			    if (Instance != null) return Instance;
+				if (Instance != null) return Instance;
 
-			    if (detectorsContainer == null)
-			    {
-			        detectorsContainer = new GameObject(CONTAINER_NAME);
-			    }
-			    Instance = detectorsContainer.AddComponent<ObscuredCheatingDetector>();
-			    return Instance;
+				if (detectorsContainer == null)
+				{
+					detectorsContainer = new GameObject(CONTAINER_NAME);
+				}
+				Instance = detectorsContainer.AddComponent<ObscuredCheatingDetector>();
+				return Instance;
 			}
 		}
-		#endregion
+
+		#endregion static instance
 
 		internal static bool IsRunning
 		{
 			get
 			{
-				//object.Equals(Instance, null); 
-                return ((object)Instance != null) && Instance.isRunning;
+				//object.Equals(Instance, null);
+				return ((object)Instance != null) && Instance.isRunning;
 			}
 		}
 
-		private ObscuredCheatingDetector() {} // prevents direct instantiation
+		private ObscuredCheatingDetector()
+		{
+		} // prevents direct instantiation
 
 		#region unity messages
+
 		private void Awake()
 		{
 			instancesInScene++;
@@ -163,10 +174,12 @@ namespace CodeStage.AntiCheat.Detectors
 		}
 
 #if UNITY_5_4_PLUS
+
 		private void OnLevelWasLoadedNew(Scene scene, LoadSceneMode mode)
 		{
 			OnLevelLoadedCallback();
 		}
+
 #else
 		private void OnLevelWasLoaded()
 		{
@@ -191,7 +204,8 @@ namespace CodeStage.AntiCheat.Detectors
 				}
 			}
 		}
-		#endregion
+
+		#endregion unity messages
 
 		private void StartDetectionInternal(UnityAction callback)
 		{
@@ -255,5 +269,5 @@ namespace CodeStage.AntiCheat.Detectors
 			base.DisposeInternal();
 			if (Instance == this) Instance = null;
 		}
-    }
+	}
 }

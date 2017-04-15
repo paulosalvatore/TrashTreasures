@@ -24,9 +24,9 @@ namespace CodeStage.AntiCheat.EditorCode.PropertyDrawers
 		{
 			if (boldFontMethodInfo == null)
 			{
-				boldFontMethodInfo = typeof (EditorGUIUtility).GetMethod("SetBoldDefaultFont", BindingFlags.Static | BindingFlags.NonPublic);
+				boldFontMethodInfo = typeof(EditorGUIUtility).GetMethod("SetBoldDefaultFont", BindingFlags.Static | BindingFlags.NonPublic);
 			}
-			boldFontMethodInfo.Invoke(null, new[] {value as object});
+			boldFontMethodInfo.Invoke(null, new[] { value as object });
 		}
 	}
 }

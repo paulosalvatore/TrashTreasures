@@ -68,9 +68,20 @@ namespace CodeStage.AntiCheat.EditorCode.Editors
 			return true;
 		}
 
-		protected virtual void FindUniqueDetectorProperties() {}
-		protected virtual void DrawUniqueDetectorProperties() {}
-		protected virtual void CheckAdditionalEventsForListeners() {}
-		protected virtual void DrawAdditionalEvents() {}
+		protected virtual void FindUniqueDetectorProperties()
+		{
+		}
+
+		protected virtual void DrawUniqueDetectorProperties()
+		{
+		}
+
+		protected virtual void CheckAdditionalEventsForListeners()
+		{
+		}
+
+		protected virtual void DrawAdditionalEvents()
+		{
+		}
 	}
 }

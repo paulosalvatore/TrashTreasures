@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CodeStage.AntiCheat.EditorCode.Windows
 {
-	internal class ActSettings: EditorWindow
+	internal class ActSettings : EditorWindow
 	{
 		private const string WIREFRAME_SHADER_NAME = "Hidden/ACTk/WallHackTexture";
 
@@ -48,7 +48,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 			{
 				ActAssembliesWhitelist.ShowWindow();
 			}
-			
+
 			EditorGUILayout.Space();
 			GUILayout.Label("WallHack Detector settings (per-project)", ActEditorGUI.LargeBoldLabel);
 			GUILayout.Label("Wireframe module uses specific shader under the hood. Thus such shader should be included into the build to exist at runtime. To make sure it's get included, you may add it to the Always Included Shaders list using buttons below. You don't need to include it if you're not going to use Wireframe module.", EditorStyles.wordWrappedLabel);
@@ -71,7 +71,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 					{
 						includedShaders.DeleteArrayElementAtIndex(shaderIndex);
 						includedShaders.DeleteArrayElementAtIndex(shaderIndex);
-                    }
+					}
 				}
 				else
 				{

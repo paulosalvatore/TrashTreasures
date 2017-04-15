@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace CodeStage.AntiCheat.EditorCode.Editors
 {
-	[CustomEditor(typeof (InjectionDetector))]
+	[CustomEditor(typeof(InjectionDetector))]
 	internal class InjectionDetectorEditor : ActDetectorEditor
 	{
 		protected override void DrawUniqueDetectorProperties()

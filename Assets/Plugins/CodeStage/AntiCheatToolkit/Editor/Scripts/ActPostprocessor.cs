@@ -7,11 +7,11 @@
 #define ACTK_DEBUG_PARANIOD
 #undef ACTK_DEBUG_PARANIOD
 
+using CodeStage.AntiCheat.ObscuredTypes;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using Debug = UnityEngine.Debug;
@@ -22,7 +22,7 @@ using System.Diagnostics;
 
 namespace CodeStage.AntiCheat.EditorCode
 {
-	internal class ActPostprocessor:AssetPostprocessor
+	internal class ActPostprocessor : AssetPostprocessor
 	{
 		private static readonly List<AllowedAssembly> allowedAssemblies = new List<AllowedAssembly>();
 		private static readonly List<string> allLibraries = new List<string>();
@@ -31,7 +31,7 @@ namespace CodeStage.AntiCheat.EditorCode
 		[UnityEditor.MenuItem("Anti-Cheat Toolkit/Force Injection Detector data collection")]
 		private static void CallInjectionScan()
 		{
-			InjectionAssembliesScan(true); 
+			InjectionAssembliesScan(true);
 		}
 #endif
 
@@ -146,7 +146,7 @@ namespace CodeStage.AntiCheat.EditorCode
 					}
 					else
 					{
-						allowed = new AllowedAssembly(name, new[] {hash});
+						allowed = new AllowedAssembly(name, new[] { hash });
 						allowedAssemblies.Add(allowed);
 					}
 				}
@@ -300,5 +300,5 @@ namespace CodeStage.AntiCheat.EditorCode
 				ActEditorGlobalStuff.CleanInjectionDetectorData();
 			}
 		}
-    }
+	}
 }

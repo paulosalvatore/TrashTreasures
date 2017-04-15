@@ -2,19 +2,19 @@
 //   PlistCS Property List (plist) serialization and parsing library.
 //
 //   https://github.com/animetrics/PlistCS
-//   
+//
 //   Copyright (c) 2011 Animetrics Inc. (marc@animetrics.com)
-//   
+//
 //   Permission is hereby granted, free of charge, to any person obtaining a copy
 //   of this software and associated documentation files (the "Software"), to deal
 //   in the Software without restriction, including without limitation the rights
 //   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //   copies of the Software, and to permit persons to whom the Software is
 //   furnished to do so, subject to the following conditions:
-//   
+//
 //   The above copyright notice and this permission notice shall be included in
 //   all copies or substantial portions of the Software.
-//   
+//
 //   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,6 @@
 //   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //   THE SOFTWARE.
-
 
 using System;
 using System.Collections;
@@ -89,7 +88,7 @@ namespace CodeStage.AntiCheat.EditorCode
 			{
 				using (BinaryReader reader = new BinaryReader(stream))
 				{
-					byte[] data = reader.ReadBytes((int) reader.BaseStream.Length);
+					byte[] data = reader.ReadBytes((int)reader.BaseStream.Length);
 					return readBinary(data);
 				}
 			}
@@ -129,7 +128,7 @@ namespace CodeStage.AntiCheat.EditorCode
 
 				using (XmlWriter xmlWriter = XmlWriter.Create(ms, xmlWriterSettings))
 				{
-					xmlWriter.WriteStartDocument(); 
+					xmlWriter.WriteStartDocument();
 					//xmlWriter.WriteComment("DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" " + "\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"");
 					xmlWriter.WriteDocType("plist", "-//Apple Computer//DTD PLIST 1.0//EN", "http://www.apple.com/DTDs/PropertyList-1.0.dtd", null);
 					xmlWriter.WriteStartElement("plist");
@@ -184,7 +183,7 @@ namespace CodeStage.AntiCheat.EditorCode
 
 			offsetTable.Add(objectTable.Count - 8);
 
-			offsetByteSize = RegulateNullBytes(BitConverter.GetBytes(offsetTable[offsetTable.Count-1])).Length;
+			offsetByteSize = RegulateNullBytes(BitConverter.GetBytes(offsetTable[offsetTable.Count - 1])).Length;
 
 			List<byte> offsetBytes = new List<byte>();
 
@@ -204,7 +203,7 @@ namespace CodeStage.AntiCheat.EditorCode
 			objectTable.Add(Convert.ToByte(offsetByteSize));
 			objectTable.Add(Convert.ToByte(objRefSize));
 
-			var a = BitConverter.GetBytes((long) totalRefs + 1);
+			var a = BitConverter.GetBytes((long)totalRefs + 1);
 			Array.Reverse(a);
 			objectTable.AddRange(a);
 
@@ -216,7 +215,7 @@ namespace CodeStage.AntiCheat.EditorCode
 			return objectTable.ToArray();
 		}
 
-		#endregion
+		#endregion Public Functions
 
 		#region Private Functions
 
@@ -312,28 +311,37 @@ namespace CodeStage.AntiCheat.EditorCode
 		{
 			switch (node.Name)
 			{
-			case "dict":
-				return parseDictionary(node);
-			case "array":
-				return parseArray(node);
-			case "string":
-				return node.InnerText;
-			case "integer":
-				//  int result;
-				//int.TryParse(node.InnerText, System.Globalization.NumberFormatInfo.InvariantInfo, out result);
-				return Convert.ToInt32(node.InnerText, System.Globalization.NumberFormatInfo.InvariantInfo);
-			case "real":
-				return Convert.ToDouble(node.InnerText,System.Globalization.NumberFormatInfo.InvariantInfo);
-			case "false":
-				return false;
-			case "true":
-				return true;
-			case "null":
-				return null;
-			case "date":
-				return XmlConvert.ToDateTime(node.InnerText, XmlDateTimeSerializationMode.Utc);
-			case "data":
-				return Convert.FromBase64String(node.InnerText);
+				case "dict":
+					return parseDictionary(node);
+
+				case "array":
+					return parseArray(node);
+
+				case "string":
+					return node.InnerText;
+
+				case "integer":
+					//  int result;
+					//int.TryParse(node.InnerText, System.Globalization.NumberFormatInfo.InvariantInfo, out result);
+					return Convert.ToInt32(node.InnerText, System.Globalization.NumberFormatInfo.InvariantInfo);
+
+				case "real":
+					return Convert.ToDouble(node.InnerText, System.Globalization.NumberFormatInfo.InvariantInfo);
+
+				case "false":
+					return false;
+
+				case "true":
+					return true;
+
+				case "null":
+					return null;
+
+				case "date":
+					return XmlConvert.ToDateTime(node.InnerText, XmlDateTimeSerializationMode.Utc);
+
+				case "data":
+					return Convert.FromBase64String(node.InnerText);
 			}
 
 			throw new ApplicationException(String.Format("Plist Node `{0}' is not supported", node.Name));
@@ -341,7 +349,6 @@ namespace CodeStage.AntiCheat.EditorCode
 
 		private static void compose(object value, XmlWriter writer)
 		{
-
 			if (value == null || value is string)
 			{
 				writer.WriteElementString("string", value as string);
@@ -411,26 +418,28 @@ namespace CodeStage.AntiCheat.EditorCode
 			int count = 0;
 			switch (value.GetType().ToString())
 			{
-			case "System.Collections.Generic.Dictionary`2[System.String,System.Object]":
-				Dictionary<string, object> dict = (Dictionary<string, object>)value;
-				foreach (string key in dict.Keys)
-				{
-					count += countObject(dict[key]);
-				}
-				count += dict.Keys.Count;
-				count++;
-				break;
-			case "System.Collections.Generic.List`1[System.Object]":
-				List<object> list = (List<object>)value;
-				foreach (object obj in list)
-				{
-					count += countObject(obj);
-				}
-				count++;
-				break;
-			default:
-				count++;
-				break;
+				case "System.Collections.Generic.Dictionary`2[System.String,System.Object]":
+					Dictionary<string, object> dict = (Dictionary<string, object>)value;
+					foreach (string key in dict.Keys)
+					{
+						count += countObject(dict[key]);
+					}
+					count += dict.Keys.Count;
+					count++;
+					break;
+
+				case "System.Collections.Generic.List`1[System.Object]":
+					List<object> list = (List<object>)value;
+					foreach (object obj in list)
+					{
+						count += countObject(obj);
+					}
+					count++;
+					break;
+
+				default:
+					count++;
+					break;
 			}
 			return count;
 		}
@@ -469,7 +478,6 @@ namespace CodeStage.AntiCheat.EditorCode
 				header.AddRange(writeBinaryInteger(dictionary.Count, false));
 			}
 
-
 			foreach (int val in refs)
 			{
 				byte[] refBuffer = RegulateNullBytes(BitConverter.GetBytes(val), objRefSize);
@@ -478,7 +486,6 @@ namespace CodeStage.AntiCheat.EditorCode
 			}
 
 			buffer.InsertRange(0, header);
-
 
 			objectTable.InsertRange(0, buffer);
 
@@ -528,46 +535,46 @@ namespace CodeStage.AntiCheat.EditorCode
 			byte[] value;
 			switch (obj.GetType().ToString())
 			{
-			case "System.Collections.Generic.Dictionary`2[System.String,System.Object]":
-				value = writeBinaryDictionary((Dictionary<string, object>)obj);
-				return value;
+				case "System.Collections.Generic.Dictionary`2[System.String,System.Object]":
+					value = writeBinaryDictionary((Dictionary<string, object>)obj);
+					return value;
 
-			case "System.Collections.Generic.List`1[System.Object]":
-				value = composeBinaryArray((List<object>)obj);
-				return value;
+				case "System.Collections.Generic.List`1[System.Object]":
+					value = composeBinaryArray((List<object>)obj);
+					return value;
 
-			case "System.Byte[]":
-				value = writeBinaryByteArray((byte[])obj);
-				return value;
+				case "System.Byte[]":
+					value = writeBinaryByteArray((byte[])obj);
+					return value;
 
-			case "System.Double":
-				value = writeBinaryDouble((double)obj);
-				return value;
+				case "System.Double":
+					value = writeBinaryDouble((double)obj);
+					return value;
 
-			case "System.Int32":
-				value = writeBinaryInteger((int)obj, true);
-				return value;
+				case "System.Int32":
+					value = writeBinaryInteger((int)obj, true);
+					return value;
 
-			case "System.String":
-				value = writeBinaryString((string)obj, true);
-				return value;
+				case "System.String":
+					value = writeBinaryString((string)obj, true);
+					return value;
 
-			case "System.DateTime":
-				value = writeBinaryDate((DateTime)obj);
-				return value;
+				case "System.DateTime":
+					value = writeBinaryDate((DateTime)obj);
+					return value;
 
-			case "System.Boolean":
-				value = writeBinaryBool((bool)obj);
-				return value;
+				case "System.Boolean":
+					value = writeBinaryBool((bool)obj);
+					return value;
 
-			default:
-				return new byte[0];
+				default:
+					return new byte[0];
 			}
 		}
 
 		public static byte[] writeBinaryDate(DateTime obj)
 		{
-			List<byte> buffer =new List<byte>(RegulateNullBytes(BitConverter.GetBytes(PlistDateConverter.ConvertToAppleTimeStamp(obj)), 8));
+			List<byte> buffer = new List<byte>(RegulateNullBytes(BitConverter.GetBytes(PlistDateConverter.ConvertToAppleTimeStamp(obj)), 8));
 			buffer.Reverse();
 			buffer.Insert(0, 0x33);
 			objectTable.InsertRange(0, buffer);
@@ -583,8 +590,8 @@ namespace CodeStage.AntiCheat.EditorCode
 
 		private static byte[] writeBinaryInteger(int value, bool write)
 		{
-			List<byte> buffer = new List<byte>(BitConverter.GetBytes((long) value));
-			buffer =new List<byte>(RegulateNullBytes(buffer.ToArray()));
+			List<byte> buffer = new List<byte>(BitConverter.GetBytes((long)value));
+			buffer = new List<byte>(RegulateNullBytes(buffer.ToArray()));
 			while (buffer.Count != Math.Pow(2, Math.Log(buffer.Count) / Math.Log(2)))
 				buffer.Add(0);
 			int header = 0x10 | (int)(Math.Log(buffer.Count) / Math.Log(2));
@@ -601,7 +608,7 @@ namespace CodeStage.AntiCheat.EditorCode
 
 		private static byte[] writeBinaryDouble(double value)
 		{
-			List<byte> buffer =new List<byte>(RegulateNullBytes(BitConverter.GetBytes(value), 4));
+			List<byte> buffer = new List<byte>(RegulateNullBytes(BitConverter.GetBytes(value), 4));
 			while (buffer.Count != Math.Pow(2, Math.Log(buffer.Count) / Math.Log(2)))
 				buffer.Add(0);
 			int header = 0x20 | (int)(Math.Log(buffer.Count) / Math.Log(2));
@@ -726,7 +733,6 @@ namespace CodeStage.AntiCheat.EditorCode
 			int refStartPosition;
 			refCount = getCount(offsetTable[objRef], out refStartPosition);
 
-
 			if (refCount < 15)
 				refStartPosition = offsetTable[objRef] + 1;
 			else
@@ -755,7 +761,6 @@ namespace CodeStage.AntiCheat.EditorCode
 
 			int refStartPosition;
 			refCount = getCount(offsetTable[objRef], out refStartPosition);
-
 
 			if (refCount < 15)
 				refStartPosition = offsetTable[objRef] + 1;
@@ -798,46 +803,46 @@ namespace CodeStage.AntiCheat.EditorCode
 			byte header = objectTable[offsetTable[objRef]];
 			switch (header & 0xF0)
 			{
-			case 0:
-				{
-					//If the byte is
-					//0 return null
-					//9 return true
-					//8 return false
-					return (objectTable[offsetTable[objRef]] == 0) ? (object)null : ((objectTable[offsetTable[objRef]] == 9) ? true : false);
-				}
-			case 0x10:
-				{
-					return parseBinaryInt(offsetTable[objRef]);
-				}
-			case 0x20:
-				{
-					return parseBinaryReal(offsetTable[objRef]);
-				}
-			case 0x30:
-				{
-					return parseBinaryDate(offsetTable[objRef]);
-				}
-			case 0x40:
-				{
-					return parseBinaryByteArray(offsetTable[objRef]);
-				}
-			case 0x50://String ASCII
-				{
-					return parseBinaryAsciiString(offsetTable[objRef]);
-				}
-			case 0x60://String Unicode
-				{
-					return parseBinaryUnicodeString(offsetTable[objRef]);
-				}
-			case 0xD0:
-				{
-					return parseBinaryDictionary(objRef);
-				}
-			case 0xA0:
-				{
-					return parseBinaryArray(objRef);
-				}
+				case 0:
+					{
+						//If the byte is
+						//0 return null
+						//9 return true
+						//8 return false
+						return (objectTable[offsetTable[objRef]] == 0) ? (object)null : ((objectTable[offsetTable[objRef]] == 9) ? true : false);
+					}
+				case 0x10:
+					{
+						return parseBinaryInt(offsetTable[objRef]);
+					}
+				case 0x20:
+					{
+						return parseBinaryReal(offsetTable[objRef]);
+					}
+				case 0x30:
+					{
+						return parseBinaryDate(offsetTable[objRef]);
+					}
+				case 0x40:
+					{
+						return parseBinaryByteArray(offsetTable[objRef]);
+					}
+				case 0x50://String ASCII
+					{
+						return parseBinaryAsciiString(offsetTable[objRef]);
+					}
+				case 0x60://String Unicode
+					{
+						return parseBinaryUnicodeString(offsetTable[objRef]);
+					}
+				case 0xD0:
+					{
+						return parseBinaryDictionary(objRef);
+					}
+				case 0xA0:
+					{
+						return parseBinaryArray(objRef);
+					}
 			}
 			throw new Exception("This type is not supported");
 		}
@@ -896,10 +901,10 @@ namespace CodeStage.AntiCheat.EditorCode
 			byte[] buffer = new byte[charCount];
 			byte one, two;
 
-			for (int i = 0; i < charCount; i+=2)
+			for (int i = 0; i < charCount; i += 2)
 			{
-				one = objectTable.GetRange(charStartPosition+i,1)[0];
-				two = objectTable.GetRange(charStartPosition + i+1, 1)[0];
+				one = objectTable.GetRange(charStartPosition + i, 1)[0];
+				two = objectTable.GetRange(charStartPosition + i + 1, 1)[0];
 
 				if (BitConverter.IsLittleEndian)
 				{
@@ -923,7 +928,7 @@ namespace CodeStage.AntiCheat.EditorCode
 			return objectTable.GetRange(byteStartPosition, byteCount).ToArray();
 		}
 
-		#endregion
+		#endregion Private Functions
 	}
 
 	public enum plistType

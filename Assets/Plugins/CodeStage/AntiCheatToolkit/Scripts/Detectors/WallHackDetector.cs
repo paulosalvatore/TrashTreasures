@@ -1,8 +1,8 @@
 ﻿#if (UNITY_EDITOR || DEVELOPMENT_BUILD)
-	#define ACTK_UNITY_DEBUG_ENABLED
-	#if ACTK_WALLHACK_DEBUG
-		#define WALLHACK_DEBUG
-	#endif
+#define ACTK_UNITY_DEBUG_ENABLED
+#if ACTK_WALLHACK_DEBUG
+#define WALLHACK_DEBUG
+#endif
 #endif
 
 using System.Collections;
@@ -12,12 +12,15 @@ using CodeStage.AntiCheat.Common;
 using Random = UnityEngine.Random;
 
 #if !UNITY_4_3 && !UNITY_4_5 && !UNITY_4_6 && !UNITY_4_7
+
 using UnityEngine.Rendering;
+
 #endif
 
-
 #if UNITY_5_4_OR_NEWER
+
 using UnityEngine.SceneManagement;
+
 #endif
 
 #if ACTK_EXCLUDE_OBFUSCATION
@@ -31,21 +34,21 @@ namespace CodeStage.AntiCheat.Detectors
 	/// shooting through the walls (Raycast module), looking through the walls (Wireframe module).
 	/// </summary>
 	/// In order to work properly, this detector creates and uses some service objects right in the scene.<br/>
-	/// It places all such objects within 3x3x3 sandbox area which is placed at the #spawnPosition and drawn as a red wire cube in 
+	/// It places all such objects within 3x3x3 sandbox area which is placed at the #spawnPosition and drawn as a red wire cube in
 	/// the scene when you select Game Object with this detector.<br/>
 	/// Please, place this sandbox area at the empty unreachable space of your game to avoid any collisions and false positives.<br/>
-	/// 
+	///
 	/// To get started:<br/>
 	/// - add detector to any GameObject as usual or through the "GameObject > Create Other > Code Stage > Anti-Cheat Toolkit" menu;<br/>
 	/// - make sure 3x3x3 area at the #spawnPosition is unreachable for any objects of your game;
-	/// 
+	///
 	/// You can use detector completely from inspector without writing any code except the actual reaction on cheating.
-	/// 
+	///
 	/// Avoid using detectors from code at the Awake phase.
-	/// 
+	///
 	/// <strong>\htmlonly<font color="7030A0">Note #1:</font>\endhtmlonly Adds new objects to the scene and places them into the
 	/// "[WH Detector Service]" container at the #spawnPosition.<br/>
-	/// \htmlonly<font color="7030A0">Note #2:</font>\endhtmlonly May use physics and shaders. It may lead to the build size 
+	/// \htmlonly<font color="7030A0">Note #2:</font>\endhtmlonly May use physics and shaders. It may lead to the build size
 	/// increase and additional resources usage.</strong>
 	[AddComponentMenu(MENU_PATH + COMPONENT_NAME)]
 	public class WallHackDetector : ActDetectorBase
@@ -65,6 +68,7 @@ namespace CodeStage.AntiCheat.Detectors
 		private readonly WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
 
 		#region public properties
+
 		[SerializeField]
 		[Tooltip("Check for the \"walk through the walls\" kind of cheats made via Rigidbody hacks?")]
 		private bool checkRigidbody = true;
@@ -125,7 +129,7 @@ namespace CodeStage.AntiCheat.Detectors
 			}
 		}
 
-        [SerializeField]
+		[SerializeField]
 		[Tooltip("Check for the \"see through the walls\" kind of cheats made via shader or driver hacks (wireframe, color alpha, etc.)?")]
 		private bool checkWireframe = true;
 
@@ -133,34 +137,34 @@ namespace CodeStage.AntiCheat.Detectors
 		/// Check for the "see through the walls" kind of cheats made via shader or driver hacks (wireframe, color alpha, etc.)?
 		/// </summary>
 		/// Disable to save some resources in case you don't care about such cheats.
-		/// 
+		///
 		/// <strong>\htmlonly<font color="7030A0">NOTE:</font>\endhtmlonly Uses specific shader under the hood.
 		/// Thus such shader should be included into the build to exist at runtime.<br/>
 		/// You may easily add or remove shader at the ACTk Settings window (Window > Code Stage > Anti-Cheat Toolkit > Settings).<br/>
 		/// You'll see error in logs at runtime if you'll have no needed shader included.</strong>
 		public bool CheckWireframe
-        {
-            get { return checkWireframe; }
-            set
-            {
-                if (checkWireframe == value || !Application.isPlaying || !enabled || !gameObject.activeSelf) return;
-                checkWireframe = value;
+		{
+			get { return checkWireframe; }
+			set
+			{
+				if (checkWireframe == value || !Application.isPlaying || !enabled || !gameObject.activeSelf) return;
+				checkWireframe = value;
 
 				if (!started) return;
 
 				UpdateServiceContainer();
-                if (checkWireframe)
-                {
-                    StartWireframeModule();
-                }
-                else
-                {
-                    StopWireframeModule();
-                }
-            }
-        }
+				if (checkWireframe)
+				{
+					StartWireframeModule();
+				}
+				else
+				{
+					StopWireframeModule();
+				}
+			}
+		}
 
-        [SerializeField]
+		[SerializeField]
 		[Tooltip("Check for the \"shoot through the walls\" kind of cheats made via Raycast hacks?")]
 		private bool checkRaycast = true;
 
@@ -189,9 +193,11 @@ namespace CodeStage.AntiCheat.Detectors
 				}
 			}
 		}
-		#endregion
+
+		#endregion public properties
 
 		#region public fields
+
 		/// <summary>
 		/// Delay between Wireframe module checks, from 1 up to 60 secs.
 		/// </summary>
@@ -207,7 +213,7 @@ namespace CodeStage.AntiCheat.Detectors
 		public int raycastDelay = 10;
 
 		/// <summary>
-		/// World coordinates of the service container. 
+		/// World coordinates of the service container.
 		/// Please keep in mind it will have different active objects within 3x3x3 cube during gameplay.
 		/// It should be unreachable for your game objects to avoid collisions and false positives.
 		/// </summary>
@@ -219,9 +225,11 @@ namespace CodeStage.AntiCheat.Detectors
 		/// </summary>
 		[Tooltip("Maximum false positives in a row for each detection module before registering a wall hack.")]
 		public byte maxFalsePositives = 3;
-		#endregion
+
+		#endregion public fields
 
 		#region private variables
+
 		private GameObject serviceContainer;
 		private GameObject solidWall;
 		private GameObject thinWall;
@@ -250,9 +258,11 @@ namespace CodeStage.AntiCheat.Detectors
 		private byte raycastDetections;
 
 		private bool wireframeDetected;
-		#endregion
+
+		#endregion private variables
 
 		#region public static methods
+
 		/// <summary>
 		/// Starts detection.
 		/// </summary>
@@ -317,7 +327,7 @@ namespace CodeStage.AntiCheat.Detectors
 		/// Stops and completely disposes detector component and destroys Service Container as well.
 		/// </summary>
 		/// On dispose Detector follows 2 rules:
-		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically 
+		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically
 		/// destroyed if no other Detectors left attached regardless of any other components or children;<br/>
 		/// - if Game Object's name is NOT "Anti-Cheat Toolkit Detectors": it will be automatically destroyed only
 		/// if it has neither other components nor children attached;
@@ -328,9 +338,11 @@ namespace CodeStage.AntiCheat.Detectors
 				Instance.DisposeInternal();
 			}
 		}
-		#endregion
+
+		#endregion public static methods
 
 		#region static instance
+
 		/// <summary>
 		/// Allows reaching public properties from code. Can be null.
 		/// </summary>
@@ -350,11 +362,15 @@ namespace CodeStage.AntiCheat.Detectors
 				return Instance;
 			}
 		}
-		#endregion
 
-		private WallHackDetector() { } // prevents direct instantiation
+		#endregion static instance
+
+		private WallHackDetector()
+		{
+		} // prevents direct instantiation
 
 		#region unity messages
+
 		private void Awake()
 		{
 			instancesInScene++;
@@ -395,10 +411,12 @@ namespace CodeStage.AntiCheat.Detectors
 		}
 
 #if UNITY_5_4_OR_NEWER
+
 		private void OnLevelWasLoadedNew(Scene scene, LoadSceneMode mode)
 		{
 			OnLevelLoadedCallback();
 		}
+
 #else
 		private void OnLevelWasLoaded()
 		{
@@ -425,11 +443,13 @@ namespace CodeStage.AntiCheat.Detectors
 		}
 
 #if UNITY_EDITOR
+
 		private void OnDrawGizmosSelected()
 		{
 			Gizmos.color = Color.red;
 			Gizmos.DrawWireCube(spawnPosition, new Vector3(3, 3, 3));
 		}
+
 #endif
 
 		private void FixedUpdate()
@@ -494,7 +514,8 @@ namespace CodeStage.AntiCheat.Detectors
 			GUILayout.EndArea();
 		}
 #endif
-		#endregion
+
+		#endregion unity messages
 
 		private void StartDetectionInternal(UnityAction callback, Vector3 servicePosition, byte falsePositivesInRow)
 		{
@@ -526,7 +547,7 @@ namespace CodeStage.AntiCheat.Detectors
 			if (checkRaycast || checkController || checkRigidbody)
 			{
 				int layerId = LayerMask.NameToLayer("Ignore Raycast");
-                if (Physics.GetIgnoreLayerCollision(layerId, layerId))
+				if (Physics.GetIgnoreLayerCollision(layerId, layerId))
 				{
 					Debug.LogError(FINAL_LOG_PREFIX + "IgnoreRaycast physics layer should collide with itself to avoid false positives! See readme's troubleshooting section for details.");
 				}
@@ -613,6 +634,7 @@ namespace CodeStage.AntiCheat.Detectors
 			if (enabled && gameObject.activeSelf)
 			{
 				#region common
+
 				if (whLayer == -1)
 					whLayer = LayerMask.NameToLayer("Ignore Raycast");
 				if (raycastMask == -1)
@@ -625,9 +647,11 @@ namespace CodeStage.AntiCheat.Detectors
 					serviceContainer.transform.position = spawnPosition;
 					DontDestroyOnLoad(serviceContainer);
 				}
-				#endregion
+
+				#endregion common
 
 				#region walk
+
 				if ((checkRigidbody || checkController) && solidWall == null)
 				{
 #if WALLHACK_DEBUG
@@ -647,9 +671,11 @@ namespace CodeStage.AntiCheat.Detectors
 				{
 					Destroy(solidWall);
 				}
-				#endregion
+
+				#endregion walk
 
 				#region wireframe
+
 				if (checkWireframe && wfCamera == null)
 				{
 					if (wfShader == null)
@@ -797,9 +823,11 @@ namespace CodeStage.AntiCheat.Detectors
 					wfCamera.targetTexture = null;
 					Destroy(wfCamera.gameObject);
 				}
-#endregion
 
-#region raycast
+				#endregion wireframe
+
+				#region raycast
+
 				if (checkRaycast && thinWall == null)
 				{
 					thinWall = GameObject.CreatePrimitive(PrimitiveType.Plane);
@@ -822,7 +850,8 @@ namespace CodeStage.AntiCheat.Detectors
 				{
 					Destroy(thinWall);
 				}
-#endregion
+
+				#endregion raycast
 			}
 			else if (serviceContainer != null)
 			{
@@ -861,6 +890,7 @@ namespace CodeStage.AntiCheat.Detectors
 #if ACTK_EXCLUDE_OBFUSCATION
 		[Obfuscation(Exclude = true)]
 #endif
+
 		private void StartRigidModule()
 		{
 			if (!checkRigidbody)
@@ -890,6 +920,7 @@ namespace CodeStage.AntiCheat.Detectors
 #if ACTK_EXCLUDE_OBFUSCATION
 		[Obfuscation(Exclude = true)]
 #endif
+
 		private void StartControllerModule()
 		{
 			if (!checkController)
@@ -917,6 +948,7 @@ namespace CodeStage.AntiCheat.Detectors
 #if ACTK_EXCLUDE_OBFUSCATION
 		[Obfuscation(Exclude = true)]
 #endif
+
 		private void StartWireframeModule()
 		{
 			if (!checkWireframe)
@@ -935,6 +967,7 @@ namespace CodeStage.AntiCheat.Detectors
 #if ACTK_EXCLUDE_OBFUSCATION
 		[Obfuscation(Exclude = true)]
 #endif
+
 		private void ShootWireframeModule()
 		{
 			StartCoroutine(CaptureFrame());
@@ -951,12 +984,12 @@ namespace CodeStage.AntiCheat.Detectors
 #endif
 			wfCamera.enabled = true;
 			yield return waitForEndOfFrame;
-			
+
 			foregroundRenderer.enabled = true;
 			backgroundRenderer.enabled = true;
 
 			RenderTexture previousActive = RenderTexture.active;
-            RenderTexture.active = renderTexture;
+			RenderTexture.active = renderTexture;
 
 			wfCamera.Render();
 
@@ -1029,6 +1062,7 @@ namespace CodeStage.AntiCheat.Detectors
 #if ACTK_EXCLUDE_OBFUSCATION
 		[Obfuscation(Exclude = true)]
 #endif
+
 		private void StartRaycastModule()
 		{
 			if (!checkRaycast)
@@ -1044,6 +1078,7 @@ namespace CodeStage.AntiCheat.Detectors
 #if ACTK_EXCLUDE_OBFUSCATION
 		[Obfuscation(Exclude = true)]
 #endif
+
 		private void ShootRaycastModule()
 		{
 			if (Physics.Raycast(serviceContainer.transform.position, serviceContainer.transform.TransformDirection(Vector3.forward), 1.5f, raycastMask))
@@ -1143,7 +1178,7 @@ namespace CodeStage.AntiCheat.Detectors
 			if (controllerDetections > maxFalsePositives ||
 				rigidbodyDetections > maxFalsePositives ||
 				wireframeDetections > maxFalsePositives ||
-                raycastDetections > maxFalsePositives)
+				raycastDetections > maxFalsePositives)
 			{
 #if ACTK_UNITY_DEBUG_ENABLED
 				Debug.LogWarning(FINAL_LOG_PREFIX + "final detection!", this);

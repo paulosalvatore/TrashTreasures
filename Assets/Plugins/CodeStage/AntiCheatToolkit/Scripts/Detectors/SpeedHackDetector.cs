@@ -8,7 +8,9 @@
 #endif
 
 #if UNITY_5_4_PLUS
+
 using UnityEngine.SceneManagement;
+
 #endif
 
 using CodeStage.AntiCheat.Common;
@@ -24,9 +26,9 @@ namespace CodeStage.AntiCheat.Detectors
 	/// Just add it to any GameObject as usual or through the "GameObject > Create Other > Code Stage > Anti-Cheat Toolkit"
 	/// menu to get started.<br/>
 	/// You can use detector completely from inspector without writing any code except the actual reaction on cheating.
-	/// 
+	///
 	/// Avoid using detectors from code at the Awake phase.
-	/// 
+	///
 	/// <strong>\htmlonly<font color="7030A0">NOTE:</font>\endhtmlonly May not detect speed hacks on the rooted devices.</strong>
 	[AddComponentMenu(MENU_PATH + COMPONENT_NAME)]
 	public class SpeedHackDetector : ActDetectorBase
@@ -40,7 +42,8 @@ namespace CodeStage.AntiCheat.Detectors
 		private static int instancesInScene;
 
 		#region public fields
-		/// <summary> 
+
+		/// <summary>
 		/// Time (in seconds) between detector checks.
 		/// </summary>
 		[Tooltip("Time (in seconds) between detector checks.")]
@@ -58,18 +61,22 @@ namespace CodeStage.AntiCheat.Detectors
 		/// </summary>
 		[Tooltip("Amount of sequential successful checks before clearing internal false positives counter.\nSet 0 to disable Cool Down feature.")]
 		public int coolDown = 30;
-		#endregion
+
+		#endregion public fields
 
 		#region private variables
+
 		private byte currentFalsePositives;
 		private int currentCooldownShots;
 		private long ticksOnStart;
 		private long vulnerableTicksOnStart;
 		private long prevTicks;
 		private long prevIntervalTicks;
-		#endregion
+
+		#endregion private variables
 
 		#region public static methods
+
 		/// <summary>
 		/// Starts speed hack detection.
 		/// </summary>
@@ -123,7 +130,7 @@ namespace CodeStage.AntiCheat.Detectors
 		}
 
 		/// <summary>
-		/// Starts speed hack detection with specified callback using passed interval, maxFalsePositives and coolDown. 
+		/// Starts speed hack detection with specified callback using passed interval, maxFalsePositives and coolDown.
 		/// </summary>
 		/// If you have detector in scene make sure it has empty Detection Event.<br/>
 		/// Creates a new detector instance if it doesn't exists in scene.
@@ -148,7 +155,7 @@ namespace CodeStage.AntiCheat.Detectors
 		/// Stops and completely disposes detector component.
 		/// </summary>
 		/// On dispose Detector follows 2 rules:
-		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically 
+		/// - if Game Object's name is "Anti-Cheat Toolkit Detectors": it will be automatically
 		/// destroyed if no other Detectors left attached regardless of any other components or children;<br/>
 		/// - if Game Object's name is NOT "Anti-Cheat Toolkit Detectors": it will be automatically destroyed only
 		/// if it has neither other components nor children attached;
@@ -156,9 +163,11 @@ namespace CodeStage.AntiCheat.Detectors
 		{
 			if (Instance != null) Instance.DisposeInternal();
 		}
-		#endregion
+
+		#endregion public static methods
 
 		#region static instance
+
 		/// <summary>
 		/// Allows reaching public properties from code. Can be null.
 		/// </summary>
@@ -179,11 +188,15 @@ namespace CodeStage.AntiCheat.Detectors
 				return Instance;
 			}
 		}
-		#endregion
 
-		private SpeedHackDetector() { } // prevents direct instantiation
+		#endregion static instance
+
+		private SpeedHackDetector()
+		{
+		} // prevents direct instantiation
 
 		#region unity messages
+
 		private void Awake()
 		{
 			instancesInScene++;
@@ -204,10 +217,12 @@ namespace CodeStage.AntiCheat.Detectors
 		}
 
 #if UNITY_5_4_PLUS
+
 		private void OnLevelWasLoadedNew(Scene scene, LoadSceneMode mode)
 		{
 			OnLevelLoadedCallback();
 		}
+
 #else
 		private void OnLevelWasLoaded()
 		{
@@ -300,7 +315,8 @@ namespace CodeStage.AntiCheat.Detectors
 				prevIntervalTicks = ticks;
 			}
 		}
-		#endregion
+
+		#endregion unity messages
 
 		private void StartDetectionInternal(UnityAction callback, float checkInterval, byte falsePositives, int shotsTillCooldown)
 		{
@@ -345,7 +361,7 @@ namespace CodeStage.AntiCheat.Detectors
 		{
 			StartDetectionInternal(null, interval, maxFalsePositives, coolDown);
 		}
-		
+
 		protected override void PauseDetector()
 		{
 			isRunning = false;

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using CodeStage.AntiCheat.ObscuredTypes;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEditor;
 using UnityEngine;
 
@@ -137,7 +137,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 					manualAssemblyWhitelisting = true;
 				}
 			}
-			
+
 			if (count > 0)
 			{
 				if (GUILayout.Button("Clear"))
@@ -184,11 +184,14 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 						case WhitelistingResult.Added:
 							added++;
 							break;
+
 						case WhitelistingResult.Updated:
 							updated++;
 							break;
+
 						case WhitelistingResult.Exists:
 							break;
+
 						default:
 							throw new ArgumentOutOfRangeException();
 					}
@@ -230,7 +233,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 			}
 			else
 			{
-				allowed = new AllowedAssembly(assNameString, new[] {hash});
+				allowed = new AllowedAssembly(assNameString, new[] { hash });
 				whitelist.Add(allowed);
 
 				if (singleFile) ShowNotification(new GUIContent("Assembly added!"));
@@ -245,7 +248,7 @@ namespace CodeStage.AntiCheat.EditorCode.Windows
 			whitelistPath = ActEditorGlobalStuff.ResolveInjectionUserWhitelistPath();
 			if (string.IsNullOrEmpty(whitelistPath) || !File.Exists(whitelistPath)) return;
 
-			string[] separator = {ActEditorGlobalStuff.INJECTION_DATA_SEPARATOR};
+			string[] separator = { ActEditorGlobalStuff.INJECTION_DATA_SEPARATOR };
 
 			FileStream fs = new FileStream(whitelistPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			BinaryReader br = new BinaryReader(fs);

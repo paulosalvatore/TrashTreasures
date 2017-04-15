@@ -4,8 +4,10 @@
 #endif
 
 #if UNITY_5_0_PLUS
+
 using System.Runtime.InteropServices;
 using CodeStage.AntiCheat.Common;
+
 #endif
 
 using CodeStage.AntiCheat.ObscuredTypes;
@@ -146,6 +148,7 @@ namespace CodeStage.AntiCheat.EditorCode.PropertyDrawers
 			[FieldOffset(0)]
 			public ACTkByte8 b8;
 		}
+
 #endif
 	}
 }

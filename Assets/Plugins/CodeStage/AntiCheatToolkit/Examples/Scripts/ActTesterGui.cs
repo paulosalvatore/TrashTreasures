@@ -1,15 +1,15 @@
-﻿using System;
+﻿using CodeStage.AntiCheat.Common;
+
+// If you're going to use detectors from code you'll need to use this name space:
+using CodeStage.AntiCheat.Detectors;
+
+// If you're going to use any obscured types / prefs from code you'll need to use this name space:
+using CodeStage.AntiCheat.ObscuredTypes;
+using System;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 using Random = UnityEngine.Random;
-using CodeStage.AntiCheat.Common;
-
-// If you're going to use any obscured types / prefs from code you'll need to use this name space:
-using CodeStage.AntiCheat.ObscuredTypes;
-
-// If you're going to use detectors from code you'll need to use this name space:
-using CodeStage.AntiCheat.Detectors;
 
 namespace CodeStage.AntiCheat.Examples
 {
@@ -20,6 +20,7 @@ namespace CodeStage.AntiCheat.Examples
 		private const string GREEN_COLOR = "#02C85F";
 
 		#region ObscuredPrefs example constants
+
 		private const string PREFS_STRING = "name";
 		private const string PREFS_INT = "money";
 		private const string PREFS_FLOAT = "lifeBar";
@@ -33,16 +34,19 @@ namespace CodeStage.AntiCheat.Examples
 		private const string PREFS_RECT = "demoRect";
 		private const string PREFS_COLOR = "demoColor";
 		private const string PREFS_BYTE_ARRAY = "demoByteArray";
-		#endregion
 
-		#region  ObscuredPrefs API constants
+		#endregion ObscuredPrefs example constants
+
+		#region ObscuredPrefs API constants
+
 		private const string API_URL_LOCK_TO_DEVICE = "http://j.mp/1gxg1tf";
 		private const string API_URL_PRESERVE_PREFS = "http://j.mp/1iBK5pz";
 		private const string API_URL_EMERGENCY_MODE = "http://j.mp/1FRAL5L";
 		private const string API_URL_READ_FOREIGN = "http://j.mp/1LCdpDa";
 		private const string API_URL_UNOBSCURED_MODE = "http://j.mp/1KVrpxi";
 		private const string API_URL_PLAYER_PREFS = "http://docs.unity3d.com/ScriptReference/PlayerPrefs.html";
-		#endregion
+
+		#endregion ObscuredPrefs API constants
 
 		[Header("Regular variables")]
 		public string regularString = "I'm regular string";
@@ -53,6 +57,7 @@ namespace CodeStage.AntiCheat.Examples
 
 		[Header("Obscured (secure) variables")]
 		public ObscuredString obscuredString = "I'm obscured string";
+
 		public ObscuredInt obscuredInt = 1987;
 		public ObscuredFloat obscuredFloat = 2013.0524f;
 		public ObscuredVector3 obscuredVector3 = new Vector3(10.5f, 11.5f, 12.5f);
@@ -62,13 +67,9 @@ namespace CodeStage.AntiCheat.Examples
 		public ObscuredVector2 obscuredVector2 = new Vector2(8.5f, 9.5f);
 
 		[Header("Other")]
-		// This is a small trick - it allows to hide your encryption key 
-		// in the serialized MonoBehaviour in the Editor inspector, 
-		// outside of the IL byte code, so hacker will need to 
-		// know how to reach it in the Unity serialized files to be able to read it ;)
 		public string prefsEncryptionKey = "change me!";
 
-		private readonly string[] tabs = {"Variables protection", "Saves protection", "Cheating detectors"};
+		private readonly string[] tabs = { "Variables protection", "Saves protection", "Cheating detectors" };
 		private int currentTab;
 
 		private string allSimpleObscuredTypes;
@@ -87,7 +88,8 @@ namespace CodeStage.AntiCheat.Examples
 
 		private readonly StringBuilder logBuilder = new StringBuilder();
 
-#region detectors callbacks
+		#region detectors callbacks
+
 		// These methods are get called by the Detection Events of detectors placed at the
 		// Anti-Cheat Toolkit Detectors game object.
 		public void OnSpeedHackDetected()
@@ -97,6 +99,7 @@ namespace CodeStage.AntiCheat.Examples
 		}
 
 #if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_ANDROID
+
 		public void OnInjectionDetected()
 		{
 			injectionDetected = true;
@@ -109,6 +112,7 @@ namespace CodeStage.AntiCheat.Examples
 			injectionDetected = true;
 			Debug.Log("Injection Detected! Cause: " + cause);
 		}
+
 #endif
 
 		public void OnObscuredTypeCheatingDetected()
@@ -122,14 +126,15 @@ namespace CodeStage.AntiCheat.Examples
 			wallHackCheatDetected = true;
 			Debug.Log("Wall hack Detected!");
 		}
-		#endregion
+
+		#endregion detectors callbacks
 
 		// this is needed to avoid ObscuredPrefs crypto key reset on scripts reload
 		// useful for debugging purposes
 		private void OnValidate()
 		{
 			if (Application.isPlaying) ObscuredPrefs.CryptoKey = prefsEncryptionKey;
-		} 
+		}
 
 		private void Awake()
 		{
@@ -143,7 +148,7 @@ namespace CodeStage.AntiCheat.Examples
 			ObscuredPrefs.onPossibleForeignSavesDetected = ForeignSavesDetected;
 		}
 
-		private void Start() 
+		private void Start()
 		{
 			ObscuredStringExample();
 			ObscuredIntExample();
@@ -154,15 +159,16 @@ namespace CodeStage.AntiCheat.Examples
 			Invoke("RandomizeObscuredVars", Random.Range(1f, 10f));
 
 			#region detectors examples
+
 			// Since ACTk v1.5 all detectors have auto start option enabled by default, so you don't need to
 			// write any code to start them anymore.
 			// However, if you still wish to control detectors from code - it's possible to do.
 			// You have 3 options for using detectors from code in general now:
 			//
-			// - configure detector in inspector, disable Auto Start, 
+			// - configure detector in inspector, disable Auto Start,
 			//   fill Detection Event and start it via StartDetection();
 			//
-			// - configure detector in inspector, disable Auto Start, 
+			// - configure detector in inspector, disable Auto Start,
 			//   do not fill Detection Event and start it via StartDetection(UnityAction);
 			//
 			// - do not add detector to your scene at all and create it completely from code using StartDetection(UnityAction);
@@ -172,7 +178,7 @@ namespace CodeStage.AntiCheat.Examples
 			// In this case we subscribe to the speed hack detection event,
 			// set detector update interval to 1 second, allowing 5 false positives and
 			// allowing Cool Down after 60 seconds (read more about Cool Down in the readme.pdf).
-			// Thus OnSpeedHackDetected normally will execute after 5 seconds since 
+			// Thus OnSpeedHackDetected normally will execute after 5 seconds since
 			// speed hack was applied to the application.
 			// Please, note, if we have detector added to scene, all settings
 			// we made there in inspector will be overridden by settings we pass
@@ -192,7 +198,8 @@ namespace CodeStage.AntiCheat.Examples
 			// ObscuredCheatingDetector.StartDetection(OnObscuredTypeCheatingDetected);
 			// ObscuredCheatingDetector.Instance.autoDispose = true;
 			// ObscuredCheatingDetector.Instance.keepAlive = true;
-			#endregion
+
+			#endregion detectors examples
 		}
 
 		private void RandomizeObscuredVars()
@@ -243,7 +250,7 @@ namespace CodeStage.AntiCheat.Examples
 			regular = obscured;
 			obscured -= 2;
 			obscured = obscured + regular + 10;
-			obscured = obscured/2;
+			obscured = obscured / 2;
 			obscured++;
 			ObscuredInt.SetNewCryptoKey(999); // you can change crypto key at any time!
 			obscured++;
@@ -329,7 +336,8 @@ namespace CodeStage.AntiCheat.Examples
 
 			if (currentTab == 0)
 			{
-#region obscured types tab
+				#region obscured types tab
+
 				GUILayout.Label("ACTk offers own collection of the secure types to let you protect your variables from <b>ANY</b> memory hacking tools (Cheat Engine, ArtMoney, GameCIH, Game Guardian, etc.).");
 				GUILayout.Space(5);
 				using (new HorizontalLayout())
@@ -340,7 +348,8 @@ namespace CodeStage.AntiCheat.Examples
 					{
 						GUILayout.Label("Below you can try to cheat few variables of the regular types and their obscured (secure) analogues (you may change initial values from Tester object inspector):");
 
-#region string
+						#region string
+
 						GUILayout.Space(10);
 						using (new HorizontalLayout())
 						{
@@ -367,9 +376,11 @@ namespace CodeStage.AntiCheat.Examples
 								obscuredString = "";
 							}
 						}
-#endregion
 
-#region int
+						#endregion string
+
+						#region int
+
 						GUILayout.Space(10);
 						using (new HorizontalLayout())
 						{
@@ -396,9 +407,11 @@ namespace CodeStage.AntiCheat.Examples
 								obscuredInt = 0;
 							}
 						}
-#endregion
 
-#region float
+						#endregion int
+
+						#region float
+
 						GUILayout.Space(10);
 						using (new HorizontalLayout())
 						{
@@ -425,9 +438,11 @@ namespace CodeStage.AntiCheat.Examples
 								obscuredFloat = 0;
 							}
 						}
-#endregion
 
-#region Vector3
+						#endregion float
+
+						#region Vector3
+
 						GUILayout.Space(10);
 						using (new HorizontalLayout())
 						{
@@ -454,14 +469,17 @@ namespace CodeStage.AntiCheat.Examples
 								obscuredVector3 = Vector3.zero;
 							}
 						}
-#endregion
+
+						#endregion Vector3
 					}
 				}
-#endregion
+
+				#endregion obscured types tab
 			}
 			else if (currentTab == 1)
 			{
-#region obscured prefs tab
+				#region obscured prefs tab
+
 				GUILayout.Label("ACTk has secure layer for the PlayerPrefs: <color=\"#75C4EB\">ObscuredPrefs</color>. It protects data from view, detects any cheating attempts, optionally locks data to the current device and supports additional data types.");
 				GUILayout.Space(5);
 				using (new HorizontalLayout())
@@ -537,7 +555,7 @@ namespace CodeStage.AntiCheat.Examples
 										GUILayout.Label("LockToDevice level");
 										PlaceUrlButton(API_URL_LOCK_TO_DEVICE);
 									}
-									savesLock = GUILayout.SelectionGrid(savesLock, new[] {ObscuredPrefs.DeviceLockLevel.None.ToString(), ObscuredPrefs.DeviceLockLevel.Soft.ToString(), ObscuredPrefs.DeviceLockLevel.Strict.ToString()}, 3);
+									savesLock = GUILayout.SelectionGrid(savesLock, new[] { ObscuredPrefs.DeviceLockLevel.None.ToString(), ObscuredPrefs.DeviceLockLevel.Soft.ToString(), ObscuredPrefs.DeviceLockLevel.Strict.ToString() }, 3);
 									ObscuredPrefs.lockToDevice = (ObscuredPrefs.DeviceLockLevel)savesLock;
 									GUILayout.Space(5);
 									using (new HorizontalLayout())
@@ -572,7 +590,8 @@ namespace CodeStage.AntiCheat.Examples
 						PlaceUrlButton(API_URL_PLAYER_PREFS, "Visit docs to see where PlayerPrefs are stored", -1);
 					}
 				}
-#endregion
+
+				#endregion obscured prefs tab
 			}
 			else
 			{
@@ -582,9 +601,9 @@ namespace CodeStage.AntiCheat.Examples
 				{
 					GUILayout.Label("<b>" + SpeedHackDetector.COMPONENT_NAME + "</b>");
 					GUILayout.Label("Allows to detect Cheat Engine's speed hack (and maybe some other speed hack tools) usage.");
-                    GUILayout.Label("<color=\"" + (speedHackDetected ? RED_COLOR : GREEN_COLOR) + "\">Detected: " + speedHackDetected.ToString().ToLower() + "</color>");
+					GUILayout.Label("<color=\"" + (speedHackDetected ? RED_COLOR : GREEN_COLOR) + "\">Detected: " + speedHackDetected.ToString().ToLower() + "</color>");
 					GUILayout.Space(10);
-                    GUILayout.Label("<b>" + ObscuredCheatingDetector.COMPONENT_NAME + "</b>");
+					GUILayout.Label("<b>" + ObscuredCheatingDetector.COMPONENT_NAME + "</b>");
 					GUILayout.Label("Detects cheating of any Obscured type (except ObscuredPrefs, it has own detection features) used in project.");
 					GUILayout.Label("<color=\"" + (obscuredTypeCheatDetected ? RED_COLOR : GREEN_COLOR) + "\">Detected: " + obscuredTypeCheatDetected.ToString().ToLower() + "</color>");
 					GUILayout.Space(10);
@@ -613,8 +632,8 @@ namespace CodeStage.AntiCheat.Examples
 			if (string.IsNullOrEmpty(allSimpleObscuredTypes))
 			{
 				var q = from t in System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
-				        where t.IsPublic && t.Namespace == "CodeStage.AntiCheat.ObscuredTypes" && t.Name != "ObscuredPrefs"
-				        select t;
+						where t.IsPublic && t.Namespace == "CodeStage.AntiCheat.ObscuredTypes" && t.Name != "ObscuredPrefs"
+						select t;
 				q.ToList().ForEach(t =>
 				{
 					if (types.Length > 0)
@@ -641,23 +660,24 @@ namespace CodeStage.AntiCheat.Examples
 			return result;
 		}
 
-#region prefs stuff
+		#region prefs stuff
+
 		private string GetAllObscuredPrefsDataTypes()
 		{
-            return "int\n" +
+			return "int\n" +
 				   "float\n" +
 				   "string\n" +
 				   "<color=\"#75C4EB\">" +
-                   "uint\n" +
-			       "double\n" +
-			       "long\n" +
-			       "bool\n" +
-			       "byte[]\n" +
-			       "Vector2\n" +
-			       "Vector3\n" +
-			       "Quaternion\n" +
-			       "Color\n" +
-			       "Rect" + 
+				   "uint\n" +
+				   "double\n" +
+				   "long\n" +
+				   "bool\n" +
+				   "byte[]\n" +
+				   "Vector2\n" +
+				   "Vector3\n" +
+				   "Quaternion\n" +
+				   "Color\n" +
+				   "Rect" +
 				   "</color>";
 		}
 
@@ -698,7 +718,7 @@ namespace CodeStage.AntiCheat.Examples
 			obscuredPrefs += "Vector2: " + ObscuredPrefs.GetVector2(PREFS_VECTOR2, Vector2.zero) + "\n";
 			obscuredPrefs += "Vector3: " + ObscuredPrefs.GetVector3(PREFS_VECTOR3, Vector3.zero) + "\n";
 			obscuredPrefs += "Quaternion: " + ObscuredPrefs.GetQuaternion(PREFS_QUATERNION, Quaternion.identity) + "\n";
-			obscuredPrefs += "Rect: " + ObscuredPrefs.GetRect(PREFS_RECT, new Rect(0,0,0,0)) + "\n";
+			obscuredPrefs += "Rect: " + ObscuredPrefs.GetRect(PREFS_RECT, new Rect(0, 0, 0, 0)) + "\n";
 			obscuredPrefs += "Color: " + ObscuredPrefs.GetColor(PREFS_COLOR, Color.black) + "\n";
 			obscuredPrefs += "byte[]: {" + ba[0] + "," + ba[1] + "," + ba[2] + "," + ba[3] + "}";
 		}
@@ -717,8 +737,8 @@ namespace CodeStage.AntiCheat.Examples
 			ObscuredPrefs.SetDouble(PREFS_DOUBLE, 1.234567890123456d);
 			ObscuredPrefs.SetVector2(PREFS_VECTOR2, Vector2.one);
 			ObscuredPrefs.SetVector3(PREFS_VECTOR3, Vector3.one);
-			ObscuredPrefs.SetQuaternion(PREFS_QUATERNION, Quaternion.Euler(new Vector3(10,20,30)));
-			ObscuredPrefs.SetRect(PREFS_RECT, new Rect(1.5f,2.6f,3.7f,4.8f));
+			ObscuredPrefs.SetQuaternion(PREFS_QUATERNION, Quaternion.Euler(new Vector3(10, 20, 30)));
+			ObscuredPrefs.SetRect(PREFS_RECT, new Rect(1.5f, 2.6f, 3.7f, 4.8f));
 			ObscuredPrefs.SetColor(PREFS_COLOR, Color.red);
 			ObscuredPrefs.SetByteArray(PREFS_BYTE_ARRAY, new byte[] { 44, 104, 43, 32 });
 			ObscuredPrefs.Save();
@@ -741,7 +761,8 @@ namespace CodeStage.AntiCheat.Examples
 			ObscuredPrefs.DeleteKey(PREFS_BYTE_ARRAY);
 			ObscuredPrefs.Save();
 		}
-#endregion
+
+		#endregion prefs stuff
 
 		private void PlaceUrlButton(string url)
 		{
@@ -780,7 +801,7 @@ namespace CodeStage.AntiCheat.Examples
 			DeleteRegularPrefs();
 			DeleteObscuredPrefs();
 		}
-    }
+	}
 
 	internal class HorizontalLayout : IDisposable
 	{

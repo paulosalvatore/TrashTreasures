@@ -84,7 +84,7 @@ namespace CodeStage.AntiCheat.EditorCode.PropertyDrawers
 			}*/
 			ResetBoldFont();
 		}
- 
+
 		private static void EncryptAndSetBytes(string val, SerializedProperty prop, string key)
 		{
 			string encrypted = ObscuredString.EncryptDecrypt(val, key);

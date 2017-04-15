@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using System.Text;
-using CodeStage.AntiCheat.Common;
+﻿using CodeStage.AntiCheat.Common;
 using CodeStage.AntiCheat.ObscuredTypes;
+using System.Diagnostics;
+using System.Text;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -114,9 +114,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("bool:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy) {}
-			if (obscured) {}
-			if (notObscured) {}
+			if (dummy) { }
+			if (obscured) { }
+			if (notObscured) { }
 		}
 
 		private void TestByte()
@@ -156,9 +156,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("byte:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != 0) {}
-			if (obscured != 0) {}
-			if (notObscured != 0) {}
+			if (dummy != 0) { }
+			if (obscured != 0) { }
+			if (notObscured != 0) { }
 		}
 
 		private void TestShort()
@@ -171,7 +171,6 @@ namespace CodeStage.AntiCheat.Examples
 
 			Stopwatch sw = Stopwatch.StartNew();
 
-
 			for (int i = 0; i < shortIterations; i++)
 			{
 				dummy = obscured;
@@ -182,7 +181,7 @@ namespace CodeStage.AntiCheat.Examples
 				obscured = dummy;
 			}
 			sw.Stop();
-            logBuilder.AppendLine("ObscuredShort:").AppendLine(sw.ElapsedMilliseconds + " ms");
+			logBuilder.AppendLine("ObscuredShort:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
 			sw.Reset();
 			sw.Start();
@@ -198,9 +197,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("short:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != 0) {}
-			if (obscured != 0) {}
-			if (notObscured != 0) {}
+			if (dummy != 0) { }
+			if (obscured != 0) { }
+			if (notObscured != 0) { }
 		}
 
 		private void TestUShort()
@@ -239,9 +238,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("ushort:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != 0) {}
-			if (obscured != 0) {}
-			if (notObscured != 0) {}
+			if (dummy != 0) { }
+			if (obscured != 0) { }
+			if (notObscured != 0) { }
 		}
 
 		private void TestDouble()
@@ -280,9 +279,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("double:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != 0) {}
-			if (obscured != 0) {}
-			if (notObscured != 0) {}
+			if (dummy != 0) { }
+			if (obscured != 0) { }
+			if (notObscured != 0) { }
 		}
 
 		private void TestFloat()
@@ -321,9 +320,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("float:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != 0) {}
-			if (obscured != 0) {}
-			if (notObscured != 0) {}
+			if (dummy != 0) { }
+			if (obscured != 0) { }
+			if (notObscured != 0) { }
 		}
 
 		private void TestInt()
@@ -362,9 +361,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("int:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != 0) {}
-			if (obscured != 0) {}
-			if (notObscured != 0) {}
+			if (dummy != 0) { }
+			if (obscured != 0) { }
+			if (notObscured != 0) { }
 		}
 
 		private void TestLong()
@@ -403,9 +402,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("long:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != 0) {}
-			if (obscured != 0) {}
-			if (notObscured != 0) {}
+			if (dummy != 0) { }
+			if (obscured != 0) { }
+			if (notObscured != 0) { }
 		}
 
 		private void TestString()
@@ -444,9 +443,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("string:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != "") {}
-			if (obscured != "") {}
-			if (notObscured != "") {}
+			if (dummy != "") { }
+			if (obscured != "") { }
+			if (notObscured != "") { }
 		}
 
 		private void TestUInt()
@@ -484,9 +483,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("uint:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != 0) {}
-			if (obscured != 0) {}
-			if (notObscured != 0) {}
+			if (dummy != 0) { }
+			if (obscured != 0) { }
+			if (notObscured != 0) { }
 		}
 
 		private void TestVector3()
@@ -524,9 +523,9 @@ namespace CodeStage.AntiCheat.Examples
 			sw.Stop();
 			logBuilder.AppendLine("Vector3:").AppendLine(sw.ElapsedMilliseconds + " ms");
 
-			if (dummy != Vector3.zero) {}
-			if (obscured != Vector3.zero) {}
-			if (notObscured != Vector3.zero) {}
+			if (dummy != Vector3.zero) { }
+			if (obscured != Vector3.zero) { }
+			if (notObscured != Vector3.zero) { }
 		}
 
 		private void TestPrefs()
