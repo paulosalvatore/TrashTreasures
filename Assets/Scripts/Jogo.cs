@@ -8,7 +8,6 @@ public class Jogo : MonoBehaviour
 {
 	[Header("Mapa")]
 	public Vector2 posicaoMapa;
-
 	public float duracaoMovimentoMapa;
 	public float delayEncerrarNivel;
 	public iTween.EaseType animacaoMapa;
@@ -18,7 +17,6 @@ public class Jogo : MonoBehaviour
 
 	[Header("Tela")]
 	public Vector2 resolucaoTela;
-
 	public List<Color> coresFundoJogo;
 	private Color corAnteriorFundoJogo;
 	private SpriteRenderer fundoJogo;
@@ -27,7 +25,6 @@ public class Jogo : MonoBehaviour
 
 	[Header("Nível")]
 	public int nivelMaximo;
-
 	internal int nivel = 1;
 	private Text nivelText;
 	private AudioSource nivelAudio;
@@ -36,7 +33,6 @@ public class Jogo : MonoBehaviour
 
 	[Header("Tiles")]
 	public GameObject tileQuebrado;
-
 	private List<Tiles> tilesDisponiveis;
 	private int quantidadeTiles;
 	public bool oneHitTiles;
@@ -48,19 +44,16 @@ public class Jogo : MonoBehaviour
 
 	[Header("Dinossauro")]
 	public float chanceBaseDinossauro;
-
 	public int hpBaseDinossauro;
 	public Range moedasDinossauro;
 
 	[Header("Diamante")]
 	public float chanceBaseDiamante;
-
 	public int hpBaseDiamante;
 	public Range moedasDiamante;
 
 	[Header("Moedas")]
 	public Moedas moeda;
-
 	public float delayEntreMoedas;
 	public AudioClip moedasAudio;
 	private int moedas;
@@ -69,7 +62,6 @@ public class Jogo : MonoBehaviour
 
 	[Header("Pá")]
 	public int paInicialId;
-
 	public float duracaoAnimacaoPas;
 	private int paId;
 	internal Pas paSelecionada;
@@ -87,7 +79,6 @@ public class Jogo : MonoBehaviour
 
 	[Header("Tesouros")]
 	public float delayExibicaoTesouros;
-
 	public float duracaoAnimacaoTesouros;
 	internal float tempoTesouroAberto;
 	private Animator novoTesouroAnimator;
@@ -99,13 +90,12 @@ public class Jogo : MonoBehaviour
 
 	// Definições da Área de Jogo
 	private int[,] jogo;
-
 	private int larguraJogo = 5;
 	private int alturaJogo = 5;
 
-	// Ads
+	[Header("Ads")]
+	public float duracaoAnimacaoTileAd;
 	internal string recompensa;
-
 	private Ads ads;
 	private GameObject tileAd;
 	private Animator tileAdAnimator;
@@ -124,7 +114,6 @@ public class Jogo : MonoBehaviour
 
 	[Header("John")]
 	public float delayProximaPalavra;
-
 	public float delayProximaFrase;
 	public float duracaoMovimentoJohn;
 	public bool separarFrasesJohn;
@@ -875,6 +864,9 @@ public class Jogo : MonoBehaviour
 	public void TileAdVoltar()
 	{
 		OcultarTileAd();
+
+		if (quantidadeTiles == 0)
+			Invoke("EncerrarMapa", duracaoAnimacaoTileAd);
 	}
 
 	public void ExibirTileAd()

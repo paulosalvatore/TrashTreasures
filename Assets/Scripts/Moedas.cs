@@ -13,7 +13,6 @@ public class Moedas : MonoBehaviour
 
 	[Header("Movimento proporcional à distância")]
 	public bool proporcionalDistancia;
-
 	public float duracaoProporcional;
 
 	private Jogo jogo;

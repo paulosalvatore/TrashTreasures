@@ -5,12 +5,10 @@ public class Tiles : MonoBehaviour
 {
 	[Header("Informações Básicas")]
 	public int hp;
-
 	internal int hpAdicional;
 
 	[Header("Chances")]
 	public float chanceBase;
-
 	public float chanceMin;
 	public float chanceMax;
 	public bool limiteUmPorNivel;
@@ -22,12 +20,10 @@ public class Tiles : MonoBehaviour
 
 	[Header("Níveis que o Tile irá aparecer")]
 	public float nivelMinimo;
-
 	public float nivelMaximo;
 
 	[Header("Dinossauro/Diamante")]
 	public Sprite dinossauro;
-
 	public GameObject particulaDinossauro;
 	public Sprite diamante;
 	public GameObject particulaDiamante;
@@ -36,32 +32,27 @@ public class Tiles : MonoBehaviour
 
 	[Header("Áudio")]
 	public AudioClip hit;
-
 	public AudioClip destruir;
 	private AudioSource audioSourceHit;
 	private AudioSource audioSourceDestruir;
 
 	[Header("Partículas")]
 	public GameObject particula;
-
 	public bool particulaHit;
 	public bool particulaDestroy;
 
 	[Header("Escalonamento no Hit")]
 	public float delayEscalonamento;
-
 	public float porcentagemEscalonamento;
 	public iTween.EaseType animacaoEscalonamento;
 	private Vector3 escalonamentoInicial;
 
 	[Header("Tiles Especiais")]
 	public bool bauTesouro;
-
 	public bool ads;
 
 	[Header("Moedas")]
 	public bool fornecerMoedas;
-
 	internal int moedas = -1;
 	internal Range moedasRange = new Range(0, 0);
 

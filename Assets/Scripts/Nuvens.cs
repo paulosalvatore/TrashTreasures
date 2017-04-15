@@ -7,12 +7,10 @@ public class Nuvens : MonoBehaviour
 
 	[Header("Velocidade de Movimento")]
 	public RangeFloat velocidadeRange;
-
 	private float velocidade;
 
 	[Header("Variação de Tamanho")]
 	public RangeFloat tamanhoRange;
-
 	private float tamanho;
 
 	private void Start()
