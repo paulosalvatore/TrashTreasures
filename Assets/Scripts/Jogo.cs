@@ -82,6 +82,7 @@ public class Jogo : MonoBehaviour
 	public float duracaoAnimacaoTesouros;
 	internal float tempoTesouroAberto;
 	private Animator novoTesouroAnimator;
+	private Image novoTesouroFundo;
 	private Image novoTesouroImage;
 	private Text novoTesouroText;
 	private Text tesouroText;
@@ -117,6 +118,7 @@ public class Jogo : MonoBehaviour
 	public float delayProximaFrase;
 	public float duracaoMovimentoJohn;
 	public bool separarFrasesJohn;
+	public List<AudioClip> sonsJohn;
 	internal bool bloqueadorCliqueJohn;
 	private float timeUltimoCliqueJohn;
 	private GameObject john;
@@ -220,6 +222,7 @@ public class Jogo : MonoBehaviour
 
 		// Tesouros
 		novoTesouroAnimator = GameObject.Find("NovoTesouro").GetComponent<Animator>();
+		novoTesouroFundo = novoTesouroAnimator.GetComponent<Image>();
 		novoTesouroImage = novoTesouroAnimator.transform.FindChild("Imagem").GetComponent<Image>();
 		novoTesouroText = novoTesouroAnimator.transform.FindChild("Nome").GetComponent<Text>();
 		tesouroText = GameObject.Find("TextoTesouro").GetComponent<Text>();
@@ -348,9 +351,14 @@ public class Jogo : MonoBehaviour
 	private void AlterarCorFundoJogo()
 	{
 		while (corAnteriorFundoJogo == fundoJogo.color)
-			fundoJogo.color = coresFundoJogo[Random.Range(0, coresFundoJogo.Count)];
+			fundoJogo.color = PegarCorFundoAleatoria();
 
 		corAnteriorFundoJogo = fundoJogo.color;
+	}
+
+	private Color PegarCorFundoAleatoria()
+	{
+		return coresFundoJogo[Random.Range(0, coresFundoJogo.Count)];
 	}
 
 	private void BloquearClique()
@@ -643,7 +651,7 @@ public class Jogo : MonoBehaviour
 		if (paId < pasDisponiveis.Count)
 			proximaPa = pasDisponiveis[paId];
 
-		AtualizarPaAnimator(false);
+		AlterarPaAnimator(false);
 
 		AtualizarPaAdquirida();
 	}
@@ -680,10 +688,10 @@ public class Jogo : MonoBehaviour
 			return;
 
 		if (nivel >= proximaPa.nivel)
-			AtualizarPaAnimator(true);
+			AlterarPaAnimator(true);
 	}
 
-	private void AtualizarPaAnimator(bool estado)
+	private void AlterarPaAnimator(bool estado)
 	{
 		paDisponivelAnimator.SetBool("Exibir", estado);
 	}
@@ -812,6 +820,8 @@ public class Jogo : MonoBehaviour
 
 			if (exibirAnimator)
 			{
+				AlterarCorFundoNovoTesouro();
+
 				AlterarNovoTesouroAnimator(true);
 
 				BloquearClique();
@@ -845,6 +855,11 @@ public class Jogo : MonoBehaviour
 		tesouroText.text = string.Format("{0}%", porcentagem);
 	}
 
+	private void AlterarCorFundoNovoTesouro()
+	{
+		novoTesouroFundo.color = PegarCorFundoAleatoria();
+	}
+
 	// Ads
 
 	public void ExibirAd(string novaRecompensa = "")
@@ -865,8 +880,10 @@ public class Jogo : MonoBehaviour
 	{
 		OcultarTileAd();
 
+		Invoke("DesbloquearClique", duracaoAnimacaoTileAd);
+
 		if (quantidadeTiles == 0)
-			Invoke("EncerrarMapa", duracaoAnimacaoTileAd);
+			Invoke("EncerrarNivel", duracaoAnimacaoTileAd);
 	}
 
 	public void ExibirTileAd()
@@ -874,6 +891,8 @@ public class Jogo : MonoBehaviour
 		AlterarTileAdAnimator(true);
 
 		AlterarTileAdAssistirAnimator(!ads.ChecarAd());
+
+		BloquearClique();
 	}
 
 	private void OcultarTileAd()
@@ -1034,6 +1053,8 @@ public class Jogo : MonoBehaviour
 
 			StartCoroutine("ConstruirFrase");
 
+			ReproduzirAudioJohn();
+
 			timeUltimoCliqueJohn = Time.time;
 		}
 	}
@@ -1072,6 +1093,11 @@ public class Jogo : MonoBehaviour
 	private void ExibirJohn()
 	{
 		AlterarAnimator("Entrar");
+
+		Invoke("ReproduzirAudioJohn", duracaoMovimentoJohn / 2f);
+
+		if (ChecarNovaPaAnimator())
+			AlterarNovaPaAnimator(false);
 	}
 
 	private void OcultarJohn()
@@ -1104,6 +1130,11 @@ public class Jogo : MonoBehaviour
 		}
 	}
 
+	private void ReproduzirAudioJohn()
+	{
+		ReproduzirAudio(sonsJohn[Random.Range(0, sonsJohn.Count)]);
+	}
+
 	// Métodos Estáticos
 
 	static public Jogo Pegar()
@@ -1117,6 +1148,8 @@ public class Jogo : MonoBehaviour
 			return;
 
 		GameObject objeto = new GameObject();
+
+		objeto.name = clip.name;
 
 		AudioSource audioSource = objeto.AddComponent<AudioSource>();
 		audioSource.clip = clip;
