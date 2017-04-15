@@ -8,7 +8,7 @@ public class PaDisponivel : MonoBehaviour,
 {
 	private Jogo jogo;
 
-	void Start()
+	private void Start()
 	{
 		jogo = Jogo.Pegar();
 	}

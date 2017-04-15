@@ -15,12 +15,13 @@ public class Moedas : MonoBehaviour
 
 	[Header("Movimento proporcional à distância")]
 	public bool proporcionalDistancia;
+
 	public float duracaoProporcional;
 
 	private Jogo jogo;
 	private Vector3 destino;
 
-	void Start()
+	private void Start()
 	{
 		jogo = Jogo.Pegar();
 
@@ -31,8 +32,8 @@ public class Moedas : MonoBehaviour
 
 		Invoke("Movimentar", delay);
 	}
-	
-	void Movimentar()
+
+	private void Movimentar()
 	{
 		iTween.MoveTo(
 			gameObject,

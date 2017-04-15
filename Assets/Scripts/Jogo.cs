@@ -8,6 +8,7 @@ public class Jogo : MonoBehaviour
 {
 	[Header("Mapa")]
 	public Vector2 posicaoMapa;
+
 	public float duracaoMovimentoMapa;
 	public float delayEncerrarNivel;
 	public iTween.EaseType animacaoMapa;
@@ -17,6 +18,7 @@ public class Jogo : MonoBehaviour
 
 	[Header("Tela")]
 	public Vector2 resolucaoTela;
+
 	public List<Color> coresFundoJogo;
 	private Color corAnteriorFundoJogo;
 	private SpriteRenderer fundoJogo;
@@ -25,6 +27,7 @@ public class Jogo : MonoBehaviour
 
 	[Header("Nível")]
 	public int nivelMaximo;
+
 	internal int nivel = 1;
 	private Text nivelText;
 	private AudioSource nivelAudio;
@@ -33,6 +36,7 @@ public class Jogo : MonoBehaviour
 
 	[Header("Tiles")]
 	public GameObject tileQuebrado;
+
 	private List<Tiles> tilesDisponiveis;
 	private int quantidadeTiles;
 	public bool oneHitTiles;
@@ -44,16 +48,19 @@ public class Jogo : MonoBehaviour
 
 	[Header("Dinossauro")]
 	public float chanceBaseDinossauro;
+
 	public int hpBaseDinossauro;
 	public Range moedasDinossauro;
 
 	[Header("Diamante")]
 	public float chanceBaseDiamante;
+
 	public int hpBaseDiamante;
 	public Range moedasDiamante;
 
 	[Header("Moedas")]
 	public Moedas moeda;
+
 	public float delayEntreMoedas;
 	public AudioClip moedasAudio;
 	private int moedas;
@@ -62,6 +69,7 @@ public class Jogo : MonoBehaviour
 
 	[Header("Pá")]
 	public int paInicialId;
+
 	public float duracaoAnimacaoPas;
 	private int paId;
 	internal Pas paSelecionada;
@@ -79,37 +87,47 @@ public class Jogo : MonoBehaviour
 
 	[Header("Tesouros")]
 	public float delayExibicaoTesouros;
+
 	public float duracaoAnimacaoTesouros;
 	internal float tempoTesouroAberto;
 	private Animator novoTesouroAnimator;
 	private Image novoTesouroImage;
 	private Text novoTesouroText;
 	private Text tesouroText;
-	private Animator novoTesouroGrabAnimator;
 	private List<Tesouros> tesourosDisponiveis = new List<Tesouros>();
 	private List<Tesouros> tesourosAdquiridos = new List<Tesouros>();
 
 	// Definições da Área de Jogo
 	private int[,] jogo;
+
 	private int larguraJogo = 5;
 	private int alturaJogo = 5;
 
 	// Ads
 	internal string recompensa;
+
 	private Ads ads;
+	private GameObject tileAd;
+	private Animator tileAdAnimator;
+	private Animator tileAdAssistirAnimator;
 
 	// Audio Source
+
 	private AudioSource audioSource;
 
 	// Player Prefs
+
 	private int nivelPref;
+
 	private int moedasPref;
 	private int paPref;
 
 	[Header("John")]
 	public float delayProximaPalavra;
+
 	public float delayProximaFrase;
 	public float duracaoMovimentoJohn;
+	public bool separarFrasesJohn;
 	internal bool bloqueadorCliqueJohn;
 	private float timeUltimoCliqueJohn;
 	private GameObject john;
@@ -121,7 +139,9 @@ public class Jogo : MonoBehaviour
 	private int processarFrasesIndex = 0;
 	private bool processandoFalasJohn;
 
-	void Start()
+	// Métodos Básicos
+
+	private void Start()
 	{
 		// Definir Resolução Base da Tela
 		DefinicoesScreen();
@@ -148,7 +168,7 @@ public class Jogo : MonoBehaviour
 		AtualizarMoedas();
 	}
 
-	void Update()
+	private void Update()
 	{
 		if (Input.GetKeyDown(KeyCode.Z))
 			EncerrarNivel();
@@ -169,7 +189,7 @@ public class Jogo : MonoBehaviour
 
 	// Métodos de Inicialização de Componentes e Variáveis
 
-	void DefinicoesScreen()
+	private void DefinicoesScreen()
 	{
 		Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
@@ -179,7 +199,7 @@ public class Jogo : MonoBehaviour
 		);
 	}
 
-	void PegarComponentes()
+	private void PegarComponentes()
 	{
 		// Mapa
 		mapa = GameObject.Find("Mapa").transform;
@@ -213,11 +233,13 @@ public class Jogo : MonoBehaviour
 		novoTesouroAnimator = GameObject.Find("NovoTesouro").GetComponent<Animator>();
 		novoTesouroImage = novoTesouroAnimator.transform.FindChild("Imagem").GetComponent<Image>();
 		novoTesouroText = novoTesouroAnimator.transform.FindChild("Nome").GetComponent<Text>();
-		novoTesouroGrabAnimator = novoTesouroAnimator.transform.FindChild("Pegar").GetComponent<Animator>();
 		tesouroText = GameObject.Find("TextoTesouro").GetComponent<Text>();
 
 		// Ads
 		ads = GetComponent<Ads>();
+		tileAd = GameObject.Find("TileAd");
+		tileAdAnimator = tileAd.GetComponent<Animator>();
+		tileAdAssistirAnimator = tileAd.transform.FindChild("Assistir").GetComponent<Animator>();
 
 		// AudioSource
 		audioSource = GetComponent<AudioSource>();
@@ -230,7 +252,7 @@ public class Jogo : MonoBehaviour
 		frases = john.GetComponents<Frases>();
 	}
 
-	void DefinirVariaveisIniciais()
+	private void DefinirVariaveisIniciais()
 	{
 		// Mapa
 		posicaoFinalMapa = mapa.position;
@@ -253,7 +275,7 @@ public class Jogo : MonoBehaviour
 
 	// Mapa/Tela
 
-	void IniciarMapa()
+	private void IniciarMapa()
 	{
 		// Definimos a quantidade de tiles
 		quantidadeTiles = larguraJogo * alturaJogo;
@@ -286,13 +308,13 @@ public class Jogo : MonoBehaviour
 		ChecarJohn();
 	}
 
-	void ZerarMapa()
+	private void ZerarMapa()
 	{
 		foreach (Transform child in mapa)
 			Destroy(child.gameObject);
 	}
 
-	void ReiniciarPosicaoMapa()
+	private void ReiniciarPosicaoMapa()
 	{
 		mapa.position = posicaoMapa;
 	}
@@ -300,7 +322,7 @@ public class Jogo : MonoBehaviour
 	public void ConstruirMapa(Transform mapaDestino = null, int nivelMapa = 0)
 	{
 		PegarTilesDisponiveis();
-		
+
 		tileObrigatorioPosicao =
 			new Vector2(
 				Random.Range(0, larguraJogo),
@@ -312,11 +334,11 @@ public class Jogo : MonoBehaviour
 				InstanciarTile(x, y, mapaDestino, nivelMapa);
 	}
 
-	void MovimentarMapa()
+	private void MovimentarMapa()
 	{
 		// Reiniciamos a posição do mapa
 		ReiniciarPosicaoMapa();
-		
+
 		// Movimentamos o mapa utilizando a biblioteca iTween que anima o movimento
 		iTween.MoveTo(
 			mapa.gameObject,
@@ -328,26 +350,26 @@ public class Jogo : MonoBehaviour
 		);
 	}
 
-	void TremerTela()
+	private void TremerTela()
 	{
 		// Aplica o Trigger "Animar" do Animator atrelado ao Background
 		telaAnimator.SetTrigger("Animar");
 	}
 
-	void AlterarCorFundoJogo()
+	private void AlterarCorFundoJogo()
 	{
 		while (corAnteriorFundoJogo == fundoJogo.color)
 			fundoJogo.color = coresFundoJogo[Random.Range(0, coresFundoJogo.Count)];
 
 		corAnteriorFundoJogo = fundoJogo.color;
 	}
-	
-	void BloquearClique()
+
+	private void BloquearClique()
 	{
 		bloqueadorClique = true;
 	}
 
-	void DesbloquearClique()
+	private void DesbloquearClique()
 	{
 		if (!bloqueadorCliqueJohn)
 			bloqueadorClique = false;
@@ -355,7 +377,7 @@ public class Jogo : MonoBehaviour
 
 	// Nível
 
-	void AvancarNivel()
+	private void AvancarNivel()
 	{
 		nivel++;
 
@@ -364,21 +386,21 @@ public class Jogo : MonoBehaviour
 		Invoke("AtualizarNivel", duracaoMovimentoMapa);
 	}
 
-	void AtualizarNivel()
+	private void AtualizarNivel()
 	{
 		nivelText.text = string.Format("Level {0}", nivel);
 
 		ExibirPaDisponivel();
-		
+
 		Invoke("VibrarNivel", (nivel == 1 || nivel == nivelPref ? duracaoMovimentoMapa : 0) + 0.2f);
 	}
 
-	void VibrarNivel()
+	private void VibrarNivel()
 	{
 		Handheld.Vibrate();
 	}
 
-	void EncerrarNivel()
+	private void EncerrarNivel()
 	{
 		ExibirTextoNivelLimpo();
 
@@ -387,21 +409,21 @@ public class Jogo : MonoBehaviour
 		Invoke("IniciarMapa", delayEncerrarNivel);
 	}
 
-	void ExibirTextoNivelLimpo()
+	private void ExibirTextoNivelLimpo()
 	{
 		nivelLimpoText.text = nivelText.text;
 
 		limpoAnimator.SetTrigger("Animar");
 	}
 
-	void TocarAudioNivel()
+	private void TocarAudioNivel()
 	{
 		nivelAudio.Play();
 	}
 
 	// Tiles
 
-	void InstanciarTile(int x, int y, Transform mapaDestino, int nivelMapa)
+	private void InstanciarTile(int x, int y, Transform mapaDestino, int nivelMapa)
 	{
 		nivelMapa = nivelMapa == 0 ? nivel : nivelMapa;
 		/*
@@ -461,17 +483,17 @@ public class Jogo : MonoBehaviour
 		tileInstanciado.Instanciar();
 	}
 
-	void PegarTilesDisponiveis()
+	private void PegarTilesDisponiveis()
 	{
 		tilesDisponiveis = new List<Tiles>();
-		
+
 		Transform tiles = GameObject.Find("TilesDisponíveis").transform;
 
 		foreach (Transform tile in tiles)
 			tilesDisponiveis.Add(tile.GetComponent<Tiles>());
 	}
 
-	Tiles PegarTileAleatorio(int x, int y, int nivelMapa)
+	private Tiles PegarTileAleatorio(int x, int y, int nivelMapa)
 	{
 		List<Tiles> tilesChances = new List<Tiles>();
 
@@ -496,7 +518,7 @@ public class Jogo : MonoBehaviour
 
 			if (tile.bauTesouro && tesourosAdquiridos.Count == tesourosDisponiveis.Count)
 				chance = 0;
-			
+
 			if (chance > 0)
 			{
 				chanceIndex += chance;
@@ -525,7 +547,7 @@ public class Jogo : MonoBehaviour
 				}
 			}
 		}
-		
+
 		return tileSelecionado;
 	}
 
@@ -543,7 +565,7 @@ public class Jogo : MonoBehaviour
 			EncerrarNivel();
 	}
 
-	void PegarTilesHit()
+	private void PegarTilesHit()
 	{
 		if (bloqueadorClique)
 			return;
@@ -568,7 +590,7 @@ public class Jogo : MonoBehaviour
 
 	// Moedas
 
-	int ProcessarAdicaoMoedas()
+	private int ProcessarAdicaoMoedas()
 	{
 		int adicionarMoedas = 0;
 
@@ -584,7 +606,7 @@ public class Jogo : MonoBehaviour
 		StartCoroutine(AdicionarMoedas(origem, adicionarMoedas, true));
 	}
 
-	IEnumerator AdicionarMoedas(Transform origem, int adicionarMoedas, bool coroutine)
+	private IEnumerator AdicionarMoedas(Transform origem, int adicionarMoedas, bool coroutine)
 	{
 		Vector3 posicao = origem.position;
 		Quaternion rotacao = origem.rotation;
@@ -601,12 +623,12 @@ public class Jogo : MonoBehaviour
 		}
 	}
 
-	void AtualizarMoedas()
+	private void AtualizarMoedas()
 	{
 		moedasText.text = moedas.ToString();
 	}
 
-	IEnumerator AtualizarMoedas(int adicionarMoedas)
+	private IEnumerator AtualizarMoedas(int adicionarMoedas)
 	{
 		yield return new WaitForSeconds(moeda.duracao);
 
@@ -617,7 +639,7 @@ public class Jogo : MonoBehaviour
 
 	// Pás
 
-	void PegarPasDisponiveis()
+	private void PegarPasDisponiveis()
 	{
 		Transform pas = GameObject.Find("PásDisponíveis").transform;
 
@@ -625,7 +647,7 @@ public class Jogo : MonoBehaviour
 			pasDisponiveis.Add(child.GetComponent<Pas>());
 	}
 
-	void SelecionarPa()
+	private void SelecionarPa()
 	{
 		paSelecionada = pasDisponiveis[paId - 1];
 
@@ -647,7 +669,7 @@ public class Jogo : MonoBehaviour
 
 			return;
 		}
-		
+
 		if (custo > 0)
 		{
 			moedas -= custo;
@@ -663,7 +685,7 @@ public class Jogo : MonoBehaviour
 		SelecionarPa();
 	}
 
-	void ExibirPaDisponivel()
+	private void ExibirPaDisponivel()
 	{
 		if (paId >= pasDisponiveis.Count)
 			return;
@@ -672,7 +694,7 @@ public class Jogo : MonoBehaviour
 			AtualizarPaAnimator(true);
 	}
 
-	void AtualizarPaAnimator(bool estado)
+	private void AtualizarPaAnimator(bool estado)
 	{
 		paDisponivelAnimator.SetBool("Exibir", estado);
 	}
@@ -680,22 +702,27 @@ public class Jogo : MonoBehaviour
 	public void ExibirNovaPaDisponivel()
 	{
 		novaPaImage.sprite = proximaPa.sprite;
-		novaPaText.text = string.Format("{0} Shovel", proximaPa.nome);
+		novaPaText.text = proximaPa.nome;
 		novaPaComprarText.text = proximaPa.moedas.ToString();
 
 		AlterarNovaPaAnimator(true);
 
+		AlterarNovaPaAssistirAnimator(!ads.ChecarAd());
+
 		BloquearClique();
 	}
 
-	void AlterarNovaPaAnimator(bool estado)
+	private void AlterarNovaPaAnimator(bool estado)
 	{
 		novaPaAnimator.SetBool("Exibir", estado);
-		novaPaAssistirAnimator.SetBool("Animar", estado);
-		novaPaComprarAnimator.SetBool("Animar", estado);
 	}
 
-	bool ChecarNovaPaAnimator()
+	private void AlterarNovaPaAssistirAnimator(bool estado)
+	{
+		novaPaAssistirAnimator.SetBool("Inativo", estado);
+	}
+
+	private bool ChecarNovaPaAnimator()
 	{
 		return novaPaAnimator.GetBool("Exibir");
 	}
@@ -719,15 +746,15 @@ public class Jogo : MonoBehaviour
 		AlterarNovaPaAnimator(false);
 	}
 
-	void AtualizarPas()
+	private void AtualizarPas()
 	{
 		SelecionarPa();
-		
+
 		for (int i = paInicialId; i < paPref; i++)
 			EvoluirPa(true, false);
 	}
 
-	void AtualizarPaAdquirida()
+	private void AtualizarPaAdquirida()
 	{
 		Image paAdquirida = Instantiate(paAdquiridaBase);
 
@@ -750,7 +777,7 @@ public class Jogo : MonoBehaviour
 
 	// Tesouros
 
-	void PegarTesourosDisponiveis()
+	private void PegarTesourosDisponiveis()
 	{
 		Transform tesouros = GameObject.Find("TesourosDisponíveis").transform;
 
@@ -758,7 +785,7 @@ public class Jogo : MonoBehaviour
 			tesourosDisponiveis.Add(child.GetComponent<Tesouros>());
 	}
 
-	Tesouros PegarTesouro()
+	private Tesouros PegarTesouro()
 	{
 		Tesouros tesouroSelecionado = null;
 
@@ -817,13 +844,12 @@ public class Jogo : MonoBehaviour
 			Invoke("EncerrarNivel", duracaoAnimacaoTesouros);
 	}
 
-	void AlterarNovoTesouroAnimator(bool estado)
+	private void AlterarNovoTesouroAnimator(bool estado)
 	{
 		novoTesouroAnimator.SetBool("Exibir", estado);
-		novoTesouroGrabAnimator.SetBool("Animar", estado);
 	}
 
-	void AtualizarPorcentagemTesouros()
+	private void AtualizarPorcentagemTesouros()
 	{
 		float porcentagem = tesourosAdquiridos.Count * 100 / tesourosDisponiveis.Count;
 
@@ -839,9 +865,43 @@ public class Jogo : MonoBehaviour
 		ads.ExibirAd();
 	}
 
+	public void AssistirTileAd()
+	{
+		ExibirAd("tesouro");
+
+		OcultarTileAd();
+	}
+
+	public void TileAdVoltar()
+	{
+		OcultarTileAd();
+	}
+
+	public void ExibirTileAd()
+	{
+		AlterarTileAdAnimator(true);
+
+		AlterarTileAdAssistirAnimator(!ads.ChecarAd());
+	}
+
+	private void OcultarTileAd()
+	{
+		AlterarTileAdAnimator(false);
+	}
+
+	private void AlterarTileAdAnimator(bool estado)
+	{
+		tileAdAnimator.SetBool("Exibir", estado);
+	}
+
+	private void AlterarTileAdAssistirAnimator(bool estado)
+	{
+		tileAdAssistirAnimator.SetBool("Inativo", estado);
+	}
+
 	// Player Prefs
 
-	void PegarPlayerPrefs()
+	private void PegarPlayerPrefs()
 	{
 		nivelPref = PlayerPrefs.GetInt("Nível");
 
@@ -864,7 +924,7 @@ public class Jogo : MonoBehaviour
 		}
 	}
 
-	void DefinirPlayerPrefs()
+	private void DefinirPlayerPrefs()
 	{
 		PlayerPrefs.SetInt("Nível", nivel);
 		PlayerPrefs.SetInt("Moedas", moedas);
@@ -873,12 +933,12 @@ public class Jogo : MonoBehaviour
 		foreach (Tesouros tesouroDisponivel in tesourosDisponiveis)
 		{
 			int tesouroAdquirido = tesourosAdquiridos.Contains(tesouroDisponivel) ? 1 : 0;
-			
+
 			PlayerPrefs.SetInt(tesouroDisponivel.nome, tesouroAdquirido);
 		}
 	}
 
-	void ResetarPlayerPrefs()
+	private void ResetarPlayerPrefs()
 	{
 		PlayerPrefs.SetInt("Nível", 1);
 		PlayerPrefs.SetInt("Moedas", 0);
@@ -892,15 +952,15 @@ public class Jogo : MonoBehaviour
 
 	// Cena
 
-	void ReiniciarCena()
+	private void ReiniciarCena()
 	{
 		int cena = SceneManager.GetActiveScene().buildIndex;
 		SceneManager.LoadScene(cena, LoadSceneMode.Single);
 	}
 
 	// John
-	
-	void ChecarJohn(bool tesouro = false)
+
+	private void ChecarJohn(bool tesouro = false)
 	{
 		foreach (Frases frase in frases)
 		{
@@ -954,21 +1014,21 @@ public class Jogo : MonoBehaviour
 		}
 	}
 
-	void BloquearCliqueJohn()
+	private void BloquearCliqueJohn()
 	{
 		bloqueadorCliqueJohn = true;
 
 		BloquearClique();
 	}
 
-	void DesbloquearCliqueJohn()
+	private void DesbloquearCliqueJohn()
 	{
 		bloqueadorCliqueJohn = false;
 
 		DesbloquearClique();
 	}
 
-	void ProcessarFrasesJohn()
+	private void ProcessarFrasesJohn()
 	{
 		if (processarFrasesIndex >= processarFrases.Count)
 		{
@@ -979,45 +1039,50 @@ public class Jogo : MonoBehaviour
 		else
 		{
 			LimparFalaJohn();
-			
+
 			StartCoroutine("ConstruirFrase");
 
 			timeUltimoCliqueJohn = Time.time;
 		}
 	}
 
-	IEnumerator ConstruirFrase()
+	private IEnumerator ConstruirFrase()
 	{
 		string frase = processarFrases[processarFrasesIndex];
 
-		string[] palavras = frase.Split(' ');
-
-		foreach (string palavra in palavras)
+		if (separarFrasesJohn)
 		{
-			johnBalaoText.text = string.Format("{0} {1}", johnBalaoText.text, palavra);
+			string[] palavras = frase.Split(' ');
 
-			yield return new WaitForSeconds(delayProximaPalavra);
+			foreach (string palavra in palavras)
+			{
+				johnBalaoText.text = string.Format("{0} {1}", johnBalaoText.text, palavra);
+
+				yield return new WaitForSeconds(delayProximaPalavra);
+			}
 		}
+		else
+			johnBalaoText.text = frase;
 	}
 
-	void LimparFalaJohn()
+	private void LimparFalaJohn()
 	{
 		johnBalaoText.text = "";
 	}
 
-	void ProximaFraseJohn()
+	private void ProximaFraseJohn()
 	{
 		processarFrasesIndex++;
 
 		ProcessarFrasesJohn();
 	}
 
-	void ExibirJohn()
+	private void ExibirJohn()
 	{
 		AlterarAnimator("Entrar");
 	}
 
-	void OcultarJohn()
+	private void OcultarJohn()
 	{
 		AlterarAnimator("Sair");
 
@@ -1030,12 +1095,12 @@ public class Jogo : MonoBehaviour
 		}
 	}
 
-	void AlterarAnimator(string trigger)
+	private void AlterarAnimator(string trigger)
 	{
 		johnAnimator.SetTrigger(trigger);
 	}
 
-	void PegarCliqueJohn()
+	private void PegarCliqueJohn()
 	{
 		if (!processandoFalasJohn)
 			return;

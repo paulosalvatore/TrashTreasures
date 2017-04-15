@@ -9,19 +9,21 @@ public class Nuvens : MonoBehaviour
 
 	[Header("Velocidade de Movimento")]
 	public RangeFloat velocidadeRange;
+
 	private float velocidade;
 
 	[Header("Variação de Tamanho")]
 	public RangeFloat tamanhoRange;
+
 	private float tamanho;
 
-	void Start()
+	private void Start()
 	{
 		AtualizarVelocidade();
 		AtualizarTamanho();
 	}
 
-	void Update()
+	private void Update()
 	{
 		transform.Translate(Vector3.right * velocidade * Time.deltaTime);
 
@@ -29,19 +31,19 @@ public class Nuvens : MonoBehaviour
 			Reiniciar();
 	}
 
-	void AtualizarVelocidade()
+	private void AtualizarVelocidade()
 	{
 		velocidade = Random.Range(velocidadeRange.min, velocidadeRange.max);
 	}
 
-	void AtualizarTamanho()
+	private void AtualizarTamanho()
 	{
 		tamanho = Random.Range(tamanhoRange.min, tamanhoRange.max);
 
 		transform.localScale = new Vector2(tamanho, tamanho);
 	}
 
-	void Reiniciar()
+	private void Reiniciar()
 	{
 		transform.localPosition = new Vector2(
 			limiteX * -1,

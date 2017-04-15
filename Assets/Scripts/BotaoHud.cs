@@ -11,7 +11,7 @@ public class BotaoHud : MonoBehaviour,
 	private Jogo jogo;
 	private AudioSource audioSource;
 
-	void Start()
+	private void Start()
 	{
 		jogo = Jogo.Pegar();
 

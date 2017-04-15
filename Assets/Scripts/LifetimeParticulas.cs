@@ -6,12 +6,12 @@ public class LifetimeParticulas : MonoBehaviour
 {
 	private new ParticleSystem particleSystem;
 
-	void Start()
+	private void Start()
 	{
 		particleSystem = GetComponent<ParticleSystem>();
 	}
-	
-	void Update()
+
+	private void Update()
 	{
 		if (particleSystem && !particleSystem.IsAlive())
 			Destroy(gameObject);

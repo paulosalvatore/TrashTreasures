@@ -64,6 +64,8 @@
      <Compile Include="Assets\Scripts\ProjecaoNiveis.cs" />
      <Compile Include="Assets\Scripts\Range.cs" />
      <Compile Include="Assets\Scripts\Tesouros.cs" />
+     <Compile Include="Assets\Scripts\TileAdAssistir.cs" />
+     <Compile Include="Assets\Scripts\TileAdVoltar.cs" />
      <Compile Include="Assets\Scripts\Tiles.cs" />
      <None Include="Assets\Plugins\CodeStage\AntiCheatToolkit\Shaders\WallHackTexture.shader" />
      <None Include="Assets\Plugins\CodeStage\AntiCheatToolkit\Changelog.txt" />

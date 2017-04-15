@@ -8,7 +8,7 @@ public class NovaPaVoltar : MonoBehaviour,
 {
 	private Jogo jogo;
 
-	void Start()
+	private void Start()
 	{
 		jogo = Jogo.Pegar();
 	}

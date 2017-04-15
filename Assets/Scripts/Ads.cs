@@ -7,18 +7,24 @@ public class Ads : MonoBehaviour
 {
 	private Jogo jogo;
 
-	void Start()
+	private void Start()
 	{
 		jogo = Jogo.Pegar();
 	}
 
+	public bool ChecarAd()
+	{
+		return Advertisement.IsReady("rewardedVideo");
+	}
+
 	public void ExibirAd()
 	{
-		Pausar.PausarJogo();
-
-		if (Advertisement.IsReady("rewardedVideo"))
+		if (ChecarAd())
 		{
-			var opcoes = new ShowOptions {
+			Pausar.PausarJogo();
+
+			var opcoes = new ShowOptions
+			{
 				resultCallback = HandleShowResult
 			};
 
@@ -26,7 +32,7 @@ public class Ads : MonoBehaviour
 		}
 	}
 
-	void HandleShowResult(ShowResult result)
+	private void HandleShowResult(ShowResult result)
 	{
 		Pausar.DespausarJogo();
 
@@ -35,22 +41,25 @@ public class Ads : MonoBehaviour
 			case ShowResult.Finished:
 				Invoke("ProcessarAdConcluido", 0.1f);
 				break;
+
 			case ShowResult.Skipped:
 				Debug.Log("A propaganda encerrou antes de chegar ao final.");
 				break;
+
 			case ShowResult.Failed:
 				Debug.LogError("A propaganda falhou ao tentar ser exibida.");
 				break;
 		}
 	}
 
-	void ProcessarAdConcluido()
+	private void ProcessarAdConcluido()
 	{
 		switch (jogo.recompensa)
 		{
 			case "tesouro":
 				jogo.AdicionarTesouro();
 				break;
+
 			case "pa":
 				jogo.EvoluirPa(true);
 				break;

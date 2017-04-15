@@ -6,18 +6,18 @@ public class ProjecaoNiveis : MonoBehaviour
 {
 	private Jogo jogo;
 
-	void Start()
+	private void Start()
 	{
 		jogo = Jogo.Pegar();
 	}
-	
-	void Update()
+
+	private void Update()
 	{
 		if (Input.GetKeyDown(KeyCode.Q))
 			CriarProjecaoNiveis();
 	}
 
-	void CriarProjecaoNiveis()
+	private void CriarProjecaoNiveis()
 	{
 		foreach (Transform child in transform)
 			Destroy(child.gameObject);

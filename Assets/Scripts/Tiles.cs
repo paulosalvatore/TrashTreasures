@@ -7,10 +7,12 @@ public class Tiles : MonoBehaviour
 {
 	[Header("Informações Básicas")]
 	public int hp;
+
 	internal int hpAdicional;
 
 	[Header("Chances")]
 	public float chanceBase;
+
 	public float chanceMin;
 	public float chanceMax;
 	public bool limiteUmPorNivel;
@@ -22,10 +24,12 @@ public class Tiles : MonoBehaviour
 
 	[Header("Níveis que o Tile irá aparecer")]
 	public float nivelMinimo;
+
 	public float nivelMaximo;
 
 	[Header("Dinossauro/Diamante")]
 	public Sprite dinossauro;
+
 	public GameObject particulaDinossauro;
 	public Sprite diamante;
 	public GameObject particulaDiamante;
@@ -34,34 +38,39 @@ public class Tiles : MonoBehaviour
 
 	[Header("Áudio")]
 	public AudioClip hit;
+
 	public AudioClip destruir;
 	private AudioSource audioSourceHit;
 	private AudioSource audioSourceDestruir;
 
 	[Header("Partículas")]
 	public GameObject particula;
+
 	public bool particulaHit;
 	public bool particulaDestroy;
 
 	[Header("Escalonamento no Hit")]
 	public float delayEscalonamento;
+
 	public float porcentagemEscalonamento;
 	public iTween.EaseType animacaoEscalonamento;
 	private Vector3 escalonamentoInicial;
 
 	[Header("Tiles Especiais")]
 	public bool bauTesouro;
+
 	public bool ads;
 
 	[Header("Moedas")]
 	public bool fornecerMoedas;
+
 	internal int moedas = -1;
 	internal Range moedasRange = new Range(0, 0);
 
 	private Jogo jogo;
 	internal SpriteRenderer spriteRenderer;
 
-	void Awake()
+	private void Awake()
 	{
 		jogo = Jogo.Pegar();
 
@@ -70,7 +79,7 @@ public class Tiles : MonoBehaviour
 		escalonamentoInicial = transform.localScale;
 	}
 
-	void OnMouseOver()
+	private void OnMouseOver()
 	{
 		if (Application.platform == RuntimePlatform.WindowsEditor &&
 			Input.GetMouseButtonDown(0) &&
@@ -123,7 +132,7 @@ public class Tiles : MonoBehaviour
 		}
 	}
 
-	IEnumerator EscalonarTile()
+	private IEnumerator EscalonarTile()
 	{
 		iTween.ScaleTo(
 				gameObject,
@@ -146,7 +155,7 @@ public class Tiles : MonoBehaviour
 			);
 	}
 
-	void ExibirTileQuebrado()
+	private void ExibirTileQuebrado()
 	{
 		GameObject tileQuebrado = Instantiate(jogo.tileQuebrado);
 
@@ -154,13 +163,13 @@ public class Tiles : MonoBehaviour
 
 		tileQuebrado.transform.localPosition = Vector3.zero;
 	}
-	
-	void DestruirTile()
+
+	private void DestruirTile()
 	{
 		if (bauTesouro)
 			jogo.AdicionarTesouro();
 		else if (ads)
-			jogo.ExibirAd("tesouro");
+			jogo.ExibirTileAd();
 
 		Jogo.ReproduzirAudio(destruir);
 
@@ -204,7 +213,7 @@ public class Tiles : MonoBehaviour
 			return chanceCalculada;
 	}
 
-	int PegarQuantidadeMoedas(Range range)
+	private int PegarQuantidadeMoedas(Range range)
 	{
 		return
 			Random.Range(

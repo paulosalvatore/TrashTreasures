@@ -8,7 +8,7 @@ public class NovaPaComprar : MonoBehaviour,
 {
 	private Jogo jogo;
 
-	void Start()
+	private void Start()
 	{
 		jogo = Jogo.Pegar();
 	}

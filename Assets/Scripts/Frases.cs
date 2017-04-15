@@ -6,6 +6,7 @@ public class Frases : MonoBehaviour
 {
 	[Header("Nível")]
 	public int nivel;
+
 	public Range nivelRange;
 
 	[Header("Frase Aleatória")]

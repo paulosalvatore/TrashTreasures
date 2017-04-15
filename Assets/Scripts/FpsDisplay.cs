@@ -2,14 +2,14 @@
 
 public class FpsDisplay : MonoBehaviour
 {
-	float deltaTime = 0.0f;
+	private float deltaTime = 0.0f;
 
-	void Update()
+	private void Update()
 	{
 		deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
 	}
 
-	void OnGUI()
+	private void OnGUI()
 	{
 		if (Time.timeScale == 0)
 			return;
