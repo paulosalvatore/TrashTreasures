@@ -12,7 +12,7 @@ public class Jogo : MonoBehaviour
 	public float delayEncerrarNivel;
 	public iTween.EaseType animacaoMapa;
 	public bool desativarAnimacaoMapa;
-	private Transform mapa;
+	public Transform mapa;
 	private Vector3 posicaoFinalMapa;
 
 	[Header("Tela")]
@@ -20,17 +20,17 @@ public class Jogo : MonoBehaviour
 	public List<Color> coresFundoJogo;
 	public Transform canvas;
 	private Color corAnteriorFundoJogo;
-	private SpriteRenderer fundoJogo;
-	private Animator telaAnimator;
+	public SpriteRenderer fundoJogo;
+	public Animator telaAnimator;
 	internal bool bloqueadorClique;
 
 	[Header("Nível")]
 	public int nivelMaximo;
 	internal int nivel = 1;
-	private Text nivelText;
-	private AudioSource nivelAudio;
-	private Animator limpoAnimator;
-	private Text nivelLimpoText;
+	public Text nivelText;
+	public AudioClip nivelAudio;
+	public Animator limpoAnimator;
+	public Text nivelLimpoText;
 
 	[Header("Tiles")]
 	public GameObject tileQuebrado;
@@ -39,6 +39,7 @@ public class Jogo : MonoBehaviour
 	public bool oneHitTiles;
 	public bool exibirTileQuebrado;
 	private Vector2 tileObrigatorioPosicao;
+	// public List<TilesInfo> tilesDisponiveis;
 
 	[Header("Chances ao Destruir Tile (0 - 100)")]
 	public float chanceMoeda;
@@ -58,8 +59,8 @@ public class Jogo : MonoBehaviour
 	public float delayEntreMoedas;
 	public AudioClip moedasAudio;
 	private int moedas;
-	private Text moedasText;
-	internal Image moedasImage;
+	public Text moedasText;
+	public Image moedasImage;
 
 	[Header("Pá")]
 	public int paInicialId;
@@ -68,25 +69,33 @@ public class Jogo : MonoBehaviour
 	internal Pas paSelecionada;
 	private Pas proximaPa;
 	private List<Pas> pasDisponiveis = new List<Pas>();
-	private Animator paDisponivelAnimator;
-	private Animator novaPaAnimator;
-	private Image novaPaImage;
-	private Text novaPaText;
-	private Animator novaPaAssistirAnimator;
-	private Animator novaPaComprarAnimator;
-	private Text novaPaComprarText;
-	private Transform pasAdquiridas;
-	private Image paAdquiridaBase;
+	public Animator paDisponivelAnimator;
+	public Animator novaPaAnimator;
+	public Image novaPaImage;
+	public Text novaPaText;
+	public Animator novaPaAssistirAnimator;
+	public Animator novaPaComprarAnimator;
+	public Text novaPaComprarText;
+	public Transform pasAdquiridas;
+	public Image paAdquiridaBase;
+
+	[Header("Pá - Modo Shovel Gun")]
+	public GameObject modoShovelGunObject;
+	public float duracaoModoShovelGun;
+	private float tempoInicialShovelGun;
+	internal bool modoShovelGun;
+	private IEnumerator coroutineShovelGun;
 
 	[Header("Tesouros")]
 	public float delayExibicaoTesouros;
 	public float duracaoAnimacaoTesouros;
+	public float duracaoAnimacaoTesouroBau;
 	internal float tempoTesouroAberto;
-	private Animator novoTesouroAnimator;
-	private Image novoTesouroFundo;
-	private Image novoTesouroImage;
-	private Text novoTesouroText;
-	private Text tesouroText;
+	public Animator novoTesouroAnimator;
+	public Image novoTesouroFundo;
+	public Image novoTesouroImage;
+	public Text novoTesouroText;
+	public Text tesouroText;
 	private List<Tesouros> tesourosDisponiveis = new List<Tesouros>();
 	private List<Tesouros> tesourosAdquiridos = new List<Tesouros>();
 
@@ -104,10 +113,11 @@ public class Jogo : MonoBehaviour
 	[Header("Ads")]
 	public float duracaoAnimacaoTileAd;
 	internal string recompensa;
-	private Ads ads;
-	private GameObject tileAd;
-	private Animator tileAdAnimator;
-	private Animator tileAdAssistirAnimator;
+	public Ads ads;
+	public GameObject tileAd;
+	public Text tileAdTexto;
+	public Animator tileAdAnimator;
+	public Animator tileAdAssistirAnimator;
 
 	[Header("Áudios")]
 	public AudioClip audioBotaoDesativado;
@@ -116,7 +126,6 @@ public class Jogo : MonoBehaviour
 	// Player Prefs
 
 	private int nivelPref;
-
 	private int moedasPref;
 	private int paPref;
 
@@ -128,14 +137,18 @@ public class Jogo : MonoBehaviour
 	public List<AudioClip> sonsJohn;
 	internal bool bloqueadorCliqueJohn;
 	private float timeUltimoCliqueJohn;
-	private GameObject john;
-	private Animator johnAnimator;
-	private Transform johnBalao;
-	private Text johnBalaoText;
+	public GameObject john;
+	public Animator johnAnimator;
+	public Transform johnBalao;
+	public Text johnBalaoText;
 	private Frases[] frases;
 	private List<string> processarFrases;
 	private int processarFrasesIndex = 0;
 	private bool processandoFalasJohn;
+
+	[Header("Resetar Player Prefs")]
+	public float tempoEscNecessario;
+	private float tempoEscPressionado;
 
 	// Métodos Básicos
 
@@ -143,9 +156,6 @@ public class Jogo : MonoBehaviour
 	{
 		// Definir Resolução Base da Tela
 		DefinicoesScreen();
-
-		// Inicialização de Componentes Externos
-		PegarComponentes();
 
 		// Definição de Variáveis Iniciais
 		DefinirVariaveisIniciais();
@@ -167,6 +177,9 @@ public class Jogo : MonoBehaviour
 
 		// Moedas
 		AtualizarMoedas();
+
+		// Tile Ad
+		AtualizarMensagemTileAd();
 	}
 
 	private void Update()
@@ -177,20 +190,35 @@ public class Jogo : MonoBehaviour
 			ResetarPlayerPrefs();
 		else if (Input.GetKeyDown(KeyCode.Escape))
 		{
-			if (ChecarNovaPaAnimator())
-				PaVoltar();
-			else
-				ResetarPlayerPrefs();
+			tempoEscPressionado = Time.time;
+
+			FecharTelasCanvas();
 		}
 		else if (Input.GetKeyDown(KeyCode.E))
 			AdicionarMoedasInstantaneo(1000);
+		else if (Input.GetKeyDown(KeyCode.R))
+			IniciarModoShovelGun();
+		else if (Input.GetKeyDown(KeyCode.P))
+			ReiniciarCena();
 
 		PegarTilesHit();
 
 		PegarCliqueJohn();
+
+		if (tempoEscPressionado > 0)
+		{
+			if (tempoEscPressionado + tempoEscNecessario <= Time.time)
+			{
+				ResetarPlayerPrefs();
+
+				tempoEscPressionado = 0;
+			}
+			else if (!Input.GetKey(KeyCode.Escape))
+				tempoEscPressionado = 0;
+		}
 	}
 
-	// Métodos de Inicialização de Componentes e Variáveis
+	// Métodos de Inicialização de Variáveis
 
 	private void DefinicoesScreen()
 	{
@@ -200,57 +228,6 @@ public class Jogo : MonoBehaviour
 			(int)resolucaoTela.x,
 			(int)resolucaoTela.y, true
 		);
-	}
-
-	private void PegarComponentes()
-	{
-		// Mapa
-		mapa = GameObject.Find("Mapa").transform;
-
-		// Tela
-		fundoJogo = GameObject.Find("FundoJogo").GetComponent<SpriteRenderer>();
-		telaAnimator = GameObject.Find("Tela").GetComponent<Animator>();
-
-		// Nível
-		nivelText = GameObject.Find("Nível").GetComponent<Text>();
-		nivelAudio = nivelText.GetComponent<AudioSource>();
-		limpoAnimator = GameObject.Find("Limpo").GetComponent<Animator>();
-		nivelLimpoText = limpoAnimator.transform.FindChild("NívelLimpo").GetComponent<Text>();
-
-		// Moedas
-		moedasText = GameObject.Find("Moedas").GetComponent<Text>();
-		moedasImage = moedasText.transform.FindChild("Imagem").GetComponent<Image>();
-
-		// Pás
-		paDisponivelAnimator = GameObject.Find("PáDisponível").GetComponent<Animator>();
-		novaPaAnimator = GameObject.Find("NovaPá").GetComponent<Animator>();
-		novaPaImage = novaPaAnimator.transform.FindChild("Imagem").GetComponent<Image>();
-		novaPaText = novaPaAnimator.transform.FindChild("Nome").GetComponent<Text>();
-		novaPaAssistirAnimator = novaPaAnimator.transform.FindChild("Assistir").GetComponent<Animator>();
-		novaPaComprarAnimator = novaPaAnimator.transform.FindChild("Comprar").GetComponent<Animator>();
-		novaPaComprarText = novaPaComprarAnimator.transform.FindChild("Texto").GetComponent<Text>();
-		pasAdquiridas = GameObject.Find("PásAdquiridas").transform;
-		paAdquiridaBase = pasAdquiridas.FindChild("Pá (Base)").GetComponent<Image>();
-
-		// Tesouros
-		novoTesouroAnimator = GameObject.Find("NovoTesouro").GetComponent<Animator>();
-		novoTesouroFundo = novoTesouroAnimator.GetComponent<Image>();
-		novoTesouroImage = novoTesouroAnimator.transform.FindChild("Imagem").GetComponent<Image>();
-		novoTesouroText = novoTesouroAnimator.transform.FindChild("Nome").GetComponent<Text>();
-		tesouroText = GameObject.Find("TextoTesouro").GetComponent<Text>();
-
-		// Ads
-		ads = GetComponent<Ads>();
-		tileAd = GameObject.Find("TileAd");
-		tileAdAnimator = tileAd.GetComponent<Animator>();
-		tileAdAssistirAnimator = tileAd.transform.FindChild("Assistir").GetComponent<Animator>();
-
-		// John
-		john = GameObject.Find("John");
-		johnAnimator = john.GetComponent<Animator>();
-		johnBalao = john.transform.FindChild("Balão");
-		johnBalaoText = johnBalao.FindChild("Texto").GetComponent<Text>();
-		frases = john.GetComponents<Frases>();
 	}
 
 	private void DefinirVariaveisIniciais()
@@ -272,6 +249,9 @@ public class Jogo : MonoBehaviour
 
 		// Tesouros
 		PegarTesourosDisponiveis();
+
+		// John
+		frases = john.GetComponents<Frases>();
 	}
 
 	// Mapa/Tela
@@ -381,6 +361,20 @@ public class Jogo : MonoBehaviour
 			bloqueadorClique = false;
 	}
 
+	private void FecharTelasCanvas()
+	{
+		if (ChecarNovaPaAnimator())
+			PaVoltar();
+		else if (ChecarNovoTesouroAnimator())
+			OcultarTesouro();
+		else if (ChecarTileAdAnimator())
+			TileAdVoltar();
+		else if (ChecarGaleriaTesourosAnimator())
+			GaleriaTesourosVoltar();
+		else if (ChecarJohnAnimator())
+			OcultarJohn();
+	}
+
 	// Nível
 
 	private void AvancarNivel()
@@ -424,7 +418,7 @@ public class Jogo : MonoBehaviour
 
 	private void TocarAudioNivel()
 	{
-		nivelAudio.Play();
+		ReproduzirAudio(nivelAudio);
 	}
 
 	// Tiles
@@ -522,7 +516,9 @@ public class Jogo : MonoBehaviour
 
 			int chance = tile.PegarChance(nivelMapa);
 
-			if (tile.bauTesouro && tesourosAdquiridos.Count == tesourosDisponiveis.Count)
+			if ((tile.bauTesouro && !ChecarTesouroDisponivel()) ||
+				(tile.ads && !ads.checarAd)
+			)
 				chance = 0;
 
 			if (chance > 0)
@@ -579,11 +575,11 @@ public class Jogo : MonoBehaviour
 		if (Input.touchCount > 0)
 		{
 			Touch touch = Input.GetTouch(0);
-			if (touch.phase == TouchPhase.Began)
+			if (modoShovelGun || touch.phase == TouchPhase.Began)
 			{
 				Vector3 posicao = Camera.main.ScreenToWorldPoint(touch.position);
 				RaycastHit2D hit = Physics2D.Raycast(posicao, Vector2.zero);
-				if (hit != null && hit.collider != null)
+				if (hit && hit.collider != null)
 				{
 					Tiles tileHit = hit.collider.GetComponent<Tiles>();
 
@@ -692,13 +688,18 @@ public class Jogo : MonoBehaviour
 
 		if (paId >= pasDisponiveis.Count || nivel < proximaPa.nivel || moedas < custo)
 		{
-			// ReproduzirAudioAcaoProibida();
+			if (!gratuito)
+				ReproduzirAudioAcaoProibida();
 
 			return;
 		}
 
 		if (custo > 0)
+		{
+			ReproduzirAudioClique();
+
 			RemoverMoedas(custo);
+		}
 
 		if (fechar)
 			PaVoltar();
@@ -730,7 +731,7 @@ public class Jogo : MonoBehaviour
 
 		AlterarNovaPaAnimator(true);
 
-		AlterarNovaPaAssistirAnimator(!ads.ChecarAd());
+		AlterarNovaPaAssistirAnimator(!ads.checarAd);
 
 		BloquearClique();
 	}
@@ -752,6 +753,11 @@ public class Jogo : MonoBehaviour
 
 	public void PaAssistir()
 	{
+		if (ads.checarAd)
+			ReproduzirAudioClique();
+		else
+			ReproduzirAudioAcaoProibida();
+
 		recompensa = "pa";
 
 		ads.ExibirAd();
@@ -759,11 +765,6 @@ public class Jogo : MonoBehaviour
 
 	public void PaComprar()
 	{
-		if (ads.ChecarAd())
-			ReproduzirAudioClique();
-		else
-			ReproduzirAudioAcaoProibida();
-
 		EvoluirPa();
 	}
 
@@ -801,6 +802,43 @@ public class Jogo : MonoBehaviour
 				),
 				paAdquirida.rectTransform.anchoredPosition.y
 			);
+	}
+
+	public void IniciarModoShovelGun()
+	{
+		modoShovelGun = true;
+
+		tempoInicialShovelGun = Time.time;
+
+		AtualizarModoShovelGun();
+
+		if (coroutineShovelGun == null)
+		{
+			coroutineShovelGun = EncerrarModoShovelGun();
+			StartCoroutine(coroutineShovelGun);
+		}
+	}
+
+	private IEnumerator EncerrarModoShovelGun()
+	{
+		while (modoShovelGun)
+		{
+			if (tempoInicialShovelGun + duracaoModoShovelGun <= Time.time)
+			{
+				modoShovelGun = false;
+
+				AtualizarModoShovelGun();
+
+				coroutineShovelGun = null;
+			}
+
+			yield return new WaitForSeconds(1f);
+		}
+	}
+
+	private void AtualizarModoShovelGun()
+	{
+		modoShovelGunObject.SetActive(modoShovelGun);
 	}
 
 	// Tesouros
@@ -862,8 +900,6 @@ public class Jogo : MonoBehaviour
 
 			tesourosAdquiridos.Add(tesouro);
 
-			AtualizarPorcentagemTesouros();
-
 			novoTesouroImage.sprite = tesouro.sprite;
 			novoTesouroText.text = tesouro.nome;
 
@@ -877,6 +913,8 @@ public class Jogo : MonoBehaviour
 
 				BloquearClique();
 			}
+			else
+				AtualizarPorcentagemTesouros();
 		}
 		else if (quantidadeTiles == 0)
 			EncerrarNivel();
@@ -890,10 +928,21 @@ public class Jogo : MonoBehaviour
 
 		AlterarNovoTesouroAnimator(false);
 
-		if (tesourosAdquiridos.Count == tesourosDisponiveis.Count)
+		Invoke("AtualizarPorcentagemTesouros", duracaoAnimacaoTesouros + duracaoAnimacaoTesouroBau);
+
+		if (!ChecarTesouroDisponivel())
+		{
 			ChecarJohn(true);
+
+			AtualizarMensagemTileAd();
+		}
 		else if (quantidadeTiles == 0)
-			Invoke("EncerrarNivel", duracaoAnimacaoTesouros);
+			Invoke("EncerrarNivel", duracaoAnimacaoTesouros + duracaoAnimacaoTesouroBau);
+	}
+
+	private bool ChecarNovoTesouroAnimator()
+	{
+		return novoTesouroAnimator.GetBool("Exibir");
 	}
 
 	private void AlterarNovoTesouroAnimator(bool estado)
@@ -911,6 +960,11 @@ public class Jogo : MonoBehaviour
 	private void AlterarCorFundoNovoTesouro()
 	{
 		novoTesouroFundo.color = PegarCorFundoAleatoria();
+	}
+
+	private bool ChecarTesouroDisponivel()
+	{
+		return tesourosAdquiridos.Count < tesourosDisponiveis.Count;
 	}
 
 	// Galeria de Tesouros
@@ -966,6 +1020,11 @@ public class Jogo : MonoBehaviour
 		OcultarGaleriaTesouros();
 	}
 
+	private bool ChecarGaleriaTesourosAnimator()
+	{
+		return galeriaTesourosAnimator.GetBool("Exibir");
+	}
+
 	private void AtualizarGaleriaTesourosAnimator(bool estado)
 	{
 		galeriaTesourosAnimator.SetBool("Exibir", estado);
@@ -982,12 +1041,15 @@ public class Jogo : MonoBehaviour
 
 	public void AssistirTileAd()
 	{
-		if (ads.ChecarAd())
+		if (ads.checarAd)
 			ReproduzirAudioClique();
 		else
 			ReproduzirAudioAcaoProibida();
 
-		ExibirAd("tesouro");
+		if (ChecarTesouroDisponivel())
+			ExibirAd("tesouro");
+		else
+			ExibirAd("shovel_gun");
 
 		OcultarTileAd();
 	}
@@ -1006,7 +1068,7 @@ public class Jogo : MonoBehaviour
 	{
 		AlterarTileAdAnimator(true);
 
-		AlterarTileAdAssistirAnimator(!ads.ChecarAd());
+		AlterarTileAdAssistirAnimator(!ads.checarAd);
 
 		BloquearClique();
 	}
@@ -1014,6 +1076,11 @@ public class Jogo : MonoBehaviour
 	private void OcultarTileAd()
 	{
 		AlterarTileAdAnimator(false);
+	}
+
+	private bool ChecarTileAdAnimator()
+	{
+		return tileAdAnimator.GetBool("Exibir");
 	}
 
 	private void AlterarTileAdAnimator(bool estado)
@@ -1024,6 +1091,12 @@ public class Jogo : MonoBehaviour
 	private void AlterarTileAdAssistirAnimator(bool estado)
 	{
 		tileAdAssistirAnimator.SetBool("Inativo", estado);
+	}
+
+	private void AtualizarMensagemTileAd()
+	{
+		if (!ChecarTesouroDisponivel())
+			tileAdTexto.text = "Get a shovel gun for 30 seconds now for FREE!";
 	}
 
 	// Player Prefs
@@ -1206,30 +1279,34 @@ public class Jogo : MonoBehaviour
 
 	private void ExibirJohn()
 	{
-		AlterarAnimator("Entrar");
+		FecharTelasCanvas();
+
+		AlterarJohnAnimator(true);
 
 		Invoke("ReproduzirAudioJohn", duracaoMovimentoJohn / 2f);
-
-		if (ChecarNovaPaAnimator())
-			AlterarNovaPaAnimator(false);
 	}
 
 	private void OcultarJohn()
 	{
-		AlterarAnimator("Sair");
+		AlterarJohnAnimator(false);
 
 		Invoke("DesbloquearCliqueJohn", duracaoMovimentoJohn);
 
 		if (quantidadeTiles == 0 &&
-			tesourosAdquiridos.Count == tesourosDisponiveis.Count)
+			!ChecarTesouroDisponivel())
 		{
 			Invoke("EncerrarNivel", duracaoMovimentoJohn);
 		}
 	}
 
-	private void AlterarAnimator(string trigger)
+	private bool ChecarJohnAnimator()
 	{
-		johnAnimator.SetTrigger(trigger);
+		return johnAnimator.GetBool("Exibir");
+	}
+
+	private void AlterarJohnAnimator(bool estado)
+	{
+		johnAnimator.SetBool("Exibir", estado);
 	}
 
 	private void PegarCliqueJohn()

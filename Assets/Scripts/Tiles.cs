@@ -1,6 +1,56 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[System.Serializable]
+public class TilesInfo
+{
+	public string tileName;
+
+	[Header("Informações Básicas")]
+	public int hp;
+
+	[Header("Chances")]
+	public float chanceBase;
+	public float chanceMin;
+	public float chanceMax;
+	public bool limiteUmPorNivel;
+	public int aparecerObrigatoriamenteNivel;
+
+	[Header("chanceBase + (level * modificadorNivel)")]
+	public float modificadorNivel;
+
+	[Header("Níveis que o Tile irá aparecer")]
+	public float nivelMinimo;
+	public float nivelMaximo;
+
+	[Header("Dinossauro/Diamante")]
+	public Sprite dinossauro;
+	public GameObject particulaDinossauro;
+	public Sprite diamante;
+	public GameObject particulaDiamante;
+
+	[Header("Áudio")]
+	public AudioClip hit;
+	public AudioClip destruir;
+
+	[Header("Partículas")]
+	public GameObject particula;
+	public bool particulaHit;
+	public bool particulaDestroy;
+
+	[Header("Escalonamento no Hit")]
+	public float delayEscalonamento;
+	public float porcentagemEscalonamento;
+	public iTween.EaseType animacaoEscalonamento;
+
+	[Header("Tiles Especiais")]
+	public bool bauTesouro;
+	public bool ads;
+
+	[Header("Moedas")]
+	public bool fornecerMoedas;
+}
+
 public class Tiles : MonoBehaviour
 {
 	[Header("Informações Básicas")]
@@ -33,8 +83,6 @@ public class Tiles : MonoBehaviour
 	[Header("Áudio")]
 	public AudioClip hit;
 	public AudioClip destruir;
-	private AudioSource audioSourceHit;
-	private AudioSource audioSourceDestruir;
 
 	[Header("Partículas")]
 	public GameObject particula;
@@ -70,9 +118,12 @@ public class Tiles : MonoBehaviour
 
 #if (UNITY_EDITOR)
 
-	private void OnMouseDown()
+	private void OnMouseOver()
 	{
-		if (!jogo.bloqueadorClique)
+		if (!jogo.bloqueadorClique &&
+			(Input.GetMouseButtonDown(0) ||
+			Input.GetMouseButton(0) && jogo.modoShovelGun)
+		)
 		{
 			HitTile();
 		}

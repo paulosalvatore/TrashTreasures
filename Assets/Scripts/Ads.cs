@@ -4,20 +4,27 @@ using UnityEngine.Advertisements;
 public class Ads : MonoBehaviour
 {
 	private Jogo jogo;
+	internal bool checarAd;
 
 	private void Start()
 	{
 		jogo = Jogo.Pegar();
+
+		ChecarAd();
+
+		InvokeRepeating("ChecarAd", 1f, 1f);
 	}
 
-	public bool ChecarAd()
+	private void ChecarAd()
 	{
-		return Advertisement.IsReady("rewardedVideo");
+		checarAd = Advertisement.IsReady("rewardedVideo");
 	}
 
 	public void ExibirAd()
 	{
-		if (ChecarAd())
+		ChecarAd();
+
+		if (checarAd)
 		{
 			Pausar.PausarJogo();
 
@@ -60,6 +67,10 @@ public class Ads : MonoBehaviour
 
 			case "pa":
 				jogo.EvoluirPa(true);
+				break;
+
+			case "shovel_gun":
+				jogo.IniciarModoShovelGun();
 				break;
 		}
 

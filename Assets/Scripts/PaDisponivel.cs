@@ -14,6 +14,10 @@ public class PaDisponivel : MonoBehaviour,
 	public void OnPointerClick(PointerEventData eventData)
 	{
 		if (!jogo.bloqueadorCliqueJohn)
+		{
+			jogo.ReproduzirAudioClique();
+
 			jogo.ExibirNovaPaDisponivel();
+		}
 	}
 }
