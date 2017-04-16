@@ -68,15 +68,17 @@ public class Tiles : MonoBehaviour
 		escalonamentoInicial = transform.localScale;
 	}
 
-	private void OnMouseOver()
+#if (UNITY_EDITOR)
+
+	private void OnMouseDown()
 	{
-		if (Application.platform == RuntimePlatform.WindowsEditor &&
-			Input.GetMouseButtonDown(0) &&
-			!jogo.bloqueadorClique)
+		if (!jogo.bloqueadorClique)
 		{
 			HitTile();
 		}
 	}
+
+#endif
 
 	public void HitTile()
 	{

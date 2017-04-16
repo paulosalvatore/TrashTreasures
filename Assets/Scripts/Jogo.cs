@@ -18,6 +18,7 @@ public class Jogo : MonoBehaviour
 	[Header("Tela")]
 	public Vector2 resolucaoTela;
 	public List<Color> coresFundoJogo;
+	public Transform canvas;
 	private Color corAnteriorFundoJogo;
 	private SpriteRenderer fundoJogo;
 	private Animator telaAnimator;
@@ -89,6 +90,12 @@ public class Jogo : MonoBehaviour
 	private List<Tesouros> tesourosDisponiveis = new List<Tesouros>();
 	private List<Tesouros> tesourosAdquiridos = new List<Tesouros>();
 
+	[Header("Galeria de Tesouros")]
+	public float duracaoAnimacaoGaleriaTesouros;
+	public GaleriaTesourosBotao botaoGaleriaTesouros;
+	public Transform galeriaTesourosContent;
+	public Animator galeriaTesourosAnimator;
+
 	// Definições da Área de Jogo
 	private int[,] jogo;
 	private int larguraJogo = 5;
@@ -102,9 +109,9 @@ public class Jogo : MonoBehaviour
 	private Animator tileAdAnimator;
 	private Animator tileAdAssistirAnimator;
 
-	// Audio Source
-
-	private AudioSource audioSource;
+	[Header("Áudios")]
+	public AudioClip audioBotaoDesativado;
+	public AudioClip audioClique;
 
 	// Player Prefs
 
@@ -143,6 +150,9 @@ public class Jogo : MonoBehaviour
 		// Definição de Variáveis Iniciais
 		DefinirVariaveisIniciais();
 
+		// Galeria de Tesouros
+		CriarGaleriaTesouros();
+
 		// Player Prefs
 		PegarPlayerPrefs();
 
@@ -172,6 +182,8 @@ public class Jogo : MonoBehaviour
 			else
 				ResetarPlayerPrefs();
 		}
+		else if (Input.GetKeyDown(KeyCode.E))
+			AdicionarMoedasInstantaneo(1000);
 
 		PegarTilesHit();
 
@@ -232,9 +244,6 @@ public class Jogo : MonoBehaviour
 		tileAd = GameObject.Find("TileAd");
 		tileAdAnimator = tileAd.GetComponent<Animator>();
 		tileAdAssistirAnimator = tileAd.transform.FindChild("Assistir").GetComponent<Animator>();
-
-		// AudioSource
-		audioSource = GetComponent<AudioSource>();
 
 		// John
 		john = GameObject.Find("John");
@@ -442,7 +451,7 @@ public class Jogo : MonoBehaviour
 		tileInstanciado.name = string.Format("{0},{1}", x, y);
 
 		// Colocamos o tile instanciado dentro do GameObject destinado ao mapa, para melhor organização
-		tileInstanciado.transform.parent = mapaDestino ? mapaDestino : mapa;
+		tileInstanciado.transform.SetParent(mapaDestino ? mapaDestino : mapa);
 
 		// Definimos a posição do tile baseado no X e no Y do for
 		Vector2 posicaoTile = new Vector2(
@@ -598,26 +607,47 @@ public class Jogo : MonoBehaviour
 		return adicionarMoedas;
 	}
 
-	public void AdicionarMoedas(Transform origem, int adicionarMoedas = 0)
+	public void AdicionarMoedas(Transform origem, int quantidade = 0)
 	{
-		StartCoroutine(AdicionarMoedas(origem, adicionarMoedas, true));
+		StartCoroutine(AdicionarMoedas(origem, quantidade, true));
 	}
 
-	private IEnumerator AdicionarMoedas(Transform origem, int adicionarMoedas, bool coroutine)
+	private IEnumerator AdicionarMoedas(Transform origem, int quantidade, bool coroutine)
 	{
-		Vector3 posicao = origem.position;
+		Vector2 posicao =
+			RectTransformUtility.WorldToScreenPoint(
+				Camera.main,
+				origem.position
+			);
+
 		Quaternion rotacao = origem.rotation;
 
-		for (int i = 0; i < adicionarMoedas; i++)
+		for (int i = 0; i < quantidade; i++)
 		{
 			Jogo.ReproduzirAudio(moedasAudio);
 
 			StartCoroutine(AtualizarMoedas(1));
 
-			Instantiate(moeda, posicao, rotacao);
+			Moedas moedaInstanciada = Instantiate(moeda, posicao, rotacao);
+			moedaInstanciada.transform.SetParent(canvas);
+			moedaInstanciada.transform.SetAsFirstSibling();
 
 			yield return new WaitForSeconds(delayEntreMoedas);
 		}
+	}
+
+	private void AdicionarMoedasInstantaneo(int quantidade)
+	{
+		moedas += quantidade;
+
+		AtualizarMoedas();
+	}
+
+	private void RemoverMoedas(int quantidade)
+	{
+		moedas -= quantidade;
+
+		AtualizarMoedas();
 	}
 
 	private void AtualizarMoedas()
@@ -662,17 +692,13 @@ public class Jogo : MonoBehaviour
 
 		if (paId >= pasDisponiveis.Count || nivel < proximaPa.nivel || moedas < custo)
 		{
-			audioSource.Play();
+			// ReproduzirAudioAcaoProibida();
 
 			return;
 		}
 
 		if (custo > 0)
-		{
-			moedas -= custo;
-
-			AtualizarMoedas();
-		}
+			RemoverMoedas(custo);
 
 		if (fechar)
 			PaVoltar();
@@ -733,6 +759,11 @@ public class Jogo : MonoBehaviour
 
 	public void PaComprar()
 	{
+		if (ads.ChecarAd())
+			ReproduzirAudioClique();
+		else
+			ReproduzirAudioAcaoProibida();
+
 		EvoluirPa();
 	}
 
@@ -798,25 +829,45 @@ public class Jogo : MonoBehaviour
 		return tesouroSelecionado;
 	}
 
-	public void AdicionarTesouro(Tesouros tesouro = null)
+	public void AdicionarTesouro(Tesouros tesouro = null, bool gratuito = true)
 	{
-		tempoTesouroAberto = Time.time + delayExibicaoTesouros + duracaoAnimacaoTesouros;
-
 		bool exibirAnimator = true;
 
 		if (tesouro != null)
+		{
+			if (!gratuito)
+			{
+				if (moedas < tesouro.preco)
+				{
+					ReproduzirAudioAcaoProibida();
+
+					return;
+				}
+				else
+				{
+					ReproduzirAudioClique();
+
+					RemoverMoedas(tesouro.preco);
+				}
+			}
+
 			exibirAnimator = false;
+		}
 		else
 			tesouro = PegarTesouro();
 
 		if (tesouro != null)
 		{
+			tempoTesouroAberto = Time.time + delayExibicaoTesouros + duracaoAnimacaoTesouros;
+
 			tesourosAdquiridos.Add(tesouro);
 
 			AtualizarPorcentagemTesouros();
 
 			novoTesouroImage.sprite = tesouro.sprite;
 			novoTesouroText.text = tesouro.nome;
+
+			AtualizarBotaoTesouro(tesouro);
 
 			if (exibirAnimator)
 			{
@@ -829,6 +880,8 @@ public class Jogo : MonoBehaviour
 		}
 		else if (quantidadeTiles == 0)
 			EncerrarNivel();
+		else
+			DesbloquearClique();
 	}
 
 	public void OcultarTesouro()
@@ -860,6 +913,64 @@ public class Jogo : MonoBehaviour
 		novoTesouroFundo.color = PegarCorFundoAleatoria();
 	}
 
+	// Galeria de Tesouros
+
+	private void CriarGaleriaTesouros()
+	{
+		foreach (Tesouros tesouro in tesourosDisponiveis)
+		{
+			GaleriaTesourosBotao botaoInstanciado = Instantiate(botaoGaleriaTesouros);
+
+			botaoInstanciado.transform.SetParent(galeriaTesourosContent);
+
+			tesouro.botaoGaleria = botaoInstanciado;
+
+			tesouro.botaoGaleria.Inicializar(tesouro);
+
+			AtualizarBotaoTesouro(tesouro);
+		}
+	}
+
+	private void AtualizarBotaoTesouro(Tesouros tesouro)
+	{
+		bool desbloqueado = tesourosAdquiridos.Contains(tesouro);
+		tesouro.botaoGaleria.Atualizar(desbloqueado);
+	}
+
+	public void ExibirGaleriaTesouros()
+	{
+		AlterarExibicaoGaleriaTesouros(true);
+
+		BloquearClique();
+	}
+
+	private void OcultarGaleriaTesouros()
+	{
+		AlterarExibicaoGaleriaTesouros(false);
+
+		Invoke("DesbloquearClique", duracaoAnimacaoGaleriaTesouros);
+	}
+
+	private void AlterarExibicaoGaleriaTesouros(bool estado)
+	{
+		AtualizarGaleriaTesourosAnimator(estado);
+
+		foreach (Tesouros tesouro in tesourosDisponiveis)
+		{
+			tesouro.botaoGaleria.AlterarExibicao(estado);
+		}
+	}
+
+	public void GaleriaTesourosVoltar()
+	{
+		OcultarGaleriaTesouros();
+	}
+
+	private void AtualizarGaleriaTesourosAnimator(bool estado)
+	{
+		galeriaTesourosAnimator.SetBool("Exibir", estado);
+	}
+
 	// Ads
 
 	public void ExibirAd(string novaRecompensa = "")
@@ -871,6 +982,11 @@ public class Jogo : MonoBehaviour
 
 	public void AssistirTileAd()
 	{
+		if (ads.ChecarAd())
+			ReproduzirAudioClique();
+		else
+			ReproduzirAudioAcaoProibida();
+
 		ExibirAd("tesouro");
 
 		OcultarTileAd();
@@ -1053,8 +1169,6 @@ public class Jogo : MonoBehaviour
 
 			StartCoroutine("ConstruirFrase");
 
-			ReproduzirAudioJohn();
-
 			timeUltimoCliqueJohn = Time.time;
 		}
 	}
@@ -1133,6 +1247,18 @@ public class Jogo : MonoBehaviour
 	private void ReproduzirAudioJohn()
 	{
 		ReproduzirAudio(sonsJohn[Random.Range(0, sonsJohn.Count)]);
+	}
+
+	// Áudios
+
+	public void ReproduzirAudioClique()
+	{
+		ReproduzirAudio(audioClique);
+	}
+
+	public void ReproduzirAudioAcaoProibida()
+	{
+		ReproduzirAudio(audioBotaoDesativado);
 	}
 
 	// Métodos Estáticos

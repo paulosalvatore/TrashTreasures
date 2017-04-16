@@ -47,9 +47,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Ads.cs" />
-     <Compile Include="Assets\Scripts\BotaoHud.cs" />
      <Compile Include="Assets\Scripts\FpsDisplay.cs" />
      <Compile Include="Assets\Scripts\Frases.cs" />
+     <Compile Include="Assets\Scripts\GaleriaTesourosAbrir.cs" />
+     <Compile Include="Assets\Scripts\GaleriaTesourosBotao.cs" />
+     <Compile Include="Assets\Scripts\GaleriaTesourosVoltar.cs" />
      <Compile Include="Assets\Scripts\Jogo.cs" />
      <Compile Include="Assets\Scripts\LifetimeParticulas.cs" />
      <Compile Include="Assets\Scripts\Moedas.cs" />

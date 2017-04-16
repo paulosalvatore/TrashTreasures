@@ -13,6 +13,8 @@ public class TileAdVoltar : MonoBehaviour,
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
+		jogo.ReproduzirAudioClique();
+
 		jogo.TileAdVoltar();
 	}
 }

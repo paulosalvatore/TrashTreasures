@@ -13,6 +13,8 @@ public class NovaPaVoltar : MonoBehaviour,
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
+		jogo.ReproduzirAudioClique();
+
 		jogo.PaVoltar();
 	}
 }

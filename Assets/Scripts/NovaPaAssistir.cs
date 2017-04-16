@@ -13,6 +13,8 @@ public class NovaPaAssistir : MonoBehaviour,
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
+		jogo.ReproduzirAudioClique();
+
 		jogo.PaAssistir();
 	}
 }
