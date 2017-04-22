@@ -13,7 +13,10 @@ public class NovoTesouroPegar : MonoBehaviour,
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		if (jogo.tempoTesouroAberto <= Time.time)
+		if ((jogo.bloqueadorClique &&
+			jogo.ChecarNovoTesouroAnimator() &&
+			jogo.tempoTesouroAberto <= Time.time) ||
+			!jogo.bloqueadorClique)
 		{
 			jogo.ReproduzirAudioClique();
 

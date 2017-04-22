@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using CodeStage.AntiCheat.ObscuredTypes;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -25,8 +26,7 @@ public class Jogo : MonoBehaviour
 	internal bool bloqueadorClique;
 
 	[Header("Nível")]
-	public int nivelMaximo;
-	internal int nivel = 1;
+	internal ObscuredInt nivel = 1;
 	public Text nivelText;
 	public AudioClip nivelAudio;
 	public Animator limpoAnimator;
@@ -35,43 +35,43 @@ public class Jogo : MonoBehaviour
 	[Header("Tiles")]
 	public GameObject tileQuebrado;
 	private List<Tiles> tilesDisponiveis;
-	private int quantidadeTiles;
-	public bool oneHitTiles;
+	private ObscuredInt quantidadeTiles;
+	public ObscuredBool oneHitTiles;
 	public bool exibirTileQuebrado;
 	private Vector2 tileObrigatorioPosicao;
-	// public List<TilesInfo> tilesDisponiveis;
 
 	[Header("Chances ao Destruir Tile (0 - 100)")]
-	public float chanceMoeda;
+	public ObscuredFloat chanceMoeda;
 
 	[Header("Dinossauro")]
-	public float chanceBaseDinossauro;
-	public int hpBaseDinossauro;
+	public ObscuredFloat chanceBaseDinossauro;
+	public ObscuredInt hpBaseDinossauro;
 	public Range moedasDinossauro;
 
 	[Header("Diamante")]
-	public float chanceBaseDiamante;
-	public int hpBaseDiamante;
+	public ObscuredFloat chanceBaseDiamante;
+	public ObscuredInt hpBaseDiamante;
 	public Range moedasDiamante;
 
 	[Header("Moedas")]
 	public Moedas moeda;
 	public float delayEntreMoedas;
 	public AudioClip moedasAudio;
-	private int moedas;
+	private ObscuredInt moedas;
 	public Text moedasText;
 	public Image moedasImage;
 
 	[Header("Pá")]
-	public int paInicialId;
+	public ObscuredInt paInicialId;
 	public float duracaoAnimacaoPas;
-	private int paId;
+	private ObscuredInt paId;
 	internal Pas paSelecionada;
 	private Pas proximaPa;
 	private List<Pas> pasDisponiveis = new List<Pas>();
 	public Animator paDisponivelAnimator;
 	public Animator novaPaAnimator;
 	public Image novaPaImage;
+	public Image novaPaFundo;
 	public Text novaPaText;
 	public Animator novaPaAssistirAnimator;
 	public Animator novaPaComprarAnimator;
@@ -81,9 +81,9 @@ public class Jogo : MonoBehaviour
 
 	[Header("Pá - Modo Shovel Gun")]
 	public GameObject modoShovelGunObject;
-	public float duracaoModoShovelGun;
-	private float tempoInicialShovelGun;
-	internal bool modoShovelGun;
+	public ObscuredFloat duracaoModoShovelGun;
+	private ObscuredFloat tempoInicialShovelGun;
+	internal ObscuredBool modoShovelGun;
 	private IEnumerator coroutineShovelGun;
 
 	[Header("Tesouros")]
@@ -112,7 +112,7 @@ public class Jogo : MonoBehaviour
 
 	[Header("Ads")]
 	public float duracaoAnimacaoTileAd;
-	internal string recompensa;
+	internal ObscuredString recompensa;
 	public Ads ads;
 	public GameObject tileAd;
 	public Text tileAdTexto;
@@ -124,10 +124,9 @@ public class Jogo : MonoBehaviour
 	public AudioClip audioClique;
 
 	// Player Prefs
-
-	private int nivelPref;
-	private int moedasPref;
-	private int paPref;
+	private ObscuredInt nivelPref;
+	private ObscuredInt moedasPref;
+	private ObscuredInt paPref;
 
 	[Header("John")]
 	public float delayProximaPalavra;
@@ -145,10 +144,6 @@ public class Jogo : MonoBehaviour
 	private List<string> processarFrases;
 	private int processarFrasesIndex = 0;
 	private bool processandoFalasJohn;
-
-	[Header("Resetar Player Prefs")]
-	public float tempoEscNecessario;
-	private float tempoEscPressionado;
 
 	// Métodos Básicos
 
@@ -190,35 +185,29 @@ public class Jogo : MonoBehaviour
 			ResetarPlayerPrefs();
 		else if (Input.GetKeyDown(KeyCode.Escape))
 		{
-			tempoEscPressionado = Time.time;
-
-			FecharTelasCanvas();
+			if (!FecharTelasCanvas())
+				ResetarPlayerPrefs();
 		}
 		else if (Input.GetKeyDown(KeyCode.E))
 			AdicionarMoedasInstantaneo(1000);
 		else if (Input.GetKeyDown(KeyCode.R))
 			IniciarModoShovelGun();
+		else if (Input.GetKeyDown(KeyCode.T))
+			AdicionarTesouro();
 		else if (Input.GetKeyDown(KeyCode.P))
 			ReiniciarCena();
 
 		PegarTilesHit();
 
 		PegarCliqueJohn();
-
-		if (tempoEscPressionado > 0)
-		{
-			if (tempoEscPressionado + tempoEscNecessario <= Time.time)
-			{
-				ResetarPlayerPrefs();
-
-				tempoEscPressionado = 0;
-			}
-			else if (!Input.GetKey(KeyCode.Escape))
-				tempoEscPressionado = 0;
-		}
 	}
 
 	// Métodos de Inicialização de Variáveis
+
+	private void Awake()
+	{
+		Application.targetFrameRate = 60;
+	}
 
 	private void DefinicoesScreen()
 	{
@@ -361,7 +350,7 @@ public class Jogo : MonoBehaviour
 			bloqueadorClique = false;
 	}
 
-	private void FecharTelasCanvas()
+	private bool FecharTelasCanvas()
 	{
 		if (ChecarNovaPaAnimator())
 			PaVoltar();
@@ -373,6 +362,10 @@ public class Jogo : MonoBehaviour
 			GaleriaTesourosVoltar();
 		else if (ChecarJohnAnimator())
 			OcultarJohn();
+		else
+			return false;
+
+		return true;
 	}
 
 	// Nível
@@ -423,7 +416,7 @@ public class Jogo : MonoBehaviour
 
 	// Tiles
 
-	private void InstanciarTile(int x, int y, Transform mapaDestino, int nivelMapa)
+	private void InstanciarTile(int x, int y, Transform mapaDestino, ObscuredInt nivelMapa)
 	{
 		nivelMapa = nivelMapa == 0 ? nivel : nivelMapa;
 		/*
@@ -553,8 +546,11 @@ public class Jogo : MonoBehaviour
 		return tileSelecionado;
 	}
 
-	public void ProcessarTileDestruido(Transform tileDestruido, int moedas, bool tileEspecial)
+	public void ProcessarTileDestruido(Transform tileDestruido, ObscuredBool fornecerMoedas, ObscuredInt moedas, bool tileEspecial)
 	{
+		if (!fornecerMoedas)
+			moedas = 0;
+
 		if (moedas == -1)
 			moedas = ProcessarAdicaoMoedas();
 
@@ -644,6 +640,8 @@ public class Jogo : MonoBehaviour
 		moedas -= quantidade;
 
 		AtualizarMoedas();
+
+		ReproduzirAudio(moedasAudio);
 	}
 
 	private void AtualizarMoedas()
@@ -684,7 +682,10 @@ public class Jogo : MonoBehaviour
 
 	public void EvoluirPa(bool gratuito = false, bool fechar = true)
 	{
-		int custo = gratuito ? 0 : proximaPa.moedas;
+		ObscuredInt custo = proximaPa.moedas;
+
+		if (gratuito)
+			custo = 0;
 
 		if (paId >= pasDisponiveis.Count || nivel < proximaPa.nivel || moedas < custo)
 		{
@@ -699,6 +700,8 @@ public class Jogo : MonoBehaviour
 			ReproduzirAudioClique();
 
 			RemoverMoedas(custo);
+
+			AlterarNovaPaAdquiridaAnimator(true);
 		}
 
 		if (fechar)
@@ -731,6 +734,8 @@ public class Jogo : MonoBehaviour
 
 		AlterarNovaPaAnimator(true);
 
+		AlterarCorFundoNovaPa();
+
 		AlterarNovaPaAssistirAnimator(!ads.checarAd);
 
 		BloquearClique();
@@ -739,11 +744,28 @@ public class Jogo : MonoBehaviour
 	private void AlterarNovaPaAnimator(bool estado)
 	{
 		novaPaAnimator.SetBool("Exibir", estado);
+
+		Invoke("OcultarNovaPaAdquiridaAnimator", duracaoAnimacaoPas);
+	}
+
+	private void OcultarNovaPaAdquiridaAnimator()
+	{
+		AlterarNovaPaAdquiridaAnimator(false);
+	}
+
+	private void AlterarNovaPaAdquiridaAnimator(bool estado)
+	{
+		novaPaAnimator.SetBool("PáAdquirida", estado);
 	}
 
 	private void AlterarNovaPaAssistirAnimator(bool estado)
 	{
 		novaPaAssistirAnimator.SetBool("Inativo", estado);
+	}
+
+	private void AlterarCorFundoNovaPa()
+	{
+		novaPaFundo.color = PegarCorFundoAleatoria();
 	}
 
 	private bool ChecarNovaPaAnimator()
@@ -754,13 +776,17 @@ public class Jogo : MonoBehaviour
 	public void PaAssistir()
 	{
 		if (ads.checarAd)
+		{
 			ReproduzirAudioClique();
+
+			AlterarNovaPaAdquiridaAnimator(true);
+
+			recompensa = "pa";
+
+			ads.ExibirAd();
+		}
 		else
 			ReproduzirAudioAcaoProibida();
-
-		recompensa = "pa";
-
-		ads.ExibirAd();
 	}
 
 	public void PaComprar()
@@ -940,7 +966,7 @@ public class Jogo : MonoBehaviour
 			Invoke("EncerrarNivel", duracaoAnimacaoTesouros + duracaoAnimacaoTesouroBau);
 	}
 
-	private bool ChecarNovoTesouroAnimator()
+	public bool ChecarNovoTesouroAnimator()
 	{
 		return novoTesouroAnimator.GetBool("Exibir");
 	}
@@ -1057,11 +1083,6 @@ public class Jogo : MonoBehaviour
 	public void TileAdVoltar()
 	{
 		OcultarTileAd();
-
-		Invoke("DesbloquearClique", duracaoAnimacaoTileAd);
-
-		if (quantidadeTiles == 0)
-			Invoke("EncerrarNivel", duracaoAnimacaoTileAd);
 	}
 
 	public void ExibirTileAd()
@@ -1076,6 +1097,11 @@ public class Jogo : MonoBehaviour
 	private void OcultarTileAd()
 	{
 		AlterarTileAdAnimator(false);
+
+		Invoke("DesbloquearClique", duracaoAnimacaoTileAd);
+
+		if (quantidadeTiles == 0)
+			Invoke("EncerrarNivel", duracaoAnimacaoTileAd);
 	}
 
 	private bool ChecarTileAdAnimator()

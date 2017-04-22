@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using CodeStage.AntiCheat.ObscuredTypes;
+using UnityEngine;
 
 public class Tesouros : MonoBehaviour
 {
 	public Sprite sprite;
 	public string nome;
-	public int preco = 100;
-	public int nivel;
+	public ObscuredInt preco = 200;
+	public ObscuredInt nivel;
 
 	internal GaleriaTesourosBotao botaoGaleria;
 }

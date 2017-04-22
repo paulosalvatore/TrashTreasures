@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CodeStage.AntiCheat.ObscuredTypes;
+using UnityEngine;
 
 public class ProjecaoNiveis : MonoBehaviour
 {
@@ -20,9 +21,9 @@ public class ProjecaoNiveis : MonoBehaviour
 		foreach (Transform child in transform)
 			Destroy(child.gameObject);
 
-		int niveis = 100;
+		ObscuredInt niveis = 100;
 
-		for (int nivel = 1; nivel <= niveis; nivel++)
+		for (ObscuredInt nivel = 1; nivel <= niveis; nivel++)
 		{
 			Transform mapaDestino = new GameObject(string.Format("Mapa {0}", nivel)).transform;
 

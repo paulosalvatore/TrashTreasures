@@ -1,9 +1,11 @@
-﻿[System.Serializable]
+﻿using CodeStage.AntiCheat.ObscuredTypes;
+
+[System.Serializable]
 public class Range
 {
-	public int min, max;
+	public ObscuredInt min, max;
 
-	public Range(int min, int max)
+	public Range(ObscuredInt min, ObscuredInt max)
 	{
 		this.min = min;
 		this.max = max;
@@ -13,9 +15,9 @@ public class Range
 [System.Serializable]
 public class RangeFloat
 {
-	public float min, max;
+	public ObscuredFloat min, max;
 
-	public RangeFloat(float min, float max)
+	public RangeFloat(ObscuredFloat min, ObscuredFloat max)
 	{
 		this.min = min;
 		this.max = max;

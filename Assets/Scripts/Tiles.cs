@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using CodeStage.AntiCheat.ObscuredTypes;
+using System.Collections;
 using UnityEngine;
 
+/*
 [System.Serializable]
 public class TilesInfo
 {
@@ -50,35 +52,36 @@ public class TilesInfo
 	[Header("Moedas")]
 	public bool fornecerMoedas;
 }
+*/
 
 public class Tiles : MonoBehaviour
 {
 	[Header("Informações Básicas")]
-	public int hp;
-	internal int hpAdicional;
+	public ObscuredInt hp;
+	internal ObscuredInt hpAdicional;
 
 	[Header("Chances")]
-	public float chanceBase;
-	public float chanceMin;
-	public float chanceMax;
-	public bool limiteUmPorNivel;
-	public int aparecerObrigatoriamenteNivel;
-	internal float chance;
+	public ObscuredFloat chanceBase;
+	public ObscuredFloat chanceMin;
+	public ObscuredFloat chanceMax;
+	public ObscuredBool limiteUmPorNivel;
+	public ObscuredInt aparecerObrigatoriamenteNivel;
+	internal ObscuredFloat chance;
 
 	[Header("chanceBase + (level * modificadorNivel)")]
-	public float modificadorNivel;
+	public ObscuredFloat modificadorNivel;
 
 	[Header("Níveis que o Tile irá aparecer")]
-	public float nivelMinimo;
-	public float nivelMaximo;
+	public ObscuredFloat nivelMinimo;
+	public ObscuredFloat nivelMaximo;
 
 	[Header("Dinossauro/Diamante")]
 	public Sprite dinossauro;
 	public GameObject particulaDinossauro;
 	public Sprite diamante;
 	public GameObject particulaDiamante;
-	internal bool instanciarDinossauro;
-	internal bool instanciarDiamante;
+	internal ObscuredBool instanciarDinossauro;
+	internal ObscuredBool instanciarDiamante;
 
 	[Header("Áudio")]
 	public AudioClip hit;
@@ -96,12 +99,12 @@ public class Tiles : MonoBehaviour
 	private Vector3 escalonamentoInicial;
 
 	[Header("Tiles Especiais")]
-	public bool bauTesouro;
-	public bool ads;
+	public ObscuredBool bauTesouro;
+	public ObscuredBool ads;
 
 	[Header("Moedas")]
-	public bool fornecerMoedas;
-	internal int moedas = -1;
+	public ObscuredBool fornecerMoedas;
+	internal ObscuredInt moedas = -1;
 	internal Range moedasRange = new Range(0, 0);
 
 	private Jogo jogo;
@@ -217,16 +220,13 @@ public class Tiles : MonoBehaviour
 
 		jogo.ProcessarTileDestruido(
 			transform,
-			fornecerMoedas
-				?
-					moedas
-				:
-					0,
+			fornecerMoedas,
+			moedas,
 			bauTesouro || ads
 				?
-					true
+			true
 				:
-					false
+			false
 		);
 
 		Destroy(gameObject);
