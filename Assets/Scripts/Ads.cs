@@ -3,13 +3,10 @@ using UnityEngine.Advertisements;
 
 public class Ads : MonoBehaviour
 {
-	private Jogo jogo;
 	internal bool checarAd;
 
 	private void Start()
 	{
-		jogo = Jogo.Pegar();
-
 		ChecarAd();
 
 		InvokeRepeating("ChecarAd", 1f, 1f);
@@ -59,21 +56,25 @@ public class Ads : MonoBehaviour
 
 	private void ProcessarAdConcluido()
 	{
-		switch (jogo.recompensa)
+		switch (Jogo.instancia.recompensa)
 		{
 			case "tesouro":
-				jogo.AdicionarTesouro();
+				Jogo.instancia.AdicionarTesouro();
 				break;
 
 			case "pa":
-				jogo.EvoluirPa(true);
+				Jogo.instancia.EvoluirPa(true);
 				break;
 
 			case "shovel_gun":
-				jogo.IniciarModoShovelGun();
+				Jogo.instancia.IniciarModoShovelGun();
+				break;
+
+			case "moedas":
+				Jogo.instancia.AdicionarMoedasInstantaneo(200);
 				break;
 		}
 
-		jogo.recompensa = "";
+		Jogo.instancia.recompensa = "";
 	}
 }

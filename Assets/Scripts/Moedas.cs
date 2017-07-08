@@ -15,14 +15,11 @@ public class Moedas : MonoBehaviour
 	public bool proporcionalDistancia;
 	public float duracaoProporcional;
 
-	private Jogo jogo;
 	private Vector3 destino;
 
 	private void Start()
 	{
-		jogo = Jogo.Pegar();
-
-		destino = jogo.moedasImage.transform.position;
+		destino = Jogo.instancia.moedasImage.transform.position;
 
 		if (proporcionalDistancia)
 			duracao = Vector3.Distance(transform.position, destino) / duracaoProporcional;

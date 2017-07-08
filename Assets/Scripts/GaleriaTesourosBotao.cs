@@ -12,14 +12,11 @@ public class GaleriaTesourosBotao : MonoBehaviour
 	public Animator animator;
 
 	private Tesouros tesouro;
-	private Jogo jogo;
 
 	private bool tesouroDesbloqueado = false;
 
 	private void Start()
 	{
-		jogo = Jogo.Pegar();
-
 		botao.onClick.AddListener(EventoClick);
 	}
 
@@ -52,6 +49,6 @@ public class GaleriaTesourosBotao : MonoBehaviour
 	public void EventoClick()
 	{
 		if (!tesouroDesbloqueado)
-			jogo.AdicionarTesouro(tesouro, false);
+			Jogo.instancia.AdicionarTesouro(tesouro, false);
 	}
 }

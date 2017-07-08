@@ -4,17 +4,13 @@ using UnityEngine.EventSystems;
 public class TileAdVoltar : MonoBehaviour,
 	IPointerClickHandler
 {
-	private Jogo jogo;
-
-	private void Start()
-	{
-		jogo = Jogo.Pegar();
-	}
-
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		jogo.ReproduzirAudioClique();
+		if (!Jogo.instancia.ChecarTileAdAnimator())
+			return;
 
-		jogo.TileAdVoltar();
+		Jogo.instancia.ReproduzirAudioClique();
+
+		Jogo.instancia.TileAdVoltar();
 	}
 }

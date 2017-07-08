@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class Jogo : MonoBehaviour
 {
+	public static Jogo instancia;
+
 	[Header("Mapa")]
 	public Vector2 posicaoMapa;
 	public float duracaoMovimentoMapa;
@@ -78,6 +80,7 @@ public class Jogo : MonoBehaviour
 	public Text novaPaComprarText;
 	public Transform pasAdquiridas;
 	public Image paAdquiridaBase;
+	private bool cliqueBloqueadoPa;
 
 	[Header("Pá - Modo Shovel Gun")]
 	public GameObject modoShovelGunObject;
@@ -98,12 +101,15 @@ public class Jogo : MonoBehaviour
 	public Text tesouroText;
 	private List<Tesouros> tesourosDisponiveis = new List<Tesouros>();
 	private List<Tesouros> tesourosAdquiridos = new List<Tesouros>();
+	private bool cliqueBloqueadoTesouro;
 
 	[Header("Galeria de Tesouros")]
 	public float duracaoAnimacaoGaleriaTesouros;
 	public GaleriaTesourosBotao botaoGaleriaTesouros;
 	public Transform galeriaTesourosContent;
 	public Animator galeriaTesourosAnimator;
+	public Text quantidadeTesourosText;
+	private bool cliqueBloqueadoGaleria;
 
 	// Definições da Área de Jogo
 	private int[,] jogo;
@@ -206,6 +212,8 @@ public class Jogo : MonoBehaviour
 
 	private void Awake()
 	{
+		instancia = this;
+
 		Application.targetFrameRate = 60;
 	}
 
@@ -383,7 +391,7 @@ public class Jogo : MonoBehaviour
 	{
 		nivelText.text = string.Format("Level {0}", nivel);
 
-		ExibirPaDisponivel();
+		Invoke("ChecarExibirPaDisponivel", duracaoMovimentoMapa);
 
 		Invoke("VibrarNivel", (nivel == 1 || nivel == nivelPref ? duracaoMovimentoMapa : 0) + 0.2f);
 	}
@@ -616,7 +624,7 @@ public class Jogo : MonoBehaviour
 
 		for (int i = 0; i < quantidade; i++)
 		{
-			Jogo.ReproduzirAudio(moedasAudio);
+			ReproduzirAudio(moedasAudio);
 
 			StartCoroutine(AtualizarMoedas(1));
 
@@ -628,8 +636,11 @@ public class Jogo : MonoBehaviour
 		}
 	}
 
-	private void AdicionarMoedasInstantaneo(int quantidade)
+	public void AdicionarMoedasInstantaneo(int quantidade, int sons = 5)
 	{
+		for (int i = 0; i < sons; i++)
+			ReproduzirAudio(moedasAudio);
+
 		moedas += quantidade;
 
 		AtualizarMoedas();
@@ -738,7 +749,19 @@ public class Jogo : MonoBehaviour
 
 		AlterarNovaPaAssistirAnimator(!ads.checarAd);
 
-		BloquearClique();
+		cliqueBloqueadoPa = true;
+
+		StartCoroutine(ManterCliqueBloqueadoPa());
+	}
+
+	private IEnumerator ManterCliqueBloqueadoPa()
+	{
+		while (cliqueBloqueadoPa)
+		{
+			BloquearClique();
+
+			yield return null;
+		}
 	}
 
 	private void AlterarNovaPaAnimator(bool estado)
@@ -768,7 +791,7 @@ public class Jogo : MonoBehaviour
 		novaPaFundo.color = PegarCorFundoAleatoria();
 	}
 
-	private bool ChecarNovaPaAnimator()
+	public bool ChecarNovaPaAnimator()
 	{
 		return novaPaAnimator.GetBool("Exibir");
 	}
@@ -796,6 +819,8 @@ public class Jogo : MonoBehaviour
 
 	public void PaVoltar()
 	{
+		cliqueBloqueadoPa = false;
+
 		Invoke("DesbloquearClique", duracaoAnimacaoPas);
 
 		AlterarNovaPaAnimator(false);
@@ -867,6 +892,12 @@ public class Jogo : MonoBehaviour
 		modoShovelGunObject.SetActive(modoShovelGun);
 	}
 
+	public void ChecarExibirPaDisponivel()
+	{
+		if (!ChecarJohnAnimator())
+			ExibirPaDisponivel();
+	}
+
 	// Tesouros
 
 	private void PegarTesourosDisponiveis()
@@ -931,13 +962,17 @@ public class Jogo : MonoBehaviour
 
 			AtualizarBotaoTesouro(tesouro);
 
+			AtualizarQuantidadeGaleriaTesouros();
+
 			if (exibirAnimator)
 			{
 				AlterarCorFundoNovoTesouro();
 
 				AlterarNovoTesouroAnimator(true);
 
-				BloquearClique();
+				cliqueBloqueadoTesouro = true;
+
+				StartCoroutine(ManterCliqueBloqueadoTesouro());
 			}
 			else
 				AtualizarPorcentagemTesouros();
@@ -950,6 +985,8 @@ public class Jogo : MonoBehaviour
 
 	public void OcultarTesouro()
 	{
+		cliqueBloqueadoTesouro = false;
+
 		Invoke("DesbloquearClique", duracaoAnimacaoTesouros);
 
 		AlterarNovoTesouroAnimator(false);
@@ -964,6 +1001,16 @@ public class Jogo : MonoBehaviour
 		}
 		else if (quantidadeTiles == 0)
 			Invoke("EncerrarNivel", duracaoAnimacaoTesouros + duracaoAnimacaoTesouroBau);
+	}
+
+	private IEnumerator ManterCliqueBloqueadoTesouro()
+	{
+		while (cliqueBloqueadoTesouro)
+		{
+			BloquearClique();
+
+			yield return null;
+		}
 	}
 
 	public bool ChecarNovoTesouroAnimator()
@@ -1021,14 +1068,28 @@ public class Jogo : MonoBehaviour
 	{
 		AlterarExibicaoGaleriaTesouros(true);
 
-		BloquearClique();
+		cliqueBloqueadoGaleria = true;
+
+		StartCoroutine(ManterCliqueBloqueadoGaleria());
 	}
 
 	private void OcultarGaleriaTesouros()
 	{
 		AlterarExibicaoGaleriaTesouros(false);
 
+		cliqueBloqueadoGaleria = false;
+
 		Invoke("DesbloquearClique", duracaoAnimacaoGaleriaTesouros);
+	}
+
+	private IEnumerator ManterCliqueBloqueadoGaleria()
+	{
+		while (cliqueBloqueadoGaleria)
+		{
+			BloquearClique();
+
+			yield return null;
+		}
 	}
 
 	private void AlterarExibicaoGaleriaTesouros(bool estado)
@@ -1046,7 +1107,7 @@ public class Jogo : MonoBehaviour
 		OcultarGaleriaTesouros();
 	}
 
-	private bool ChecarGaleriaTesourosAnimator()
+	public bool ChecarGaleriaTesourosAnimator()
 	{
 		return galeriaTesourosAnimator.GetBool("Exibir");
 	}
@@ -1054,6 +1115,11 @@ public class Jogo : MonoBehaviour
 	private void AtualizarGaleriaTesourosAnimator(bool estado)
 	{
 		galeriaTesourosAnimator.SetBool("Exibir", estado);
+	}
+
+	private void AtualizarQuantidadeGaleriaTesouros()
+	{
+		quantidadeTesourosText.text = string.Format("{0}/{1}", tesourosAdquiridos.Count, tesourosDisponiveis.Count);
 	}
 
 	// Ads
@@ -1072,10 +1138,14 @@ public class Jogo : MonoBehaviour
 		else
 			ReproduzirAudioAcaoProibida();
 
-		if (ChecarTesouroDisponivel())
+		int random = Random.Range(0, 100);
+
+		if (random < 30)
+			ExibirAd("shovel_gun");
+		else if (random < 60)
 			ExibirAd("tesouro");
 		else
-			ExibirAd("shovel_gun");
+			ExibirAd("moedas");
 
 		OcultarTileAd();
 	}
@@ -1104,7 +1174,7 @@ public class Jogo : MonoBehaviour
 			Invoke("EncerrarNivel", duracaoAnimacaoTileAd);
 	}
 
-	private bool ChecarTileAdAnimator()
+	public bool ChecarTileAdAnimator()
 	{
 		return tileAdAnimator.GetBool("Exibir");
 	}
@@ -1121,8 +1191,10 @@ public class Jogo : MonoBehaviour
 
 	private void AtualizarMensagemTileAd()
 	{
+		/*
 		if (!ChecarTesouroDisponivel())
 			tileAdTexto.text = "Get a shovel gun for 30 seconds now for FREE!";
+		*/
 	}
 
 	// Player Prefs
@@ -1316,6 +1388,8 @@ public class Jogo : MonoBehaviour
 	{
 		AlterarJohnAnimator(false);
 
+		Invoke("ExibirPaDisponivel", duracaoMovimentoJohn);
+
 		Invoke("DesbloquearCliqueJohn", duracaoMovimentoJohn);
 
 		if (quantidadeTiles == 0 &&
@@ -1365,11 +1439,6 @@ public class Jogo : MonoBehaviour
 	}
 
 	// Métodos Estáticos
-
-	static public Jogo Pegar()
-	{
-		return GameObject.Find("Jogo").GetComponent<Jogo>();
-	}
 
 	static public void ReproduzirAudio(AudioClip clip = null)
 	{

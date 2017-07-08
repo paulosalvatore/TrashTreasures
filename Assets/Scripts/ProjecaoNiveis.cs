@@ -3,13 +3,6 @@ using UnityEngine;
 
 public class ProjecaoNiveis : MonoBehaviour
 {
-	private Jogo jogo;
-
-	private void Start()
-	{
-		jogo = Jogo.Pegar();
-	}
-
 	private void Update()
 	{
 		if (Input.GetKeyDown(KeyCode.Q))
@@ -34,7 +27,7 @@ public class ProjecaoNiveis : MonoBehaviour
 				0
 			);
 
-			jogo.ConstruirMapa(mapaDestino, nivel);
+			Jogo.instancia.ConstruirMapa(mapaDestino, nivel);
 
 			Transform texto = new GameObject("Texto").transform;
 

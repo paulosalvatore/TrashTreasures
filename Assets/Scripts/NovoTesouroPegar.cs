@@ -4,23 +4,19 @@ using UnityEngine.EventSystems;
 public class NovoTesouroPegar : MonoBehaviour,
 	IPointerClickHandler
 {
-	private Jogo jogo;
-
-	private void Start()
-	{
-		jogo = Jogo.Pegar();
-	}
-
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		if ((jogo.bloqueadorClique &&
-			jogo.ChecarNovoTesouroAnimator() &&
-			jogo.tempoTesouroAberto <= Time.time) ||
-			!jogo.bloqueadorClique)
-		{
-			jogo.ReproduzirAudioClique();
+		if (!Jogo.instancia.ChecarNovoTesouroAnimator())
+			return;
 
-			jogo.OcultarTesouro();
+		if ((Jogo.instancia.bloqueadorClique &&
+			Jogo.instancia.ChecarNovoTesouroAnimator() &&
+			Jogo.instancia.tempoTesouroAberto <= Time.time) ||
+			!Jogo.instancia.bloqueadorClique)
+		{
+			Jogo.instancia.ReproduzirAudioClique();
+
+			Jogo.instancia.OcultarTesouro();
 		}
 	}
 }

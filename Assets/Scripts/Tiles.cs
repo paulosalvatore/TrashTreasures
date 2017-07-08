@@ -107,13 +107,10 @@ public class Tiles : MonoBehaviour
 	internal ObscuredInt moedas = -1;
 	internal Range moedasRange = new Range(0, 0);
 
-	private Jogo jogo;
 	internal SpriteRenderer spriteRenderer;
 
 	private void Awake()
 	{
-		jogo = Jogo.Pegar();
-
 		spriteRenderer = GetComponent<SpriteRenderer>();
 
 		escalonamentoInicial = transform.localScale;
@@ -123,9 +120,9 @@ public class Tiles : MonoBehaviour
 
 	private void OnMouseOver()
 	{
-		if (!jogo.bloqueadorClique &&
+		if (!Jogo.instancia.bloqueadorClique &&
 			(Input.GetMouseButtonDown(0) ||
-			Input.GetMouseButton(0) && jogo.modoShovelGun)
+			Input.GetMouseButton(0) && Jogo.instancia.modoShovelGun)
 		)
 		{
 			HitTile();
@@ -146,7 +143,7 @@ public class Tiles : MonoBehaviour
 		}
 
 		if (hp > 0)
-			hp -= jogo.paSelecionada.ataque;
+			hp -= Jogo.instancia.paSelecionada.ataque;
 		else
 			hpAdicional--;
 
@@ -164,10 +161,10 @@ public class Tiles : MonoBehaviour
 			Instantiate(instanciarParticula, transform.position, transform.rotation);
 		}
 
-		if (jogo.exibirTileQuebrado && transform.childCount == 0)
+		if (Jogo.instancia.exibirTileQuebrado && transform.childCount == 0)
 			ExibirTileQuebrado();
 
-		if (jogo.oneHitTiles || hpTotal <= 0)
+		if (Jogo.instancia.oneHitTiles || hpTotal <= 0)
 			DestruirTile();
 		else
 		{
@@ -202,7 +199,7 @@ public class Tiles : MonoBehaviour
 
 	private void ExibirTileQuebrado()
 	{
-		GameObject tileQuebrado = Instantiate(jogo.tileQuebrado);
+		GameObject tileQuebrado = Instantiate(Jogo.instancia.tileQuebrado);
 
 		tileQuebrado.transform.parent = transform;
 
@@ -212,13 +209,13 @@ public class Tiles : MonoBehaviour
 	private void DestruirTile()
 	{
 		if (bauTesouro)
-			jogo.AdicionarTesouro();
+			Jogo.instancia.AdicionarTesouro();
 		else if (ads)
-			jogo.ExibirTileAd();
+			Jogo.instancia.ExibirTileAd();
 
 		Jogo.ReproduzirAudio(destruir);
 
-		jogo.ProcessarTileDestruido(
+		Jogo.instancia.ProcessarTileDestruido(
 			transform,
 			fornecerMoedas,
 			moedas,
@@ -270,15 +267,15 @@ public class Tiles : MonoBehaviour
 		{
 			spriteRenderer.sprite = instanciarDinossauro ? dinossauro : diamante;
 
-			hpAdicional = instanciarDinossauro ? jogo.hpBaseDinossauro : jogo.hpBaseDiamante;
+			hpAdicional = instanciarDinossauro ? Jogo.instancia.hpBaseDinossauro : Jogo.instancia.hpBaseDiamante;
 
 			moedas =
 				PegarQuantidadeMoedas(
 					instanciarDinossauro
 						?
-					jogo.moedasDinossauro
+					Jogo.instancia.moedasDinossauro
 						:
-					jogo.moedasDiamante
+					Jogo.instancia.moedasDiamante
 				);
 
 			instanciarDinossauro = false;

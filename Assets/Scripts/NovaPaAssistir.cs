@@ -4,17 +4,13 @@ using UnityEngine.EventSystems;
 public class NovaPaAssistir : MonoBehaviour,
 	IPointerClickHandler
 {
-	private Jogo jogo;
-
-	private void Start()
-	{
-		jogo = Jogo.Pegar();
-	}
-
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		jogo.ReproduzirAudioClique();
+		if (!Jogo.instancia.ChecarNovaPaAnimator())
+			return;
 
-		jogo.PaAssistir();
+		Jogo.instancia.ReproduzirAudioClique();
+
+		Jogo.instancia.PaAssistir();
 	}
 }

@@ -4,15 +4,11 @@ using UnityEngine.EventSystems;
 public class NovaPaComprar : MonoBehaviour,
 	IPointerClickHandler
 {
-	private Jogo jogo;
-
-	private void Start()
-	{
-		jogo = Jogo.Pegar();
-	}
-
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		jogo.PaComprar();
+		if (!Jogo.instancia.ChecarNovaPaAnimator())
+			return;
+
+		Jogo.instancia.PaComprar();
 	}
 }

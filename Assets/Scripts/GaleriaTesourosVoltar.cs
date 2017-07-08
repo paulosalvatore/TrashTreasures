@@ -4,17 +4,13 @@ using UnityEngine.EventSystems;
 public class GaleriaTesourosVoltar : MonoBehaviour,
 	IPointerClickHandler
 {
-	private Jogo jogo;
-
-	private void Start()
-	{
-		jogo = Jogo.Pegar();
-	}
-
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		jogo.ReproduzirAudioClique();
+		if (!Jogo.instancia.ChecarGaleriaTesourosAnimator())
+			return;
 
-		jogo.GaleriaTesourosVoltar();
+		Jogo.instancia.ReproduzirAudioClique();
+
+		Jogo.instancia.GaleriaTesourosVoltar();
 	}
 }
