@@ -1,6 +1,7 @@
 ﻿using CodeStage.AntiCheat.ObscuredTypes;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -36,6 +37,7 @@ public class Jogo : MonoBehaviour
 
 	[Header("Tiles")]
 	public GameObject tileQuebrado;
+	public GameObject tileQuebradoInvertido;
 	private List<Tiles> tilesDisponiveis;
 	private ObscuredInt quantidadeTiles;
 	public ObscuredBool oneHitTiles;
@@ -73,7 +75,6 @@ public class Jogo : MonoBehaviour
 	public Animator paDisponivelAnimator;
 	public Animator novaPaAnimator;
 	public Image novaPaImage;
-	public Image novaPaFundo;
 	public Text novaPaText;
 	public Animator novaPaAssistirAnimator;
 	public Animator novaPaComprarAnimator;
@@ -95,7 +96,6 @@ public class Jogo : MonoBehaviour
 	public float duracaoAnimacaoTesouroBau;
 	internal float tempoTesouroAberto;
 	public Animator novoTesouroAnimator;
-	public Image novoTesouroFundo;
 	public Image novoTesouroImage;
 	public Text novoTesouroText;
 	public Text tesouroText;
@@ -111,23 +111,29 @@ public class Jogo : MonoBehaviour
 	public Text quantidadeTesourosText;
 	private bool cliqueBloqueadoGaleria;
 
+	[Header("Exibir Tesouros na Galeria")]
+	public Animator tesouroDestaqueAnimator;
+	public Image tesouroDestaqueImage;
+	public Text tesouroDestaqueText;
+
 	// Definições da Área de Jogo
 	private int[,] jogo;
 	private int larguraJogo = 5;
 	private int alturaJogo = 5;
 
 	[Header("Ads")]
-	public float duracaoAnimacaoTileAd;
+	public int nivelExibicaoAd;
+	public float chanceExibicaoAd;
+	public List<string> recompensas;
 	internal ObscuredString recompensa;
+	public int quantidadeMoedasAd;
 	public Ads ads;
-	public GameObject tileAd;
-	public Text tileAdTexto;
-	public Animator tileAdAnimator;
-	public Animator tileAdAssistirAnimator;
+	public Animator adAssistirAnimator;
 
 	[Header("Áudios")]
 	public AudioClip audioBotaoDesativado;
 	public AudioClip audioClique;
+	public AudioClip audioComemoracao;
 
 	// Player Prefs
 	private ObscuredInt nivelPref;
@@ -150,6 +156,32 @@ public class Jogo : MonoBehaviour
 	private List<string> processarFrases;
 	private int processarFrasesIndex = 0;
 	private bool processandoFalasJohn;
+	private bool processandoAdJohn;
+	public float chanceEquilibrioFraseJohn;
+	private bool forcarExibicaoTesouroJohn;
+	public Image paJohn;
+	public GameObject shovelGunJohn;
+	public GameObject moedasJohn;
+	public GameObject tesouroJohn;
+	public Transform tesourosJohn;
+	public Image chapeuJohnImage;
+	public List<Sprite> chapeuJohnSprites;
+	public Animator olhosJohnAnimator;
+	public Image olhosJohnImage;
+	public List<Sprite> olhosJohnSprites;
+	public Animator bocaJohnAnimator;
+	public Image bocaJohnImage;
+	public List<Sprite> bocaJohnSprites;
+	public Image bracoJohnImage;
+	public List<Sprite> bracoJohnSprites;
+	private bool forcarFraseAdJohn;
+	public GameObject botaoAdAssistir;
+	public GameObject botaoAdDeclinar;
+
+	[Header("Partículas")]
+	public GameObject confete;
+	public int quantidadeConfetes;
+	public float intervaloConfetes;
 
 	// Métodos Básicos
 
@@ -179,8 +211,8 @@ public class Jogo : MonoBehaviour
 		// Moedas
 		AtualizarMoedas();
 
-		// Tile Ad
-		AtualizarMensagemTileAd();
+		// Atualizar Quantidade de Tesouros da Galeria
+		AtualizarQuantidadeGaleriaTesouros();
 	}
 
 	private void Update()
@@ -364,8 +396,6 @@ public class Jogo : MonoBehaviour
 			PaVoltar();
 		else if (ChecarNovoTesouroAnimator())
 			OcultarTesouro();
-		else if (ChecarTileAdAnimator())
-			TileAdVoltar();
 		else if (ChecarGaleriaTesourosAnimator())
 			GaleriaTesourosVoltar();
 		else if (ChecarJohnAnimator())
@@ -385,6 +415,8 @@ public class Jogo : MonoBehaviour
 		DefinirPlayerPrefs();
 
 		Invoke("AtualizarNivel", duracaoMovimentoMapa);
+
+		EquilibrarChances();
 	}
 
 	private void AtualizarNivel()
@@ -408,6 +440,8 @@ public class Jogo : MonoBehaviour
 		Invoke("AvancarNivel", delayEncerrarNivel);
 
 		Invoke("IniciarMapa", delayEncerrarNivel);
+
+		ChecarExibicaoAd();
 	}
 
 	private void ExibirTextoNivelLimpo()
@@ -614,12 +648,16 @@ public class Jogo : MonoBehaviour
 
 	private IEnumerator AdicionarMoedas(Transform origem, int quantidade, bool coroutine)
 	{
+		/*
+		Pega a posição de origem e transforma ela em posição do Canvas, baseada na câmera
 		Vector2 posicao =
 			RectTransformUtility.WorldToScreenPoint(
 				Camera.main,
 				origem.position
 			);
+		*/
 
+		Vector2 posicao = origem.position;
 		Quaternion rotacao = origem.rotation;
 
 		for (int i = 0; i < quantidade; i++)
@@ -631,6 +669,7 @@ public class Jogo : MonoBehaviour
 			Moedas moedaInstanciada = Instantiate(moeda, posicao, rotacao);
 			moedaInstanciada.transform.SetParent(canvas);
 			moedaInstanciada.transform.SetAsFirstSibling();
+			moedaInstanciada.transform.localScale = Vector3.one;
 
 			yield return new WaitForSeconds(delayEntreMoedas);
 		}
@@ -686,9 +725,12 @@ public class Jogo : MonoBehaviour
 		if (paId < pasDisponiveis.Count)
 			proximaPa = pasDisponiveis[paId];
 
-		AlterarPaAnimator(false);
+		AlterarPaDisponivelAnimator(false);
 
 		AtualizarPaAdquirida();
+
+		if (!forcarExibicaoTesouroJohn)
+			AtualizarPaJohn();
 	}
 
 	public void EvoluirPa(bool gratuito = false, bool fechar = true)
@@ -713,6 +755,8 @@ public class Jogo : MonoBehaviour
 			RemoverMoedas(custo);
 
 			AlterarNovaPaAdquiridaAnimator(true);
+
+			ReproduzirAudioComemoracao();
 		}
 
 		if (fechar)
@@ -721,6 +765,8 @@ public class Jogo : MonoBehaviour
 		paId++;
 
 		SelecionarPa();
+
+		ForcarExibicaoJohn();
 	}
 
 	private void ExibirPaDisponivel()
@@ -729,10 +775,10 @@ public class Jogo : MonoBehaviour
 			return;
 
 		if (nivel >= proximaPa.nivel)
-			AlterarPaAnimator(true);
+			AlterarPaDisponivelAnimator(true);
 	}
 
-	private void AlterarPaAnimator(bool estado)
+	private void AlterarPaDisponivelAnimator(bool estado)
 	{
 		paDisponivelAnimator.SetBool("Exibir", estado);
 	}
@@ -745,7 +791,7 @@ public class Jogo : MonoBehaviour
 
 		AlterarNovaPaAnimator(true);
 
-		AlterarCorFundoNovaPa();
+		CriarConfetes(quantidadeConfetes);
 
 		AlterarNovaPaAssistirAnimator(!ads.checarAd);
 
@@ -786,11 +832,6 @@ public class Jogo : MonoBehaviour
 		novaPaAssistirAnimator.SetBool("Inativo", estado);
 	}
 
-	private void AlterarCorFundoNovaPa()
-	{
-		novaPaFundo.color = PegarCorFundoAleatoria();
-	}
-
 	public bool ChecarNovaPaAnimator()
 	{
 		return novaPaAnimator.GetBool("Exibir");
@@ -807,6 +848,8 @@ public class Jogo : MonoBehaviour
 			recompensa = "pa";
 
 			ads.ExibirAd();
+
+			ReproduzirAudioComemoracao();
 		}
 		else
 			ReproduzirAudioAcaoProibida();
@@ -924,7 +967,7 @@ public class Jogo : MonoBehaviour
 		return tesouroSelecionado;
 	}
 
-	public void AdicionarTesouro(Tesouros tesouro = null, bool gratuito = true)
+	public bool AdicionarTesouro(Tesouros tesouro = null, bool gratuito = true)
 	{
 		bool exibirAnimator = true;
 
@@ -936,7 +979,7 @@ public class Jogo : MonoBehaviour
 				{
 					ReproduzirAudioAcaoProibida();
 
-					return;
+					return false;
 				}
 				else
 				{
@@ -966,9 +1009,14 @@ public class Jogo : MonoBehaviour
 
 			if (exibirAnimator)
 			{
-				AlterarCorFundoNovoTesouro();
-
 				AlterarNovoTesouroAnimator(true);
+
+				if (processandoAdJohn)
+					StartCoroutine(ProgramarExibicaoTesourosJohn(tesouro, duracaoMovimentoJohn));
+				else
+					ExibirTesouroJohn(tesouro);
+
+				CriarConfetes(quantidadeConfetes);
 
 				cliqueBloqueadoTesouro = true;
 
@@ -981,6 +1029,8 @@ public class Jogo : MonoBehaviour
 			EncerrarNivel();
 		else
 			DesbloquearClique();
+
+		return true;
 	}
 
 	public void OcultarTesouro()
@@ -996,8 +1046,6 @@ public class Jogo : MonoBehaviour
 		if (!ChecarTesouroDisponivel())
 		{
 			ChecarJohn(true);
-
-			AtualizarMensagemTileAd();
 		}
 		else if (quantidadeTiles == 0)
 			Invoke("EncerrarNivel", duracaoAnimacaoTesouros + duracaoAnimacaoTesouroBau);
@@ -1030,11 +1078,6 @@ public class Jogo : MonoBehaviour
 		tesouroText.text = string.Format("{0}%", porcentagem);
 	}
 
-	private void AlterarCorFundoNovoTesouro()
-	{
-		novoTesouroFundo.color = PegarCorFundoAleatoria();
-	}
-
 	private bool ChecarTesouroDisponivel()
 	{
 		return tesourosAdquiridos.Count < tesourosDisponiveis.Count;
@@ -1049,6 +1092,14 @@ public class Jogo : MonoBehaviour
 			GaleriaTesourosBotao botaoInstanciado = Instantiate(botaoGaleriaTesouros);
 
 			botaoInstanciado.transform.SetParent(galeriaTesourosContent);
+
+			botaoInstanciado.transform.localPosition = new Vector3(
+				botaoInstanciado.transform.localPosition.x,
+				botaoInstanciado.transform.localPosition.y,
+				0
+			);
+
+			botaoInstanciado.transform.localScale = Vector3.one;
 
 			tesouro.botaoGaleria = botaoInstanciado;
 
@@ -1122,79 +1173,117 @@ public class Jogo : MonoBehaviour
 		quantidadeTesourosText.text = string.Format("{0}/{1}", tesourosAdquiridos.Count, tesourosDisponiveis.Count);
 	}
 
+	// Exibição de Tesouros na Galeria de Tesouros
+
+	public void ComprarTesouroGaleria(Tesouros tesouro)
+	{
+		bool adicionado = AdicionarTesouro(tesouro, false);
+
+		if (adicionado)
+		{
+			ReproduzirAudioComemoracao();
+
+			CriarConfetes(quantidadeConfetes);
+
+			ExibirTesouroDestaque(tesouro);
+
+			ExibirTesouroJohn(tesouro);
+		}
+	}
+
+	public void ExibirTesouroDestaque(Tesouros tesouro)
+	{
+		ConstruirTesouroDestaque(tesouro);
+
+		AlterarExibirTesouroAnimator(true);
+	}
+
+	private void ConstruirTesouroDestaque(Tesouros tesouro)
+	{
+		tesouroDestaqueImage.sprite = tesouro.sprite;
+		tesouroDestaqueText.text = tesouro.nome;
+	}
+
+	public void OcultarTesouroDestaque()
+	{
+		AlterarExibirTesouroAnimator(false);
+
+		OcultarTesouro();
+	}
+
+	private void AlterarExibirTesouroAnimator(bool estado)
+	{
+		tesouroDestaqueAnimator.SetBool("Exibir", estado);
+	}
+
+	public bool ChecarTesouroDestaqueAnimator()
+	{
+		return tesouroDestaqueAnimator.GetBool("Exibir");
+	}
+
 	// Ads
+
+	private void ChecarExibicaoAd()
+	{
+		if (!ads.checarAd || nivel < nivelExibicaoAd || forcarExibicaoTesouroJohn)
+			return;
+
+		float chance = Random.Range(0, 100);
+
+		if (chance < chanceExibicaoAd)
+		{
+			ExibirAd();
+		}
+	}
+
+	private string GerarRecompensaAd()
+	{
+		return recompensas[Random.Range(0, recompensas.Count)];
+	}
 
 	public void ExibirAd(string novaRecompensa = "")
 	{
+		if (novaRecompensa == "")
+			novaRecompensa = GerarRecompensaAd();
+
 		recompensa = novaRecompensa;
 
+		ForcarExibicaoJohn();
+
+		forcarFraseAdJohn = true;
+
+		ChecarExibicaoPersonalizadaAdJohn();
+
+		ExibirBotoesAdJohn();
+
+		AlterarAdAssistirAnimator(!ads.checarAd);
+	}
+
+	public void AssistirAd()
+	{
+		if (!processandoAdJohn)
+			return;
+
+		ReproduzirAudioClique();
+
 		ads.ExibirAd();
+
+		OcultarJohn();
 	}
 
-	public void AssistirTileAd()
+	public void DeclinarAd()
 	{
-		if (ads.checarAd)
-			ReproduzirAudioClique();
-		else
-			ReproduzirAudioAcaoProibida();
+		if (!processandoAdJohn)
+			return;
 
-		int random = Random.Range(0, 100);
+		ReproduzirAudioClique();
 
-		if (random < 30)
-			ExibirAd("shovel_gun");
-		else if (random < 60)
-			ExibirAd("tesouro");
-		else
-			ExibirAd("moedas");
-
-		OcultarTileAd();
+		OcultarJohn();
 	}
 
-	public void TileAdVoltar()
+	private void AlterarAdAssistirAnimator(bool estado)
 	{
-		OcultarTileAd();
-	}
-
-	public void ExibirTileAd()
-	{
-		AlterarTileAdAnimator(true);
-
-		AlterarTileAdAssistirAnimator(!ads.checarAd);
-
-		BloquearClique();
-	}
-
-	private void OcultarTileAd()
-	{
-		AlterarTileAdAnimator(false);
-
-		Invoke("DesbloquearClique", duracaoAnimacaoTileAd);
-
-		if (quantidadeTiles == 0)
-			Invoke("EncerrarNivel", duracaoAnimacaoTileAd);
-	}
-
-	public bool ChecarTileAdAnimator()
-	{
-		return tileAdAnimator.GetBool("Exibir");
-	}
-
-	private void AlterarTileAdAnimator(bool estado)
-	{
-		tileAdAnimator.SetBool("Exibir", estado);
-	}
-
-	private void AlterarTileAdAssistirAnimator(bool estado)
-	{
-		tileAdAssistirAnimator.SetBool("Inativo", estado);
-	}
-
-	private void AtualizarMensagemTileAd()
-	{
-		/*
-		if (!ChecarTesouroDisponivel())
-			tileAdTexto.text = "Get a shovel gun for 30 seconds now for FREE!";
-		*/
+		adAssistirAnimator.SetBool("Inativo", estado);
 	}
 
 	// Player Prefs
@@ -1283,9 +1372,23 @@ public class Jogo : MonoBehaviour
 
 					if (chance > frase.chance)
 						continue;
+
+					frase.chance = frase.chanceInicial;
 				}
 
-				if (frase.aleatoria)
+				if (forcarFraseAdJohn)
+				{
+					processarFrases = new List<string>(
+						new string[] {
+							MontarFraseAdJohn()
+						}
+					);
+
+					forcarFraseAdJohn = false;
+
+					processandoAdJohn = true;
+				}
+				else if (frase.aleatoria)
 					processarFrases = new List<string>(
 						new string[] {
 							frase.frases[
@@ -1330,12 +1433,14 @@ public class Jogo : MonoBehaviour
 	{
 		if (processarFrasesIndex >= processarFrases.Count)
 		{
-			processandoFalasJohn = false;
-
 			OcultarJohn();
 		}
 		else
 		{
+			ReproduzirAudioJohn();
+
+			AtualizarBocaJohnAnimator();
+
 			LimparFalaJohn();
 
 			StartCoroutine("ConstruirFrase");
@@ -1381,11 +1486,20 @@ public class Jogo : MonoBehaviour
 
 		AlterarJohnAnimator(true);
 
-		Invoke("ReproduzirAudioJohn", duracaoMovimentoJohn / 2f);
+		AlterarPaDisponivelAnimator(false);
+	}
+
+	private void ForcarExibicaoJohn()
+	{
+		foreach (Frases frase in frases)
+			if (frase.aleatoria)
+				frase.chance = 100;
 	}
 
 	private void OcultarJohn()
 	{
+		processandoFalasJohn = false;
+
 		AlterarJohnAnimator(false);
 
 		Invoke("ExibirPaDisponivel", duracaoMovimentoJohn);
@@ -1397,6 +1511,10 @@ public class Jogo : MonoBehaviour
 		{
 			Invoke("EncerrarNivel", duracaoMovimentoJohn);
 		}
+
+		Invoke("AtualizarPaJohn", duracaoMovimentoJohn);
+
+		Invoke("ReiniciarComportamentoJohn", duracaoMovimentoJohn);
 	}
 
 	private bool ChecarJohnAnimator()
@@ -1411,7 +1529,7 @@ public class Jogo : MonoBehaviour
 
 	private void PegarCliqueJohn()
 	{
-		if (!processandoFalasJohn)
+		if (!processandoFalasJohn || processandoAdJohn)
 			return;
 
 		if (Input.GetMouseButtonDown(0) &&
@@ -1426,6 +1544,327 @@ public class Jogo : MonoBehaviour
 		ReproduzirAudio(sonsJohn[Random.Range(0, sonsJohn.Count)]);
 	}
 
+	private void AtualizarBocaJohnAnimator()
+	{
+		bocaJohnAnimator.SetTrigger("Falar");
+	}
+
+	private void AtualizarPaJohn()
+	{
+		paJohn.sprite = paSelecionada.sprite;
+
+		ExibirPaJohn();
+	}
+
+	private void ExibirPaJohn()
+	{
+		OcultarObjetosJohn();
+
+		paJohn.gameObject.SetActive(true);
+	}
+
+	private void ExibirShovelGunBracoJohn()
+	{
+		OcultarObjetosJohn();
+
+		shovelGunJohn.SetActive(true);
+	}
+
+	private void ExibirMoedasBracoJohn()
+	{
+		OcultarObjetosJohn();
+
+		moedasJohn.SetActive(true);
+	}
+
+	private void ExibirTesouroBracoJohn()
+	{
+		OcultarObjetosJohn();
+
+		tesouroJohn.SetActive(true);
+	}
+
+	private IEnumerator ProgramarExibicaoTesourosJohn(Tesouros tesouro, float delay)
+	{
+		yield return new WaitForSeconds(delay);
+
+		ExibirTesouroJohn(tesouro);
+	}
+
+	private void ExibirTesouroJohn(Tesouros tesouro)
+	{
+		OcultarObjetosJohn();
+
+		foreach (Transform child in tesourosJohn)
+		{
+			if (tesouro.name == child.name)
+			{
+				child.gameObject.SetActive(true);
+
+				ForcarExibicaoJohn();
+
+				forcarExibicaoTesouroJohn = true;
+
+				ChecarExibicaoPersonalizadaTesouroJohn(tesouro);
+
+				break;
+			}
+		}
+	}
+
+	private void OcultarObjetosJohn()
+	{
+		paJohn.gameObject.SetActive(false);
+
+		shovelGunJohn.SetActive(false);
+
+		moedasJohn.SetActive(false);
+
+		tesouroJohn.SetActive(false);
+
+		foreach (Transform child in tesourosJohn)
+			child.gameObject.SetActive(false);
+	}
+
+	private void ChecarExibicaoPersonalizadaTesouroJohn(Tesouros tesouro)
+	{
+		int tesouroId = int.Parse(Regex.Replace(tesouro.name, "[^0-9]", ""));
+
+		switch (tesouroId)
+		{
+			case 1:
+				AlterarChapeuJohn(2);
+
+				AlterarOlhosJohn("fechados");
+
+				AlterarBocaJohn("bico");
+
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	private void ChecarExibicaoPersonalizadaAdJohn()
+	{
+		switch (recompensa)
+		{
+			case "tesouro":
+				AlterarBracoJohn("aberto");
+
+				ExibirTesouroBracoJohn();
+
+				break;
+
+			case "shovel_gun":
+				ExibirShovelGunBracoJohn();
+
+				break;
+
+			case "moedas":
+				ExibirMoedasBracoJohn();
+
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	private void ExibirBotoesAdJohn()
+	{
+		botaoAdAssistir.SetActive(true);
+		botaoAdDeclinar.SetActive(true);
+	}
+
+	private void OcultarBotoesAdJohn()
+	{
+		botaoAdAssistir.SetActive(false);
+		botaoAdDeclinar.SetActive(false);
+	}
+
+	// Modificações de Comportamento do John (Alteração da Face, entre outros)
+
+	private void AlterarChapeuJohn(int chapeuId)
+	{
+		chapeuJohnImage.sprite = chapeuJohnSprites[chapeuId - 1];
+	}
+
+	private void ExibirChapeuJohn()
+	{
+		AlterarExibicaoChapeuJohn(true);
+	}
+
+	private void OcultarChapeuJohn()
+	{
+		AlterarExibicaoChapeuJohn(false);
+	}
+
+	private void AlterarExibicaoChapeuJohn(bool estado)
+	{
+		chapeuJohnImage.gameObject.SetActive(estado);
+	}
+
+	private void AlterarOlhosJohn(string estado = "")
+	{
+		AnimarOlhosJohn(false);
+
+		int olhosId;
+
+		switch (estado)
+		{
+			case "abertos":
+				olhosId = 0;
+				break;
+
+			case "fechados":
+				olhosId = 1;
+				break;
+
+			default:
+				olhosId = 0;
+				break;
+		}
+
+		olhosJohnImage.sprite = olhosJohnSprites[olhosId];
+	}
+
+	private void AnimarOlhosJohn(bool estado)
+	{
+		olhosJohnAnimator.enabled = estado;
+	}
+
+	private void AnimarBocaJohn(bool estado)
+	{
+		bocaJohnAnimator.enabled = estado;
+	}
+
+	private void AlterarBocaJohn(string estado = "")
+	{
+		AnimarBocaJohn(false);
+
+		int bocaId;
+
+		switch (estado)
+		{
+			case "aberta":
+				bocaId = 1;
+				break;
+
+			case "fechada":
+				bocaId = 2;
+				break;
+
+			case "bico":
+				bocaId = 3;
+				break;
+
+			default:
+				bocaId = 0;
+				break;
+		}
+
+		bocaJohnImage.sprite = bocaJohnSprites[bocaId];
+	}
+
+	private void AlterarBracoJohn(string estado = "")
+	{
+		int bracoId;
+
+		switch (estado)
+		{
+			case "fechado":
+				bracoId = 0;
+				break;
+
+			case "aberto":
+				bracoId = 1;
+				break;
+
+			default:
+				bracoId = 0;
+				break;
+		}
+
+		bracoJohnImage.sprite = bracoJohnSprites[bracoId];
+	}
+
+	private void ReiniciarComportamentoJohn()
+	{
+		processandoAdJohn = false;
+
+		OcultarBotoesAdJohn();
+
+		forcarExibicaoTesouroJohn = false;
+
+		AnimarOlhosJohn(true);
+
+		AnimarBocaJohn(true);
+
+		AlterarExibicaoChapeuJohn(true);
+
+		AlterarChapeuJohn(1);
+	}
+
+	private string MontarFraseAdJohn()
+	{
+		string frase = "";
+
+		switch (recompensa)
+		{
+			case "tesouro":
+				frase = "Do you wanna a trash treasure NOW?";
+				break;
+
+			case "shovel_gun":
+				frase = "Do you wanna start SHOVEL GUN mode NOW?";
+				break;
+
+			case "moedas":
+				frase = string.Format("Do you wanna win {0} coins NOW?", quantidadeMoedasAd);
+				break;
+
+			default:
+				break;
+		}
+
+		return frase;
+	}
+
+	// Confetes
+
+	private void CriarConfetes(int quantidade)
+	{
+		for (int i = 0; i < quantidade; i++)
+		{
+			Invoke("CriarConfete", i * intervaloConfetes);
+		}
+	}
+
+	private void CriarConfete()
+	{
+		Instantiate(confete);
+	}
+
+	// Equilibrar Chances
+
+	private void EquilibrarChances()
+	{
+		EquilibrarChancesJohn();
+	}
+
+	private void EquilibrarChancesJohn()
+	{
+		foreach (Frases frase in frases)
+		{
+			if (frase.aleatoria)
+			{
+				frase.chance += chanceEquilibrioFraseJohn;
+			}
+		}
+	}
+
 	// Áudios
 
 	public void ReproduzirAudioClique()
@@ -1436,6 +1875,11 @@ public class Jogo : MonoBehaviour
 	public void ReproduzirAudioAcaoProibida()
 	{
 		ReproduzirAudio(audioBotaoDesativado);
+	}
+
+	public void ReproduzirAudioComemoracao()
+	{
+		ReproduzirAudio(audioComemoracao);
 	}
 
 	// Métodos Estáticos

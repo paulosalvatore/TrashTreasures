@@ -49,6 +49,12 @@ public class GaleriaTesourosBotao : MonoBehaviour
 	public void EventoClick()
 	{
 		if (!tesouroDesbloqueado)
-			Jogo.instancia.AdicionarTesouro(tesouro, false);
+		{
+			Jogo.instancia.ComprarTesouroGaleria(tesouro);
+		}
+		else
+		{
+			Jogo.instancia.ExibirTesouroDestaque(tesouro);
+		}
 	}
 }

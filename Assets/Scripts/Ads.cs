@@ -71,7 +71,7 @@ public class Ads : MonoBehaviour
 				break;
 
 			case "moedas":
-				Jogo.instancia.AdicionarMoedasInstantaneo(200);
+				Jogo.instancia.AdicionarMoedasInstantaneo(Jogo.instancia.quantidadeMoedasAd);
 				break;
 		}
 

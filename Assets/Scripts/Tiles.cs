@@ -59,6 +59,7 @@ public class Tiles : MonoBehaviour
 	[Header("Informações Básicas")]
 	public ObscuredInt hp;
 	internal ObscuredInt hpAdicional;
+	public bool tileQuebradoInvertido;
 
 	[Header("Chances")]
 	public ObscuredFloat chanceBase;
@@ -199,7 +200,14 @@ public class Tiles : MonoBehaviour
 
 	private void ExibirTileQuebrado()
 	{
-		GameObject tileQuebrado = Instantiate(Jogo.instancia.tileQuebrado);
+		GameObject tileQuebrado =
+			Instantiate(
+				tileQuebradoInvertido
+					?
+				Jogo.instancia.tileQuebradoInvertido
+					:
+				Jogo.instancia.tileQuebrado
+			);
 
 		tileQuebrado.transform.parent = transform;
 
@@ -211,7 +219,7 @@ public class Tiles : MonoBehaviour
 		if (bauTesouro)
 			Jogo.instancia.AdicionarTesouro();
 		else if (ads)
-			Jogo.instancia.ExibirTileAd();
+			Jogo.instancia.ExibirAd();
 
 		Jogo.ReproduzirAudio(destruir);
 

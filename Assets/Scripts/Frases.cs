@@ -12,10 +12,16 @@ public class Frases : MonoBehaviour
 
 	[Header("Chance (0-100)")]
 	public float chance;
+	internal float chanceInicial;
 
 	[Header("Tesouros Completos")]
 	public bool tesouros;
 
 	[Header("Frases")]
 	public List<string> frases;
+
+	private void Awake()
+	{
+		chanceInicial = chance;
+	}
 }
