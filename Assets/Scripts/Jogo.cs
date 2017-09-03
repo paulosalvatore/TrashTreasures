@@ -123,7 +123,10 @@ public class Jogo : MonoBehaviour
 
 	[Header("Ads")]
 	public int nivelExibicaoAd;
+	public int nivelExibicaoAdObrigatoria;
 	public float chanceExibicaoAd;
+	private float chanceInicialExibicaoAd;
+	public float chanceCorrecaoExibicaoAd;
 	public List<string> recompensas;
 	internal ObscuredString recompensa;
 	public int quantidadeMoedasAd;
@@ -281,6 +284,8 @@ public class Jogo : MonoBehaviour
 
 		// John
 		frases = john.GetComponents<Frases>();
+
+		chanceInicialExibicaoAd = chanceExibicaoAd;
 	}
 
 	// Mapa/Tela
@@ -538,7 +543,7 @@ public class Jogo : MonoBehaviour
 
 		foreach (Tiles tile in tilesDisponiveis)
 		{
-			if (nivelMapa == tile.aparecerObrigatoriamenteNivel &&
+			if (tile.aparecerObrigatoriamenteNivel.Contains(nivelMapa) &&
 				tileObrigatorioPosicao.x == x &&
 				tileObrigatorioPosicao.y == y)
 			{
@@ -648,16 +653,13 @@ public class Jogo : MonoBehaviour
 
 	private IEnumerator AdicionarMoedas(Transform origem, int quantidade, bool coroutine)
 	{
-		/*
-		Pega a posição de origem e transforma ela em posição do Canvas, baseada na câmera
 		Vector2 posicao =
 			RectTransformUtility.WorldToScreenPoint(
 				Camera.main,
 				origem.position
 			);
-		*/
 
-		Vector2 posicao = origem.position;
+		// Vector2 posicao = origem.position;
 		Quaternion rotacao = origem.rotation;
 
 		for (int i = 0; i < quantidade; i++)
@@ -1225,14 +1227,22 @@ public class Jogo : MonoBehaviour
 
 	private void ChecarExibicaoAd()
 	{
-		if (!ads.checarAd || nivel < nivelExibicaoAd || forcarExibicaoTesouroJohn)
+		chanceExibicaoAd += chanceCorrecaoExibicaoAd;
+
+		if (nivel - 1 != nivelExibicaoAdObrigatoria &&
+			(!ads.checarAd || nivel < nivelExibicaoAd || forcarExibicaoTesouroJohn))
 			return;
 
 		float chance = Random.Range(0, 100);
 
+		if (nivel - 1 == nivelExibicaoAdObrigatoria)
+			chance = 0;
+
 		if (chance < chanceExibicaoAd)
 		{
 			ExibirAd();
+
+			chanceExibicaoAd = chanceInicialExibicaoAd;
 		}
 	}
 

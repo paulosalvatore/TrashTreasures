@@ -1,5 +1,6 @@
 ﻿using CodeStage.AntiCheat.ObscuredTypes;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /*
@@ -66,7 +67,7 @@ public class Tiles : MonoBehaviour
 	public ObscuredFloat chanceMin;
 	public ObscuredFloat chanceMax;
 	public ObscuredBool limiteUmPorNivel;
-	public ObscuredInt aparecerObrigatoriamenteNivel;
+	public List<ObscuredInt> aparecerObrigatoriamenteNivel;
 	internal ObscuredFloat chance;
 
 	[Header("chanceBase + (level * modificadorNivel)")]
