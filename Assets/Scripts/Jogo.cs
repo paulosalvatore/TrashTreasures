@@ -202,11 +202,14 @@ public class Jogo : MonoBehaviour
 		// Player Prefs
 		PegarPlayerPrefs();
 
-		// Mapa
-		IniciarMapa();
-
 		// Pás
 		AtualizarPas();
+
+		// Checar Exibição inicial de AD
+		ChecarExibicaoAd(true);
+
+		// Mapa
+		IniciarMapa();
 
 		// Nível
 		AtualizarNivel();
@@ -559,7 +562,9 @@ public class Jogo : MonoBehaviour
 			if ((tile.bauTesouro && !ChecarTesouroDisponivel()) ||
 				(tile.ads && !ads.checarAd)
 			)
+			{
 				chance = 0;
+			}
 
 			if (chance > 0)
 			{
@@ -795,8 +800,6 @@ public class Jogo : MonoBehaviour
 
 		CriarConfetes(quantidadeConfetes);
 
-		AlterarNovaPaAssistirAnimator(!ads.checarAd);
-
 		cliqueBloqueadoPa = true;
 
 		StartCoroutine(ManterCliqueBloqueadoPa());
@@ -827,11 +830,6 @@ public class Jogo : MonoBehaviour
 	private void AlterarNovaPaAdquiridaAnimator(bool estado)
 	{
 		novaPaAnimator.SetBool("PáAdquirida", estado);
-	}
-
-	private void AlterarNovaPaAssistirAnimator(bool estado)
-	{
-		novaPaAssistirAnimator.SetBool("Inativo", estado);
 	}
 
 	public bool ChecarNovaPaAnimator()
@@ -957,8 +955,12 @@ public class Jogo : MonoBehaviour
 	{
 		Tesouros tesouroSelecionado = null;
 
-		foreach (Tesouros tesouro in tesourosDisponiveis)
+		while (tesouroSelecionado == null)
 		{
+			int chaveAleatoria = Random.Range(0, tesourosDisponiveis.Count);
+
+			Tesouros tesouro = tesourosDisponiveis[chaveAleatoria];
+
 			if (!tesourosAdquiridos.Contains(tesouro))
 			{
 				tesouroSelecionado = tesouro;
@@ -1071,6 +1073,9 @@ public class Jogo : MonoBehaviour
 	private void AlterarNovoTesouroAnimator(bool estado)
 	{
 		novoTesouroAnimator.SetBool("Exibir", estado);
+
+		if (estado)
+			novoTesouroAnimator.SetBool("Exibe", estado);
 	}
 
 	private void AtualizarPorcentagemTesouros()
@@ -1225,22 +1230,29 @@ public class Jogo : MonoBehaviour
 
 	// Ads
 
-	private void ChecarExibicaoAd()
+	private void ChecarExibicaoAd(bool inicio = false)
 	{
 		chanceExibicaoAd += chanceCorrecaoExibicaoAd;
 
-		if (nivel - 1 != nivelExibicaoAdObrigatoria &&
+		if ((!inicio && nivel + 1 != nivelExibicaoAdObrigatoria ||
+			inicio && nivel != nivelExibicaoAdObrigatoria) &&
 			(!ads.checarAd || nivel < nivelExibicaoAd || forcarExibicaoTesouroJohn))
 			return;
 
 		float chance = Random.Range(0, 100);
 
-		if (nivel - 1 == nivelExibicaoAdObrigatoria)
+		string _recompensa = "";
+
+		if ((!inicio && nivel + 1 == nivelExibicaoAdObrigatoria) ||
+			(inicio && nivel == nivelExibicaoAdObrigatoria))
+		{
+			_recompensa = "shovel_gun";
 			chance = 0;
+		}
 
 		if (chance < chanceExibicaoAd)
 		{
-			ExibirAd();
+			ExibirAd(_recompensa);
 
 			chanceExibicaoAd = chanceInicialExibicaoAd;
 		}
@@ -1564,6 +1576,8 @@ public class Jogo : MonoBehaviour
 		paJohn.sprite = paSelecionada.sprite;
 
 		ExibirPaJohn();
+
+		AlterarBracoJohn("fechado");
 	}
 
 	private void ExibirPaJohn()
