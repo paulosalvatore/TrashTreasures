@@ -34,6 +34,7 @@ public class Jogo : MonoBehaviour
 	public AudioClip nivelAudio;
 	public Animator limpoAnimator;
 	public Text nivelLimpoText;
+	public AudioClip nivelLimpoAudioClip;
 
 	[Header("Tiles")]
 	public GameObject tileQuebrado;
@@ -444,6 +445,8 @@ public class Jogo : MonoBehaviour
 	private void EncerrarNivel()
 	{
 		ExibirTextoNivelLimpo();
+
+		ReproduzirAudio(nivelLimpoAudioClip);
 
 		Invoke("AvancarNivel", delayEncerrarNivel);
 
@@ -1076,6 +1079,8 @@ public class Jogo : MonoBehaviour
 
 		if (estado)
 			novoTesouroAnimator.SetBool("Exibe", estado);
+
+		Audios.instancia.exibindoTesouro = estado;
 	}
 
 	private void AtualizarPorcentagemTesouros()
@@ -1221,6 +1226,8 @@ public class Jogo : MonoBehaviour
 	private void AlterarExibirTesouroAnimator(bool estado)
 	{
 		tesouroDestaqueAnimator.SetBool("Exibir", estado);
+
+		Audios.instancia.exibindoTesouro = estado;
 	}
 
 	public bool ChecarTesouroDestaqueAnimator()
@@ -1547,6 +1554,8 @@ public class Jogo : MonoBehaviour
 	private void AlterarJohnAnimator(bool estado)
 	{
 		johnAnimator.SetBool("Exibir", estado);
+
+		Audios.instancia.exibindoJohn = estado;
 	}
 
 	private void PegarCliqueJohn()
