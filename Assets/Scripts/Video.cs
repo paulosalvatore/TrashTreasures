@@ -6,23 +6,18 @@ using UnityEngine.Video;
 
 public class Video : MonoBehaviour
 {
-	private VideoPlayer videoPlayer;
-
 	private void Start()
 	{
-		videoPlayer = GetComponent<VideoPlayer>();
+		Handheld.PlayFullScreenMovie(
+			"Video.mp4",
+			Color.black,
+			PlayerPrefs.GetInt("Nível") > 0
+				? FullScreenMovieControlMode.CancelOnInput
+				: FullScreenMovieControlMode.Hidden,
+			FullScreenMovieScalingMode.AspectFill
+		);
 
-		Invoke("IniciarJogo", (float)videoPlayer.clip.length);
-	}
-
-	private void Update()
-	{
-		if (PlayerPrefs.GetInt("Nível") > 0 &&
-			videoPlayer.time > 0.5f &&
-			Input.touchCount > 0)
-		{
-			IniciarJogo();
-		}
+		Invoke("IniciarJogo", 0.5f);
 	}
 
 	private void IniciarJogo()

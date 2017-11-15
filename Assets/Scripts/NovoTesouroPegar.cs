@@ -16,6 +16,8 @@ public class NovoTesouroPegar : MonoBehaviour,
 		{
 			Jogo.instancia.ReproduzirAudioClique();
 
+			Jogo.instancia.Invoke("ReproduzirAudioTesouroColetado", 0.4f);
+
 			Jogo.instancia.OcultarTesouro();
 		}
 	}

@@ -103,6 +103,7 @@ public class Jogo : MonoBehaviour
 	private List<Tesouros> tesourosDisponiveis = new List<Tesouros>();
 	private List<Tesouros> tesourosAdquiridos = new List<Tesouros>();
 	private bool cliqueBloqueadoTesouro;
+	public AudioClip tesouroColetadoAudioClip;
 
 	[Header("Galeria de Tesouros")]
 	public float duracaoAnimacaoGaleriaTesouros;
@@ -1093,6 +1094,11 @@ public class Jogo : MonoBehaviour
 	private bool ChecarTesouroDisponivel()
 	{
 		return tesourosAdquiridos.Count < tesourosDisponiveis.Count;
+	}
+
+	public void ReproduzirAudioTesouroColetado()
+	{
+		ReproduzirAudio(tesouroColetadoAudioClip);
 	}
 
 	// Galeria de Tesouros
