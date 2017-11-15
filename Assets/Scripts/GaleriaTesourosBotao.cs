@@ -15,14 +15,21 @@ public class GaleriaTesourosBotao : MonoBehaviour
 
 	private bool tesouroDesbloqueado = false;
 
-	private void Start()
+	private Color corNormal;
+	private Color corAdquirido;
+
+	private void Awake()
 	{
+		corNormal = botao.colors.normalColor;
+		corAdquirido = botao.colors.highlightedColor;
+
 		botao.onClick.AddListener(EventoClick);
 	}
 
 	public void Inicializar(Tesouros tesouroAtual)
 	{
 		tesouro = tesouroAtual;
+
 		precoText.text = tesouro.preco.ToString();
 		tesouroImagem.sprite = tesouro.sprite;
 	}
@@ -34,6 +41,18 @@ public class GaleriaTesourosBotao : MonoBehaviour
 		tesouroDesbloqueado = estado;
 
 		comprar.SetActive(!estado);
+
+		AtualizarCorBotao(estado);
+	}
+
+	private void AtualizarCorBotao(bool estado)
+	{
+		ColorBlock corBotao = botao.colors;
+
+		corBotao.normalColor = estado ? corAdquirido : corNormal;
+		corBotao.highlightedColor = estado ? corAdquirido : corNormal;
+
+		botao.colors = corBotao;
 	}
 
 	public void AlterarExibicao(bool estado)

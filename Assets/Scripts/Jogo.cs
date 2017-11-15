@@ -225,15 +225,12 @@ public class Jogo : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.Z))
+		if (Input.GetKeyDown(KeyCode.Escape))
+			FecharTelasCanvas();
+		else if (Input.GetKeyDown(KeyCode.Z))
 			EncerrarNivel();
 		else if (Input.GetKeyDown(KeyCode.W))
 			ResetarPlayerPrefs();
-		else if (Input.GetKeyDown(KeyCode.Escape))
-		{
-			if (!FecharTelasCanvas())
-				ResetarPlayerPrefs();
-		}
 		else if (Input.GetKeyDown(KeyCode.E))
 			AdicionarMoedasInstantaneo(1000);
 		else if (Input.GetKeyDown(KeyCode.R))
@@ -1421,7 +1418,7 @@ public class Jogo : MonoBehaviour
 
 					forcarFraseAdJohn = false;
 
-					processandoAdJohn = true;
+					Invoke("ProcessarAdJohn", 2.5f);
 				}
 				else if (frase.aleatoria)
 					processarFrases = new List<string>(
@@ -1448,6 +1445,11 @@ public class Jogo : MonoBehaviour
 				break;
 			}
 		}
+	}
+
+	private void ProcessarAdJohn()
+	{
+		processandoAdJohn = true;
 	}
 
 	private void BloquearCliqueJohn()
@@ -1533,6 +1535,8 @@ public class Jogo : MonoBehaviour
 
 	private void OcultarJohn()
 	{
+		processandoAdJohn = false;
+
 		processandoFalasJohn = false;
 
 		AlterarJohnAnimator(false);
@@ -1831,8 +1835,6 @@ public class Jogo : MonoBehaviour
 
 	private void ReiniciarComportamentoJohn()
 	{
-		processandoAdJohn = false;
-
 		OcultarBotoesAdJohn();
 
 		forcarExibicaoTesouroJohn = false;

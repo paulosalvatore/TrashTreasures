@@ -17,7 +17,7 @@ public class Video : MonoBehaviour
 			FullScreenMovieScalingMode.AspectFill
 		);
 
-		Invoke("IniciarJogo", 0.5f);
+		Invoke("IniciarJogo", 0.3f);
 	}
 
 	private void IniciarJogo()
