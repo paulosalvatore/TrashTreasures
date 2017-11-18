@@ -1270,7 +1270,35 @@ public class Jogo : MonoBehaviour
 
 	private string GerarRecompensaAd()
 	{
-		return recompensas[Random.Range(0, recompensas.Count)];
+		string _recompensa = "";
+
+		/*
+		// As linhas abaixo permitem gerar uma recompensa aleatória novamente caso
+		// o jogador já tenha todos os tesouros, como atualmente temos apenas 3 possibilidades,
+		// tesouro, moeda ou shovelgun, e não dá pra fazer nada com moeda a não ser comprar
+		// tesouros, então desativei esse trecho.
+		// Esse trecho pode ser reabilitado caso haja novas possibilidades de compras com
+		// moedas.
+
+		bool gerarNovaRecompensa = true;
+
+		while (gerarNovaRecompensa)
+		{
+			_recompensa = recompensas[Random.Range(0, recompensas.Count)];
+
+			if (!(_recompensa == "tesouro" &&
+				tesourosDisponiveis.Count == tesourosAdquiridos.Count))
+				gerarNovaRecompensa = false;
+		}
+		*/
+
+		_recompensa = recompensas[Random.Range(0, recompensas.Count)];
+
+		// Caso o Jogador tenha todos os tesouros, o AD sempre será do ShovelGunMode
+		if (tesourosDisponiveis.Count == tesourosAdquiridos.Count)
+			_recompensa = "shovel_gun";
+
+		return _recompensa;
 	}
 
 	public void ExibirAd(string novaRecompensa = "")

@@ -15,6 +15,10 @@ public class Ads : MonoBehaviour
 	private void ChecarAd()
 	{
 		checarAd = Advertisement.IsReady("rewardedVideo");
+
+#if UNITY_EDITOR
+		checarAd = true;
+#endif
 	}
 
 	public void ExibirAd()
