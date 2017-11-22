@@ -182,6 +182,7 @@ public class Jogo : MonoBehaviour
 	private bool forcarFraseAdJohn;
 	public GameObject botaoAdAssistir;
 	public GameObject botaoAdDeclinar;
+	private ObscuredBool checarJohnTesouro = false;
 
 	[Header("Partículas")]
 	public GameObject confete;
@@ -467,9 +468,13 @@ public class Jogo : MonoBehaviour
 
 	// Tiles
 
-	private void InstanciarTile(int x, int y, Transform mapaDestino, ObscuredInt nivelMapa)
+	private void InstanciarTile(int x, int y, Transform mapaDestino, ObscuredInt nivelMapa, bool incluirTesouro = true)
 	{
-		nivelMapa = nivelMapa == 0 ? nivel : nivelMapa;
+		nivelMapa =
+			nivelMapa == 0
+				? nivel
+				: nivelMapa;
+
 		/*
 		 * Pegar o Tile que será instanciado
 		 * Se estivermos no nível 1 e o y for 0, instanciamos a Grama
@@ -477,10 +482,8 @@ public class Jogo : MonoBehaviour
 		 */
 		Tiles tile =
 			nivelMapa == 1 && y == 0
-				?
-			tilesDisponiveis[0]
-				:
-			PegarTileAleatorio(x, y, nivelMapa);
+				? tilesDisponiveis[0]
+				: PegarTileAleatorio(x, y, nivelMapa, incluirTesouro);
 
 		// Instanciamos o tile na cena baseado na posição calculada e na rotação base do prefab
 		Tiles tileInstanciado = Instantiate(tile);
@@ -525,6 +528,12 @@ public class Jogo : MonoBehaviour
 		}
 
 		tileInstanciado.Instanciar();
+
+		if (tile.bauTesouro &&
+			nivelMapa > tile.aparecerObrigatoriamenteNivel[0])
+		{
+			InstanciarTile(x, y, mapaDestino, nivelMapa, false);
+		}
 	}
 
 	private void PegarTilesDisponiveis()
@@ -537,7 +546,7 @@ public class Jogo : MonoBehaviour
 			tilesDisponiveis.Add(tile.GetComponent<Tiles>());
 	}
 
-	private Tiles PegarTileAleatorio(int x, int y, int nivelMapa)
+	private Tiles PegarTileAleatorio(int x, int y, int nivelMapa, bool incluirTesouro)
 	{
 		List<Tiles> tilesChances = new List<Tiles>();
 
@@ -560,7 +569,7 @@ public class Jogo : MonoBehaviour
 
 			int chance = tile.PegarChance(nivelMapa);
 
-			if ((tile.bauTesouro && !ChecarTesouroDisponivel()) ||
+			if ((tile.bauTesouro && (!incluirTesouro || !ChecarTesouroDisponivel())) ||
 				(tile.ads && !ads.checarAd)
 			)
 			{
@@ -954,19 +963,23 @@ public class Jogo : MonoBehaviour
 
 	private Tesouros PegarTesouro()
 	{
+		if (tesourosDisponiveis.Count == tesourosAdquiridos.Count)
+			return null;
+
 		Tesouros tesouroSelecionado = null;
+
+		List<Tesouros> tesourosDisponiveisReal = new List<Tesouros>(tesourosDisponiveis);
+
+		foreach (Tesouros tesouro in tesourosAdquiridos)
+		{
+			tesourosDisponiveisReal.Remove(tesouro);
+		}
 
 		while (tesouroSelecionado == null)
 		{
-			int chaveAleatoria = Random.Range(0, tesourosDisponiveis.Count);
+			int chaveAleatoria = Random.Range(0, tesourosDisponiveisReal.Count);
 
-			Tesouros tesouro = tesourosDisponiveis[chaveAleatoria];
-
-			if (!tesourosAdquiridos.Contains(tesouro))
-			{
-				tesouroSelecionado = tesouro;
-				break;
-			}
+			tesouroSelecionado = tesourosDisponiveisReal[chaveAleatoria];
 		}
 
 		return tesouroSelecionado;
@@ -1409,6 +1422,21 @@ public class Jogo : MonoBehaviour
 
 	private void ChecarJohn(bool tesouro = false)
 	{
+		if (modoShovelGun)
+		{
+			if (tesouro)
+				checarJohnTesouro = true;
+
+			return;
+		}
+
+		if (checarJohnTesouro)
+		{
+			checarJohnTesouro = false;
+
+			tesouro = true;
+		}
+
 		foreach (Frases frase in frases)
 		{
 			bool exibirFraseTesouro = false;
@@ -1449,13 +1477,20 @@ public class Jogo : MonoBehaviour
 					Invoke("ProcessarAdJohn", 2.5f);
 				}
 				else if (frase.aleatoria)
+				{
+					string fraseSelecionada = frase.frasesReal[Random.Range(0, frase.frasesReal.Count)];
+
 					processarFrases = new List<string>(
 						new string[] {
-							frase.frases[
-								Random.Range(0, frase.frases.Count)
-							]
+							fraseSelecionada
 						}
 					);
+
+					frase.frasesReal.Remove(fraseSelecionada);
+
+					if (frase.frasesReal.Count == 0)
+						frase.AtualizarListaFrases();
+				}
 				else
 					processarFrases = frase.frases;
 

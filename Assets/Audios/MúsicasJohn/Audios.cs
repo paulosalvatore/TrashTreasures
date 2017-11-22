@@ -87,7 +87,7 @@ public class Audios : MonoBehaviour
 		if (proximoAudioClip != null &&
 			proximoAudioClip != audioSource.clip)
 		{
-			float tempo = audioSource.time;
+			float tempo = Mathf.Min(proximoAudioClip.length, audioSource.time);
 
 			audioSource.clip = proximoAudioClip;
 

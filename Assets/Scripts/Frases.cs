@@ -19,9 +19,18 @@ public class Frases : MonoBehaviour
 
 	[Header("Frases")]
 	public List<string> frases;
+	internal List<string> frasesReal;
 
 	private void Awake()
 	{
 		chanceInicial = chance;
+
+		if (aleatoria)
+			AtualizarListaFrases();
+	}
+
+	public void AtualizarListaFrases()
+	{
+		frasesReal = new List<string>(frases);
 	}
 }
