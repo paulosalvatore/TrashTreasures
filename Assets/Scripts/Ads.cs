@@ -5,16 +5,28 @@ public class Ads : MonoBehaviour
 {
 	internal bool checarAd;
 
-	private void Start()
+	private void Awake()
 	{
-		ChecarAd();
-
-		InvokeRepeating("ChecarAd", 1f, 1f);
+		InvokeRepeating("ChecarAd", 0.5f, 0.5f);
 	}
 
 	private void ChecarAd()
 	{
+		ChecarAd(false);
+	}
+
+	private void ChecarAd(bool teste)
+	{
+		if (teste)
+			Debug.Log("ChecarAd");
+
+		if (teste)
+			Debug.Log("ChecarAd - Before: " + checarAd);
+
 		checarAd = Advertisement.IsReady("rewardedVideo");
+
+		if (teste)
+			Debug.Log("ChecarAd - After: " + checarAd);
 
 #if UNITY_EDITOR
 		checarAd = true;
@@ -23,7 +35,9 @@ public class Ads : MonoBehaviour
 
 	public void ExibirAd()
 	{
-		ChecarAd();
+		Debug.Log("ExibirAd");
+
+		ChecarAd(true);
 
 		if (checarAd)
 		{
@@ -42,17 +56,22 @@ public class Ads : MonoBehaviour
 	{
 		Pausar.DespausarJogo();
 
+		Debug.Log(result);
+
 		switch (result)
 		{
 			case ShowResult.Finished:
+				Debug.Log("Finished");
 				Invoke("ProcessarAdConcluido", 0.1f);
 				break;
 
 			case ShowResult.Skipped:
+				Debug.Log("Skipped");
 				Debug.Log("A propaganda encerrou antes de chegar ao final.");
 				break;
 
 			case ShowResult.Failed:
+				Debug.Log("Failed");
 				Debug.LogError("A propaganda falhou ao tentar ser exibida.");
 				break;
 		}
@@ -60,6 +79,8 @@ public class Ads : MonoBehaviour
 
 	private void ProcessarAdConcluido()
 	{
+		Debug.Log("ProcessarAdConcluido, recompensa: " + Jogo.instancia.recompensa);
+
 		switch (Jogo.instancia.recompensa)
 		{
 			case "tesouro":

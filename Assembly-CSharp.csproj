@@ -51,11 +51,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Audios\MúsicasJohn\Audios.cs" />
      <Compile Include="Assets\Scripts\AdAssistir.cs" />
      <Compile Include="Assets\Scripts\AdDeclinar.cs" />
      <Compile Include="Assets\Scripts\Ads.cs" />
      <Compile Include="Assets\Scripts\AtualizarAdAnimator.cs" />
+     <Compile Include="Assets\Scripts\Audios.cs" />
      <Compile Include="Assets\Scripts\ExibirTesouroVoltar.cs" />
      <Compile Include="Assets\Scripts\FpsDisplay.cs" />
      <Compile Include="Assets\Scripts\Frases.cs" />

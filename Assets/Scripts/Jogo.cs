@@ -164,6 +164,7 @@ public class Jogo : MonoBehaviour
 	private bool processandoAdJohn;
 	public float chanceEquilibrioFraseJohn;
 	private bool forcarExibicaoTesouroJohn;
+	private bool atualizacaoJohnLiberada;
 	public Image paJohn;
 	public GameObject shovelGunJohn;
 	public GameObject moedasJohn;
@@ -295,8 +296,8 @@ public class Jogo : MonoBehaviour
 
 	private void IniciarMapa()
 	{
-		// Definimos a quantidade de tiles
-		quantidadeTiles = larguraJogo * alturaJogo;
+		// Definimos a quantidade de tiles inicial
+		quantidadeTiles = 0;
 
 		// Zeramos o Mapa
 		ZerarMapa();
@@ -534,6 +535,8 @@ public class Jogo : MonoBehaviour
 		{
 			InstanciarTile(x, y, mapaDestino, nivelMapa, false);
 		}
+
+		quantidadeTiles++;
 	}
 
 	private void PegarTilesDisponiveis()
@@ -1029,10 +1032,10 @@ public class Jogo : MonoBehaviour
 			{
 				AlterarNovoTesouroAnimator(true);
 
-				if (processandoAdJohn)
-					StartCoroutine(ProgramarExibicaoTesourosJohn(tesouro, duracaoMovimentoJohn));
-				else
+				if (atualizacaoJohnLiberada)
 					ExibirTesouroJohn(tesouro);
+				else
+					StartCoroutine(ProgramarExibicaoTesourosJohn(tesouro, duracaoMovimentoJohn));
 
 				CriarConfetes(quantidadeConfetes);
 
@@ -1582,6 +1585,8 @@ public class Jogo : MonoBehaviour
 
 	private void ExibirJohn()
 	{
+		atualizacaoJohnLiberada = false;
+
 		FecharTelasCanvas();
 
 		AlterarJohnAnimator(true);
@@ -1901,6 +1906,8 @@ public class Jogo : MonoBehaviour
 		OcultarBotoesAdJohn();
 
 		forcarExibicaoTesouroJohn = false;
+
+		atualizacaoJohnLiberada = true;
 
 		AnimarOlhosJohn(true);
 
